@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F26989B22A7770300517AC9 /* UInt8+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F26989A22A7770300517AC9 /* UInt8+extensions.swift */; };
+		2F2698A322A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */; };
+		2F2698AA22A7795800517AC9 /* AccessControlEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */; };
+		2F2698AB22A7798300517AC9 /* LinePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA084228F5EAB00B53113 /* LinePosition.swift */; };
+		2F2698AC22A7798700517AC9 /* UInt32+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA088228F617C00B53113 /* UInt32+extensions.swift */; };
+		2F2698AD22A7798900517AC9 /* UInt8+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F26989A22A7770300517AC9 /* UInt8+extensions.swift */; };
+		2F2698AE22A7798D00517AC9 /* AclAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA07C228A392B00B53113 /* AclAction.swift */; };
+		2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA07E228A399300B53113 /* IpVersion.swift */; };
+		2F2698B022A7799200517AC9 /* MaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA086228F613700B53113 /* MaskType.swift */; };
+		2F2698B122A7799B00517AC9 /* AccessList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA077228A12D500B53113 /* AccessList.swift */; };
+		2F2698B222A7799F00517AC9 /* Array+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA073228A0DF200B53113 /* Array+extensions.swift */; };
+		2F2698B322A779A100517AC9 /* String+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA082228F5B9D00B53113 /* String+extensions.swift */; };
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
 		2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D0679228A0702002C09EE /* Assets.xcassets */; };
 		2F9D067D228A0702002C09EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D067B228A0702002C09EE /* Main.storyboard */; };
@@ -21,9 +33,25 @@
 		2FBAA085228F5EAB00B53113 /* LinePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA084228F5EAB00B53113 /* LinePosition.swift */; };
 		2FBAA087228F613700B53113 /* MaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA086228F613700B53113 /* MaskType.swift */; };
 		2FBAA089228F617C00B53113 /* UInt32+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA088228F617C00B53113 /* UInt32+extensions.swift */; };
+		2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */; };
+		2FCE6AA422A865A300E0B4D7 /* UInt+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		2F2698A522A7784300517AC9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2F9D066A228A0700002C09EE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2F9D0671228A0700002C09EE;
+			remoteInfo = "Network Mom ACL Analyzer";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		2F26989A22A7770300517AC9 /* UInt8+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt8+extensions.swift"; sourceTree = "<group>"; };
+		2F2698A022A7784300517AC9 /* Network Mom ACL AnalyzerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Network Mom ACL AnalyzerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network_Mom_ACL_AnalyzerTests.swift; sourceTree = "<group>"; };
+		2F2698A422A7784300517AC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2F9D0672228A0700002C09EE /* Network Mom ACL Analyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Network Mom ACL Analyzer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F9D0675228A0700002C09EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2F9D0679228A0702002C09EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -41,9 +69,17 @@
 		2FBAA084228F5EAB00B53113 /* LinePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinePosition.swift; sourceTree = "<group>"; };
 		2FBAA086228F613700B53113 /* MaskType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskType.swift; sourceTree = "<group>"; };
 		2FBAA088228F617C00B53113 /* UInt32+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt32+extensions.swift"; sourceTree = "<group>"; };
+		2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt+extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2F26989D22A7784300517AC9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2F9D066F228A0700002C09EE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -54,10 +90,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2F2698A122A7784300517AC9 /* Network Mom ACL AnalyzerTests */ = {
+			isa = PBXGroup;
+			children = (
+				2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */,
+				2F2698A422A7784300517AC9 /* Info.plist */,
+			);
+			path = "Network Mom ACL AnalyzerTests";
+			sourceTree = "<group>";
+		};
 		2F9D0669228A0700002C09EE = {
 			isa = PBXGroup;
 			children = (
 				2F9D0674228A0700002C09EE /* Network Mom ACL Analyzer */,
+				2F2698A122A7784300517AC9 /* Network Mom ACL AnalyzerTests */,
 				2F9D0673228A0700002C09EE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,6 +112,7 @@
 			isa = PBXGroup;
 			children = (
 				2F9D0672228A0700002C09EE /* Network Mom ACL Analyzer.app */,
+				2F2698A022A7784300517AC9 /* Network Mom ACL AnalyzerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,7 +164,9 @@
 			isa = PBXGroup;
 			children = (
 				2FBAA084228F5EAB00B53113 /* LinePosition.swift */,
+				2F26989A22A7770300517AC9 /* UInt8+extensions.swift */,
 				2FBAA088228F617C00B53113 /* UInt32+extensions.swift */,
+				2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */,
 				2FBAA086228F613700B53113 /* MaskType.swift */,
 				2FBAA07E228A399300B53113 /* IpVersion.swift */,
 				2FBAA07C228A392B00B53113 /* AclAction.swift */,
@@ -128,6 +177,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2F26989F22A7784300517AC9 /* Network Mom ACL AnalyzerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2F2698A722A7784300517AC9 /* Build configuration list for PBXNativeTarget "Network Mom ACL AnalyzerTests" */;
+			buildPhases = (
+				2F26989C22A7784300517AC9 /* Sources */,
+				2F26989D22A7784300517AC9 /* Frameworks */,
+				2F26989E22A7784300517AC9 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2F2698A622A7784300517AC9 /* PBXTargetDependency */,
+			);
+			name = "Network Mom ACL AnalyzerTests";
+			productName = "Network Mom ACL AnalyzerTests";
+			productReference = 2F2698A022A7784300517AC9 /* Network Mom ACL AnalyzerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		2F9D0671228A0700002C09EE /* Network Mom ACL Analyzer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2F9D0682228A0702002C09EE /* Build configuration list for PBXNativeTarget "Network Mom ACL Analyzer" */;
@@ -155,6 +222,10 @@
 				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = "Network Mom LLC";
 				TargetAttributes = {
+					2F26989F22A7784300517AC9 = {
+						CreatedOnToolsVersion = 10.2.1;
+						TestTargetID = 2F9D0671228A0700002C09EE;
+					};
 					2F9D0671228A0700002C09EE = {
 						CreatedOnToolsVersion = 10.2.1;
 					};
@@ -174,11 +245,19 @@
 			projectRoot = "";
 			targets = (
 				2F9D0671228A0700002C09EE /* Network Mom ACL Analyzer */,
+				2F26989F22A7784300517AC9 /* Network Mom ACL AnalyzerTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2F26989E22A7784300517AC9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2F9D0670228A0700002C09EE /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -192,6 +271,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2F26989C22A7784300517AC9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2F2698AE22A7798D00517AC9 /* AclAction.swift in Sources */,
+				2F2698AD22A7798900517AC9 /* UInt8+extensions.swift in Sources */,
+				2F2698B322A779A100517AC9 /* String+extensions.swift in Sources */,
+				2F2698B122A7799B00517AC9 /* AccessList.swift in Sources */,
+				2F2698AA22A7795800517AC9 /* AccessControlEntry.swift in Sources */,
+				2F2698AB22A7798300517AC9 /* LinePosition.swift in Sources */,
+				2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */,
+				2F2698AC22A7798700517AC9 /* UInt32+extensions.swift in Sources */,
+				2F2698A322A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift in Sources */,
+				2F2698B022A7799200517AC9 /* MaskType.swift in Sources */,
+				2F2698B222A7799F00517AC9 /* Array+extensions.swift in Sources */,
+				2FCE6AA422A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2F9D066E228A0700002C09EE /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -200,7 +298,9 @@
 				2FBAA089228F617C00B53113 /* UInt32+extensions.swift in Sources */,
 				2FBAA07F228A399300B53113 /* IpVersion.swift in Sources */,
 				2FBAA078228A12D500B53113 /* AccessList.swift in Sources */,
+				2F26989B22A7770300517AC9 /* UInt8+extensions.swift in Sources */,
 				2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */,
+				2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
 				2FBAA07D228A392B00B53113 /* AclAction.swift in Sources */,
 				2FBAA087228F613700B53113 /* MaskType.swift in Sources */,
 				2FBAA070228A0A7400B53113 /* InputAccessListController.swift in Sources */,
@@ -211,6 +311,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2F2698A622A7784300517AC9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2F9D0671228A0700002C09EE /* Network Mom ACL Analyzer */;
+			targetProxy = 2F2698A522A7784300517AC9 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		2F9D067B228A0702002C09EE /* Main.storyboard */ = {
@@ -224,6 +332,46 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2F2698A822A7784300517AC9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8DU2Q8ABKY;
+				INFOPLIST_FILE = "Network Mom ACL AnalyzerTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "net.networkmom.Network-Mom-ACL-AnalyzerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Network Mom ACL Analyzer.app/Contents/MacOS/Network Mom ACL Analyzer";
+			};
+			name = Debug;
+		};
+		2F2698A922A7784300517AC9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8DU2Q8ABKY;
+				INFOPLIST_FILE = "Network Mom ACL AnalyzerTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "net.networkmom.Network-Mom-ACL-AnalyzerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Network Mom ACL Analyzer.app/Contents/MacOS/Network Mom ACL Analyzer";
+			};
+			name = Release;
+		};
 		2F9D0680228A0702002C09EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -380,6 +528,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2F2698A722A7784300517AC9 /* Build configuration list for PBXNativeTarget "Network Mom ACL AnalyzerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2F2698A822A7784300517AC9 /* Debug */,
+				2F2698A922A7784300517AC9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2F9D066D228A0700002C09EE /* Build configuration list for PBXProject "Network Mom ACL Analyzer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum IpVersion {
+enum IpVersion: String {
     case IPv4
     case IPv6
 }

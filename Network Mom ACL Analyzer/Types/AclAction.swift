@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum AclAction {
+enum AclAction: String {
     case permit
     case deny
 }
