@@ -19,7 +19,7 @@ struct AccessControlEntry {
     let leastDestIp: UInt
     let maxDestIp: UInt
     let leastDestPort: UInt?
-    let maxDestPort: UInt?
+    var maxDestPort: UInt?
     let line: String
     
     func findAction(word: String) -> AclAction? {
@@ -47,6 +47,7 @@ struct AccessControlEntry {
         var maxSourceIp: UInt? = nil
         var leastDestIp: UInt? = nil
         var maxDestIp: UInt? = nil
+        var destPortOperator: PortOperator? = nil
         var leastDestPort: UInt? = nil
         var maxDestPort: UInt? = nil
 
@@ -177,7 +178,7 @@ struct AccessControlEntry {
                 if word == "any" {
                     leastDestIp = 0
                     maxDestIp = UInt(UInt32.max)
-                    linePosition = .portQualifier
+                    linePosition = .destPortQualifier
                     continue wordLoop
                 }
                 if word == "host" {
@@ -202,7 +203,7 @@ struct AccessControlEntry {
                     return nil
                 }
                 maxDestIp = leastDestIp
-                linePosition = .portQualifier
+                linePosition = .destPortQualifier
             case .destMask:
                 guard let destMask = word.ipv4address else {
                     debugPrint("line \(line) invalid at destMask")
@@ -237,17 +238,98 @@ struct AccessControlEntry {
                 }
                 leastDestIp = leastDestIp! - remainder
                 maxDestIp = leastDestIp! + numDestHosts - 1
-                linePosition = .portQualifier
-            case .portQualifier:
-                linePosition = .firstPort
-                debugPrint(" line \(line) portQualifier not implemented")
-            case .firstPort:
-                linePosition = .lastPort
-                debugPrint(" line \(line) firstPort not implemented")
-                
-            case .lastPort:
-                debugPrint(" line \(line) lastPort not implemented")
-                
+                linePosition = .destPortQualifier
+            case .destPortQualifier:
+                switch word {
+                case "eq":
+                    destPortOperator = .eq
+                    linePosition = .firstDestPort
+                case "gt":
+                    destPortOperator = .gt
+                    linePosition = .firstDestPort
+                case "lt":
+                    destPortOperator = .lt
+                    linePosition = .firstDestPort
+                case "range":
+                    destPortOperator = .range
+                    linePosition = .firstDestPort
+                case "log":  // nothing to analyze for log
+                    linePosition = .end
+                default:
+                    debugPrint("line \(line) invalid at destinationPortQualifier")
+                    return nil
+                }
+            case .firstDestPort:
+                guard let firstDestPort32 = UInt32(word) else {
+                    debugPrint("line \(line) invalid at firstPort")
+                    return nil
+                }
+                let firstDestPort = UInt(firstDestPort32)
+                guard let destPortOperator = destPortOperator else {
+                    debugPrint("line \(line) invalid at firstDestPort, destPortOperator is nil")
+                    return nil
+                }
+                switch destPortOperator {
+                case .eq:
+                    leastDestPort = firstDestPort
+                    maxDestPort = firstDestPort
+                    linePosition = .end
+                case .gt:
+                    if firstDestPort == 65535 {
+                        debugPrint("line \(line) invalid at firstDestPort, cannot be gt 65535")
+                        return nil
+                    } else {
+                        leastDestPort = firstDestPort + 1
+                        maxDestPort = 65535
+                        linePosition = .end
+                    }
+                case .lt:
+                    if firstDestPort == 0 {
+                        debugPrint("line \(line) invalid at firstDestPort, cannot be lt 0")
+                        return nil
+                    } else {
+                        leastDestPort = 0
+                        maxDestPort = firstDestPort - 1
+                        linePosition = .end
+                    }
+                case .range:
+                    leastDestPort = firstDestPort
+                    linePosition = .lastDestPort
+                }
+            case .lastDestPort:
+                guard let destPortOperator = destPortOperator else {
+                    debugPrint("line \(line) invalid at firstDestPort, destPortOperator is nil")
+                    return nil
+                }
+
+                switch destPortOperator {
+                case .eq, .gt, .lt:
+                    debugPrint("line \(line) invalid at lastDestPort, unknown state error")
+                    return nil
+                case .range:
+                    guard let lastDestPort32 = UInt32(word) else {
+                        debugPrint("line \(line) invalid at lastDestPort")
+                        return nil
+                    }
+                    let lastDestPort = UInt(lastDestPort32)
+                    guard let leastDestPort = leastDestPort else {
+                        debugPrint("line \(line) invalid at lastDestPort, no leastDestPort found in range")
+                        return nil
+                    }
+                    guard lastDestPort > leastDestPort else {
+                        debugPrint("line \(line) invalid at range, \(lastDestPort) should be larger than \(leastDestPort)")
+                        return nil
+                    }
+                    maxDestPort = lastDestPort
+                }
+            case .end:
+                switch word {
+                case "log":
+                    break  // do nothing
+                default:
+                    debugPrint("line \(line) invalid at end")
+                    return nil
+                }
             }
         }
         guard let tempAclAction = aclAction else {
@@ -305,7 +387,7 @@ struct AccessControlEntry {
 
 extension AccessControlEntry: CustomStringConvertible {
     var description: String {
-        return "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(leastSourceIp.ipv4) through \(maxSourceIp.ipv4) to \(leastDestIp.ipv4) through \(maxDestIp.ipv4)\n"
+        return "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(leastSourceIp.ipv4) through \(maxSourceIp.ipv4) to \(leastDestIp.ipv4) through \(maxDestIp.ipv4) ports \(leastDestPort) through \(maxDestPort)\n"
     }
 }
 

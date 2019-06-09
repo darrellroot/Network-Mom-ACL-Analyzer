@@ -19,7 +19,8 @@ enum LinePosition {
     case destIp
     case destIpHost
     case destMask
-    case portQualifier
-    case firstPort
-    case lastPort
+    case destPortQualifier
+    case firstDestPort
+    case lastDestPort
+    case end
 }
