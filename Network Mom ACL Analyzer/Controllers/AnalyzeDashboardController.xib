@@ -7,6 +7,10 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AnalyzeDashboardController" customModule="Network_Mom_ACL_Analyzer" customModuleProvider="target">
             <connections>
+                <outlet property="egressAclTextView" destination="f6y-fx-VLP" id="oX6-jR-P6K"/>
+                <outlet property="egressAclValidation" destination="NRW-2n-cmB" id="JqR-B0-PGY"/>
+                <outlet property="ingressAclTextView" destination="oxa-LT-8k6" id="Zc9-ma-Hwa"/>
+                <outlet property="ingressAclValidation" destination="YaA-tn-p3E" id="Ul1-9a-yOe"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -144,6 +148,9 @@
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="validateAcl:" target="-2" id="01j-qw-Se2"/>
+                                </connections>
                             </button>
                             <stackView distribution="fillEqually" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="g0k-gr-t3L" userLabel="Validation Output H Stack View">
                                 <rect key="frame" x="20" y="248" width="1008" height="67"/>

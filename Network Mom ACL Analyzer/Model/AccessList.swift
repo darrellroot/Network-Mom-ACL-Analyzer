@@ -14,6 +14,10 @@ class AccessList {
     var accessControlEntries: [AccessControlEntry] = []
     let accessListType: MaskType
     
+    var count: Int {
+        return accessControlEntries.count
+    }
+    
     init(sourceText: String) {
         self.sourceText = sourceText
         var linenum = 0
