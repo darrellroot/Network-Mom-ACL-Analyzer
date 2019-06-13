@@ -18,7 +18,7 @@ class AccessList {
         return accessControlEntries.count
     }
     
-    init(sourceText: String) {
+    init(sourceText: String, delegate: AclErrorDelegate? = nil) {
         self.sourceText = sourceText
         var linenum = 0
         
@@ -44,9 +44,9 @@ class AccessList {
                 }
             }
         }
-        debugPrint("Number of Dont Care Bits found: \(dontCareBitTotal)")
-        debugPrint("Number of netmasks found: \(netmaskTotal)")
-        debugPrint("Number of either found: \(eitherTotal)")
+        delegate?.report(severity: .notification, message: "Number of Dont Care Bits found: \(dontCareBitTotal)")
+        delegate?.report(severity: .notification, message: "Number of netmasks found: \(netmaskTotal)")
+        delegate?.report(severity: .notification, message: "Number of either found: \(eitherTotal)")
         if dontCareBitTotal > netmaskTotal {
             accessListType = .dontCareBit
         } else {
@@ -56,10 +56,10 @@ class AccessList {
         lineLoop: for line in sourceText.components(separatedBy: NSCharacterSet.newlines) {
             linenum = linenum + 1
             if line.isEmpty {
-                debugPrint("line \(linenum) is empty")
+                delegate?.report(severity: .notification, message: "line is empty", line: linenum)
                 continue lineLoop
             }
-            if let accessControlEntry = AccessControlEntry(line: line, type: accessListType) {
+            if let accessControlEntry = AccessControlEntry(line: line, type: accessListType, linenum: linenum, delegate: delegate) {
                 accessControlEntries.append(accessControlEntry)
             }
         }

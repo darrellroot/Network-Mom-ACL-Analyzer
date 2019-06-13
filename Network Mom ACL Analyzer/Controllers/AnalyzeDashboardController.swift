@@ -8,7 +8,11 @@
 
 import Cocoa
 
-class AnalyzeDashboardController: NSWindowController {
+class AnalyzeDashboardController: NSWindowController, AclErrorDelegate {
+    enum ActiveWarningWindow {
+        case ingressValidation
+        case egressValidation
+    }
 
     @IBOutlet var ingressAclTextView: NSTextView!
     @IBOutlet var egressAclTextView: NSTextView!
@@ -17,6 +21,7 @@ class AnalyzeDashboardController: NSWindowController {
     
     var ingressAccessList: AccessList?
     var egressAccessList: AccessList?
+    var activeWarningWindow: ActiveWarningWindow?
     
     override var windowNibName: NSNib.Name? {
         return NSNib.Name("AnalyzeDashboardController")
@@ -29,10 +34,15 @@ class AnalyzeDashboardController: NSWindowController {
     }
     
     @IBAction func validateAcl(_ sender: NSButton) {
+        ingressAclValidation.string = ""
+        egressAclValidation.string = ""
         let ingressString = ingressAclTextView.string
-        let egressString = ingressAclTextView.string
-        ingressAccessList = AccessList(sourceText: ingressString)
-        egressAccessList = AccessList(sourceText: egressString)
+        let egressString = egressAclTextView.string
+        activeWarningWindow = .ingressValidation
+        ingressAccessList = AccessList(sourceText: ingressString, delegate: self)
+        activeWarningWindow = .egressValidation
+        egressAccessList = AccessList(sourceText: egressString, delegate: self)
+        activeWarningWindow = nil
         if egressAccessList?.count == 0 {
             egressAccessList = nil
         }
@@ -42,5 +52,29 @@ class AnalyzeDashboardController: NSWindowController {
         debugPrint("ingress access list count \(ingressAccessList?.count)")
         debugPrint("egress access list count \(egressAccessList?.count)")
 
+    }
+    func report(severity: Severity, message: String, line: Int) {
+        guard let activeWarningWindow = activeWarningWindow else {
+            debugPrint("No active warning window for message \(severity) \(message) \(line)")
+            return
+        }
+        switch activeWarningWindow {
+        case .ingressValidation:
+            ingressAclValidation.string.append(contentsOf: "\(severity) line \(line) \(message)\n")
+        case .egressValidation:
+            egressAclValidation.string.append(contentsOf: "\(severity) line \(line) \(message)\n")
+        }
+    }
+    func report(severity: Severity, message: String) {
+        guard let activeWarningWindow = activeWarningWindow else {
+            debugPrint("No active warning window for message \(severity) \(message)")
+            return
+        }
+        switch activeWarningWindow {
+        case .ingressValidation:
+            ingressAclValidation.string.append(contentsOf: "\(severity) \(message)\n")
+        case .egressValidation:
+            egressAclValidation.string.append(contentsOf: "\(severity) \(message)\n")
+        }
     }
 }
