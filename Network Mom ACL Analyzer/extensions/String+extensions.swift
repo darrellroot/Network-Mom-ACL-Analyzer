@@ -19,5 +19,24 @@ extension String {
         let answer: UInt = UInt(octet1) * 256 * 256 * 256 + UInt(octet2) * 256 * 256 + UInt(octet3) * 256 + UInt(octet4)
         return answer
     }
-    
+    var tcpPort: UInt? {
+        switch self {
+        case "bgp":
+            return 179
+        case "smtp":
+            return 25
+        case "www":
+            return 80
+        default:
+            return nil
+        }
+    }
+    var udpPort: UInt? {
+        switch self {
+        case "domain":
+            return 53
+        default:
+            return nil
+        }
+    }
 }

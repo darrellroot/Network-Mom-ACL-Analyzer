@@ -8,7 +8,8 @@
 
 import Foundation
 
-enum LinePosition {
+enum LinePosition: String {
+    case beginning
     case accessList
     case listName
     case action
@@ -16,11 +17,16 @@ enum LinePosition {
     case sourceIp
     case sourceIpHost
     case sourceMask
+    case sourcePortOperator
+    case firstSourcePort
+    case lastSourcePort
     case destIp
     case destIpHost
     case destMask
-    case destPortQualifier
+    case destPortOperator
     case firstDestPort
     case lastDestPort
+    case comment
+    case remark
     case end
 }

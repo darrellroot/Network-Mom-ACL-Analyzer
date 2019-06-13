@@ -19,6 +19,8 @@
 		2F2698B122A7799B00517AC9 /* AccessList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA077228A12D500B53113 /* AccessList.swift */; };
 		2F2698B222A7799F00517AC9 /* Array+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA073228A0DF200B53113 /* Array+extensions.swift */; };
 		2F2698B322A779A100517AC9 /* String+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA082228F5B9D00B53113 /* String+extensions.swift */; };
+		2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B851622B16C8E00927DD2 /* AnalyzeDashboardController.swift */; };
+		2F4B851922B16C8E00927DD2 /* AnalyzeDashboardController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */; };
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
 		2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D0679228A0702002C09EE /* Assets.xcassets */; };
 		2F9D067D228A0702002C09EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D067B228A0702002C09EE /* Main.storyboard */; };
@@ -37,6 +39,8 @@
 		2FCE6AA422A865A300E0B4D7 /* UInt+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */; };
 		2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */; };
 		2FCE6AA822AAFD6600E0B4D7 /* PortOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */; };
+		2FCE6AAA22ACAF5100E0B4D7 /* AclToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */; };
+		2FCE6AAB22ACAF5100E0B4D7 /* AclToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +58,8 @@
 		2F2698A022A7784300517AC9 /* Network Mom ACL AnalyzerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Network Mom ACL AnalyzerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network_Mom_ACL_AnalyzerTests.swift; sourceTree = "<group>"; };
 		2F2698A422A7784300517AC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2F4B851622B16C8E00927DD2 /* AnalyzeDashboardController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeDashboardController.swift; sourceTree = "<group>"; };
+		2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnalyzeDashboardController.xib; sourceTree = "<group>"; };
 		2F9D0672228A0700002C09EE /* Network Mom ACL Analyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Network Mom ACL Analyzer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F9D0675228A0700002C09EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2F9D0679228A0702002C09EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -73,6 +79,7 @@
 		2FBAA088228F617C00B53113 /* UInt32+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt32+extensions.swift"; sourceTree = "<group>"; };
 		2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt+extensions.swift"; sourceTree = "<group>"; };
 		2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortOperator.swift; sourceTree = "<group>"; };
+		2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AclToken.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +160,8 @@
 			children = (
 				2FBAA06E228A0A7400B53113 /* InputAccessListController.swift */,
 				2FBAA06F228A0A7400B53113 /* InputAccessListController.xib */,
+				2F4B851622B16C8E00927DD2 /* AnalyzeDashboardController.swift */,
+				2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -174,6 +183,7 @@
 				2FBAA084228F5EAB00B53113 /* LinePosition.swift */,
 				2FBAA086228F613700B53113 /* MaskType.swift */,
 				2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */,
+				2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */,
 			);
 			path = enumerations;
 			sourceTree = "<group>";
@@ -269,6 +279,7 @@
 				2FBAA071228A0A7400B53113 /* InputAccessListController.xib in Resources */,
 				2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */,
 				2F9D067D228A0702002C09EE /* Main.storyboard in Resources */,
+				2F4B851922B16C8E00927DD2 /* AnalyzeDashboardController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -285,6 +296,7 @@
 				2FCE6AA822AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2F2698B122A7799B00517AC9 /* AccessList.swift in Sources */,
 				2F2698AA22A7795800517AC9 /* AccessControlEntry.swift in Sources */,
+				2FCE6AAB22ACAF5100E0B4D7 /* AclToken.swift in Sources */,
 				2F2698AB22A7798300517AC9 /* LinePosition.swift in Sources */,
 				2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */,
 				2F2698AC22A7798700517AC9 /* UInt32+extensions.swift in Sources */,
@@ -305,10 +317,12 @@
 				2FBAA078228A12D500B53113 /* AccessList.swift in Sources */,
 				2F26989B22A7770300517AC9 /* UInt8+extensions.swift in Sources */,
 				2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */,
+				2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */,
 				2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
 				2FBAA07D228A392B00B53113 /* AclAction.swift in Sources */,
 				2FBAA087228F613700B53113 /* MaskType.swift in Sources */,
+				2FCE6AAA22ACAF5100E0B4D7 /* AclToken.swift in Sources */,
 				2FBAA070228A0A7400B53113 /* InputAccessListController.swift in Sources */,
 				2FBAA07A228A38AE00B53113 /* AccessControlEntry.swift in Sources */,
 				2FBAA083228F5B9D00B53113 /* String+extensions.swift in Sources */,

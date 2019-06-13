@@ -10,17 +10,20 @@ import Foundation
 import Network
 
 struct AccessControlEntry {
-    let aclAction: AclAction
-    let ipVersion: IpVersion
-    let listName: String?
-    let ipProtocol: UInt8
-    let leastSourceIp: UInt
-    let maxSourceIp: UInt
-    let leastDestIp: UInt
-    let maxDestIp: UInt
-    let leastDestPort: UInt?
+    var aclAction: AclAction
+    var ipVersion: IpVersion
+    var listName: String?
+    var ipProtocol: UInt
+    var minSourceIp: UInt
+    var maxSourceIp: UInt
+    var minSourcePort: UInt?
+    var maxSourcePort: UInt?
+    var minDestIp: UInt
+    var maxDestIp: UInt
+    var minDestPort: UInt?
     var maxDestPort: UInt?
-    let line: String
+    var established: Bool
+    var line: String?
     
     func findAction(word: String) -> AclAction? {
         switch word {
@@ -39,19 +42,23 @@ struct AccessControlEntry {
         // If we successfully parse all of these
         // Then we can finish the initialization
         // at the end
-        var aclAction: AclAction? = nil
-        var ipVersion: IpVersion? = .IPv4
-        var listName: String? = nil
-        var ipProtocol: UInt8? = nil
-        var leastSourceIp: UInt? = nil
-        var maxSourceIp: UInt? = nil
-        var leastDestIp: UInt? = nil
-        var maxDestIp: UInt? = nil
-        var destPortOperator: PortOperator? = nil
-        var leastDestPort: UInt? = nil
-        var maxDestPort: UInt? = nil
+        var tempAclAction: AclAction? = nil
+        var tempIpVersion: IpVersion? = .IPv4
+        var tempListName: String? = nil
+        var tempIpProtocol: UInt? = nil
+        var tempMinSourceIp: UInt? = nil
+        var tempMaxSourceIp: UInt? = nil
+        var tempSourcePortOperator: PortOperator? = nil
+        var tempMinSourcePort: UInt? = nil
+        var tempMaxSourcePort: UInt? = nil
+        var tempMinDestIp: UInt? = nil
+        var tempMaxDestIp: UInt? = nil
+        var tempDestPortOperator: PortOperator? = nil
+        var tempMinDestPort: UInt? = nil
+        var tempMaxDestPort: UInt? = nil
+        var tempEstablished = false
 
-        var linePosition: LinePosition = .accessList
+        var linePosition: LinePosition = .beginning
         //var candidate = AccessControlEntryCandidate()
         
         let words = line.components(separatedBy: NSCharacterSet.whitespaces)
@@ -60,334 +67,640 @@ struct AccessControlEntry {
         }
 
         wordLoop: for word in words {
-            if word.first == "!" {
+            guard let token = AclToken(string: word) else {
+                debugPrint("line \(line) invalid at \(linePosition)")
                 return nil
             }
             switch linePosition {
-                
-            case .accessList:
-                if word == "access-list" {
-                    linePosition = .listName
+            
+            case .beginning:
+                switch token {
+                case .accessList:
+                    linePosition = .accessList
                     continue wordLoop
-                } else {
+                case .permit:
+                    tempAclAction = .permit
                     linePosition = .action
-                    switch word {
-                    case "deny":
-                        aclAction = .deny
-                    case "permit":
-                        aclAction = .permit
-                    default:
-                        debugPrint("line \(line) invalid at aclAction")
-                        return nil
-                    }
-                    linePosition = .ipProtocol
+                    continue wordLoop
+                case .deny:
+                    tempAclAction = .deny
+                    linePosition = .action
+                    continue wordLoop
+                case .tcp, .ip, .udp, .icmp, .eq, .range, .gt, .lt, .established, .fourOctet, .number, .name, .host, .log, .any:
+                    debugPrint("line \(line) invalid after \(linePosition)")
+                    return nil
+                case .remark:
+                    linePosition = .remark
+                    debugPrint("line \(line) has remark")
+                    return nil
+                case .comment:
+                    linePosition = .comment
+                    continue wordLoop
+                }
+            case .accessList:
+                switch token {
+                    
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq , .range, .remark, .comment, .gt, .lt, .established, .log, .fourOctet, .host, .any:
+                    debugPrint("line \(line) invalid after \(linePosition)")
+                    return nil
+
+                case .number(let number):
+                    tempListName = "\(number)"
+                    linePosition = .listName
+                case .name(let name):
+                    tempListName = name
+                    linePosition = .listName
                 }
             case .listName:
-                listName = word
-                linePosition = .action
+                switch token {
+                    
+                case .accessList, .tcp, .ip, .udp, .icmp, .eq, .range, .comment, .gt, .lt, .established, .log, .fourOctet, .number, .name, .host, .any:
+                    debugPrint("line \(line) invalid after \(linePosition)")
+                    return nil
+                case .permit:
+                    tempAclAction = .permit
+                    linePosition = .action
+                case .deny:
+                    tempAclAction = .deny
+                    linePosition = .action
+                case .remark:
+                    debugPrint("line \(line) has remark")
+                    return nil
+                }
             case .action:
-                switch word {
-                case "deny":
-                    aclAction = .deny
-                case "permit":
-                    aclAction = .permit
-                default:
-                    debugPrint("line \(line) invalid at aclAction")
-                    return nil
-                }
-                linePosition = .ipProtocol
+                switch token {
                 
+                case .accessList, .permit, .deny, .eq, .range, .remark, .comment, .gt, .lt, .established, .log, .fourOctet, .name, .host, .any:
+                    debugPrint("line \(line) invalid after \(linePosition)")
+                    return nil
+
+                case .tcp:
+                    tempIpProtocol = 6
+                    linePosition = .ipProtocol
+                case .ip:
+                    tempIpProtocol = 0
+                    linePosition = .ipProtocol
+                case .udp:
+                    tempIpProtocol = 17
+                    linePosition = .ipProtocol
+                case .icmp:
+                    tempIpProtocol = 1
+                    linePosition = .ipProtocol
+                case .number(let number):
+                    if number > 255 || number < 1 {
+                        debugPrint("line \(line) invalid ip protocol after \(linePosition)")
+                        return nil
+                    } else {
+                        tempIpProtocol = number
+                        linePosition = .ipProtocol
+                    }
+                }
             case .ipProtocol:
-                switch word {
-                case "tcp":
-                    ipProtocol = 6
-                case "udp":
-                    ipProtocol = 17
-                case "ip":
-                    ipProtocol = 0
-                default:
-                    debugPrint("line \(line) invalid at ipProtocol")
+                switch token {
+                    
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .comment, .gt, .lt, .established, .log, .number, .name:
+                    debugPrint("line \(line) invalid after \(linePosition)")
                     return nil
-                }
-                linePosition = .sourceIp
-            case .sourceIp:
-                if word == "any" {
-                    leastSourceIp = 0
-                    maxSourceIp = UInt(UInt32.max)
-                    linePosition = .destIp
-                    continue wordLoop
-                }
-                if word == "host" {
+                case .any:
+                    tempMinSourceIp = 0
+                    tempMaxSourceIp = UInt(UInt32.max)
+                    linePosition = .sourceMask
+                case .fourOctet(let number):
+                    tempMinSourceIp = number
+                    linePosition = .sourceIp
+                case .host:
                     linePosition = .sourceIpHost
-                    continue wordLoop
                 }
-                guard let _ = IPv4Address(word) else {
-                    debugPrint("line \(line) invalid at sourceIp")
+            case .sourceIp:
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .number, .name:
+                    debugPrint("line \(line) invalid after \(linePosition)")
                     return nil
+                case .fourOctet(let sourceMask):
+                    let numSourceHosts: UInt
+                    switch type {
+                    case .dontCareBit:
+                        guard let numSourceHostsTemp = sourceMask.dontCareHosts else {
+                            debugPrint("line \(line) invalid at sourceMask acl type \(type)")
+                            return nil
+                        }
+                        numSourceHosts = numSourceHostsTemp
+                    case .netmask:
+                        guard let numSourceHostsTemp = sourceMask.netmaskHosts else {
+                            debugPrint("line \(line) invalid at sourceMask acl type \(type)")
+                            return nil
+                        }
+                        numSourceHosts = numSourceHostsTemp
+                    case .either:
+                        debugPrint("line \(line) unknown acl type \(type)")
+                        return nil
+                    }
+                    guard tempMinSourceIp != nil else {
+                        debugPrint(" line \(line) unable to find tempMinSourceIp at sourceMask")
+                        return nil
+                    }
+                    let remainder = tempMinSourceIp! % numSourceHosts
+                    if remainder > 0 {
+                        debugPrint("warning line \(line) destination IP not on netmask or bit boundary\n")
+                    }
+                    tempMinSourceIp = tempMinSourceIp! - remainder
+                    tempMaxSourceIp = tempMinSourceIp! + numSourceHosts - 1
+                    
+                    linePosition = .sourceMask
                 }
-                leastSourceIp = word.ipv4address
-                guard leastSourceIp != nil else {
-                    debugPrint("line \(line) invalid at sourceIp")
+                
+            case .sourceIpHost:
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .number:
+                    debugPrint("line \(line) invalid after \(linePosition)")
+                    return nil
+                case .fourOctet(let ipNumber):
+                    tempMinSourceIp = ipNumber
+                    tempMaxSourceIp = ipNumber
+                case .name(_):
+                    debugPrint("line \(line) invalid after \(linePosition) DNS resolution of hostnames is not supported")
                     return nil
                 }
                 linePosition = .sourceMask
-            case .sourceIpHost:
-                leastSourceIp = word.ipv4address
-                guard leastSourceIp != nil else {
-                    debugPrint("line \(line) invalid at sourceIpHost")
-                    return nil
-                }
-                maxSourceIp = leastSourceIp
-                linePosition = .destIp
             case .sourceMask:
-                guard let sourceMask = word.ipv4address else {
-                    debugPrint("line \(line) invalid at sourceMask")
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .remark, .comment, .number, .name, .established, .log:
+                    debugPrint("line \(line) invalid after \(linePosition)")
                     return nil
-                }
-                let numSourceHosts: UInt
-                
-                switch type {
-                case .dontCareBit:
-                    guard let numSourceHostsTemp = sourceMask.dontCareHosts else {
-                        debugPrint("line \(line) invalid at sourceMask acl type \(type)")
-                        return nil
-                    }
-                    numSourceHosts = numSourceHostsTemp
-                case .netmask:
-                    guard let numSourceHostsTemp = sourceMask.netmaskHosts else {
-                        debugPrint("line \(line) invalid at sourceMask acl type \(type)")
-                        return nil
-                    }
-                    numSourceHosts = numSourceHostsTemp
-                case .either:
-                    debugPrint("line \(line) unknown acl type \(type)")
-                    return nil
-                }
-                guard leastSourceIp != nil else {
-                    debugPrint(" line \(line) unable to find leastSourceIp at sourceMask")
-                    return nil
-                }
-                let remainder = leastSourceIp! % numSourceHosts
-                if remainder > 0 {
-                    debugPrint("warning line \(line) destination IP not on netmask or bit boundary\n")
-                }
-                leastSourceIp = leastSourceIp! - remainder
-                maxSourceIp = leastSourceIp! + numSourceHosts - 1
-                linePosition = .destIp
-            case .destIp:
-                if word == "any" {
-                    leastDestIp = 0
-                    maxDestIp = UInt(UInt32.max)
-                    linePosition = .destPortQualifier
-                    continue wordLoop
-                }
-                if word == "host" {
+                case .eq:
+                    tempSourcePortOperator = .eq
+                    linePosition = .sourcePortOperator
+                case .range:
+                    tempSourcePortOperator = .range
+                    linePosition = .sourcePortOperator
+                case .host:
                     linePosition = .destIpHost
-                    continue wordLoop
+                case .any:
+                    tempMinDestIp = 0
+                    tempMaxDestIp = UInt(UInt32.max)
+                    linePosition = .destMask
+                case .gt:
+                    tempSourcePortOperator = .gt
+                    linePosition = .sourcePortOperator
+                case .lt:
+                    tempSourcePortOperator = .lt
+                    linePosition = .sourcePortOperator
+                case .fourOctet(let ipNumber):
+                    tempMinDestIp = ipNumber
+                    linePosition = .destIp
                 }
-                guard let _ = IPv4Address(word) else {
-                    debugPrint("line \(line) invalid at destIp")
+            case .sourcePortOperator:
+                switch token {
+                    
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .fourOctet:
+                    debugPrint("line \(line) invalid after \(linePosition)")
                     return nil
+                case .number(let port):
+                    guard port < 65536 else {
+                        debugPrint("line \(line) invalid source port \(port)")
+                        return nil
+                    }
+                    guard port >= 0 else {
+                        debugPrint("line \(line) invalid source port \(port)")
+                        return nil
+                    }
+                    //start code snippet A
+                    guard let tempSourcePortOperator = tempSourcePortOperator else {
+                        debugPrint("line \(line) error sourcePortOperator not found")
+                        return nil
+                    }
+                    switch tempSourcePortOperator {
+                        
+                    case .eq:
+                        tempMinSourcePort = port
+                        tempMaxSourcePort = port
+                        linePosition = .lastSourcePort
+                    case .gt:
+                        guard port < 65535 else {
+                            debugPrint("line \(line) invalid source port \(port)")
+                            return nil
+                        }
+                        tempMinSourcePort = port + 1
+                        tempMaxSourcePort = 65535
+                        linePosition = .lastSourcePort
+                    case .lt:
+                        guard port > 0 else {
+                            debugPrint("line \(line) invalid source port \(port)")
+                            return nil
+                        }
+                        tempMinSourcePort = 0
+                        tempMaxSourcePort = port - 1
+                        linePosition = .lastSourcePort
+                    case .range:
+                        tempMinSourcePort = port
+                        linePosition = .firstSourcePort
+                    }
+                    //end code snippet A
+                case .name(var name):
+                    let possiblePort: UInt?
+                    switch tempIpProtocol {
+                    case 6:  // tcp
+                        possiblePort = name.tcpPort
+                    case 17: //udp
+                        possiblePort = name.udpPort
+                    default:
+                        debugPrint("line \(line) protocol does not support source port")
+                        return nil
+                    }
+                    guard let port = possiblePort else {
+                        debugPrint("line \(line) invalid source port")
+                        return nil
+                    }
+                    //start code snippet A
+                    guard let tempSourcePortOperator = tempSourcePortOperator else {
+                        debugPrint("line \(line) error sourcePortOperator not found")
+                        return nil
+                    }
+                    switch tempSourcePortOperator {
+                    case .eq:
+                        tempMinSourcePort = port
+                        tempMaxSourcePort = port
+                        linePosition = .lastSourcePort
+                    case .gt:
+                        guard port < 65535 else {
+                            debugPrint("line \(line) invalid source port \(port)")
+                            return nil
+                        }
+                        tempMinSourcePort = port + 1
+                        tempMaxSourcePort = 65535
+                        linePosition = .lastSourcePort
+                    case .lt:
+                        guard port > 0 else {
+                            debugPrint("line \(line) invalid source port \(port)")
+                            return nil
+                        }
+                        tempMinSourcePort = 0
+                        tempMaxSourcePort = port - 1
+                        linePosition = .lastSourcePort
+                    case .range:
+                        tempMinSourcePort = port
+                        linePosition = .firstSourcePort
+                    }
+                    //end code snippet A
                 }
-                leastDestIp = word.ipv4address
-                guard leastDestIp != nil else {
-                    debugPrint("line \(line) invalid at destIp")
+            case .firstSourcePort:
+                switch token {
+                    
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .fourOctet:
+                    debugPrint("line \(line) invalid source port")
+                    return nil
+                case .number(let port):
+                    guard let tempMinSourcePort = tempMinSourcePort else {
+                        debugPrint("line \(line) error decoding source port range")
+                        return nil
+                    }
+                    guard port >= tempMinSourcePort && port < 65536 else {
+                        debugPrint("line \(line) error decoding source port range")
+                        return nil
+                    }
+                    tempMaxSourcePort = port
+                    linePosition = .lastSourcePort
+                case .name(let name):
+                    let possiblePort: UInt?
+                    switch tempIpProtocol {
+                    case 6:  // tcp
+                        possiblePort = name.tcpPort
+                    case 17: //udp
+                        possiblePort = name.udpPort
+                    default:
+                        debugPrint("line \(line) protocol does not support source port")
+                        return nil
+                    }
+                    guard let port = possiblePort else {
+                        debugPrint("line \(line) invalid source port")
+                        return nil
+                    }
+                    guard let tempMinSourcePort = tempMinSourcePort else {
+                        debugPrint("line \(line) error decoding source port range")
+                        return nil
+                    }
+                    guard port >= tempMinSourcePort && port < 65536 else {
+                        debugPrint("line \(line) error decoding source port range")
+                        return nil
+                    }
+                    tempMaxSourcePort = port
+                    linePosition = .lastSourcePort
+                }
+            case .lastSourcePort:
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .comment, .gt, .lt, .established, .log, .number, .name:
+                    debugPrint("line \(line) invalid after \(linePosition)")
+                    return nil
+                case .host:
+                    linePosition = .destIpHost
+                case .any:
+                    tempMinDestIp = 0
+                    tempMaxDestIp = UInt(UInt32.max)
+                    linePosition = .destMask
+                case .fourOctet(let ipNumber):
+                    tempMinDestIp = ipNumber
+                    linePosition = .destIp
+                }
+            case .destIp:
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .number, .name:
+                    debugPrint("line \(line) invalid after \(linePosition)")
+                    return nil
+                case .fourOctet(let destMask):
+                    let numDestHosts: UInt
+                    switch type {
+                    case .dontCareBit:
+                        guard let numDestHostsTemp = destMask.dontCareHosts else {
+                            debugPrint("line \(line) invalid at destMask acl type \(type)")
+                            return nil
+                        }
+                        numDestHosts = numDestHostsTemp
+                    case .netmask:
+                        guard let numDestHostsTemp = destMask.netmaskHosts else {
+                            debugPrint("line \(line) invalid at destMask acl type \(type)")
+                            return nil
+                        }
+                        numDestHosts = numDestHostsTemp
+                    case .either:
+                        debugPrint("line \(line) unknown acl type \(type)")
+                        return nil
+                    }
+                    guard tempMinDestIp != nil else {
+                        debugPrint(" line \(line) unable to find tempMinDestIp at destMask")
+                        return nil
+                    }
+                    let remainder = tempMinDestIp! % numDestHosts
+                    if remainder > 0 {
+                        debugPrint("warning line \(line) destination IP not on netmask or bit boundary\n")
+                    }
+                    tempMinDestIp = tempMinDestIp! - remainder
+                    tempMaxDestIp = tempMinDestIp! + numDestHosts - 1
+                    linePosition = .destMask
+                }
+
+            case .destIpHost:
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .number:
+                    debugPrint("line \(line) invalid after \(linePosition)")
+                    return nil
+                case .fourOctet(let ipNumber):
+                    tempMinDestIp = ipNumber
+                    tempMaxDestIp = ipNumber
+                case .name(_):
+                    debugPrint("line \(line) invalid after \(linePosition) DNS resolution of hostnames is not supported")
                     return nil
                 }
                 linePosition = .destMask
-                
-            case .destIpHost:
-                leastDestIp = word.ipv4address
-                guard leastDestIp != nil else {
-                    debugPrint("line \(line) invalid at destIpHost")
-                    return nil
-                }
-                maxDestIp = leastDestIp
-                linePosition = .destPortQualifier
             case .destMask:
-                guard let destMask = word.ipv4address else {
-                    debugPrint("line \(line) invalid at destMask")
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .remark, .comment, .number, .host, .any, .name, .established, .fourOctet:
+                    debugPrint("line \(line) invalid after \(linePosition)")
                     return nil
-                }
-                let numDestHosts: UInt
-                switch type {
-                    
-                case .dontCareBit:
-                    guard let numDestHostsTemp = destMask.dontCareHosts else {
-                        debugPrint("line \(line) invalid at destMask acl type \(type)")
-                        return nil
-                    }
-                    numDestHosts = numDestHostsTemp
-                case .netmask:
-                    guard let numDestHostsTemp = destMask.netmaskHosts else {
-                        debugPrint("line \(line) invalid at destMask acl type \(type)")
-                        return nil
-                    }
-                    numDestHosts = numDestHostsTemp
-                case .either:
-                    debugPrint("line \(line) unknown acl type \(type) at destMask")
-                    return nil
-                }
-                guard leastDestIp != nil else {
-                    debugPrint(" line \(line) unable to find leastDestIp at destMask")
-                    return nil
-                }
-                let remainder = leastDestIp! % numDestHosts
-                if remainder > 0 {
-                    debugPrint("warning line \(line) destination IP not on netmask or bit boundary\n")
-                }
-                leastDestIp = leastDestIp! - remainder
-                maxDestIp = leastDestIp! + numDestHosts - 1
-                linePosition = .destPortQualifier
-            case .destPortQualifier:
-                switch word {
-                case "eq":
-                    destPortOperator = .eq
-                    linePosition = .firstDestPort
-                case "gt":
-                    destPortOperator = .gt
-                    linePosition = .firstDestPort
-                case "lt":
-                    destPortOperator = .lt
-                    linePosition = .firstDestPort
-                case "range":
-                    destPortOperator = .range
-                    linePosition = .firstDestPort
-                case "log":  // nothing to analyze for log
+                case .eq:
+                    tempDestPortOperator = .eq
+                    linePosition = .destPortOperator
+                case .range:
+                    tempDestPortOperator = .range
+                    linePosition = .destPortOperator
+                case .gt:
+                    tempDestPortOperator = .gt
+                    linePosition = .destPortOperator
+                case .lt:
+                    tempDestPortOperator = .lt
+                    linePosition = .destPortOperator
+                case .log:
                     linePosition = .end
-                default:
-                    debugPrint("line \(line) invalid at destinationPortQualifier")
+                }
+                
+            case .destPortOperator:
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .fourOctet:
+                    debugPrint("line \(line) invalid after \(linePosition)")
                     return nil
+                case .number(let port):
+                    guard port < 65536 else {
+                        debugPrint("line \(line) invalid dest port \(port)")
+                        return nil
+                    }
+                    guard port >= 0 else {
+                        debugPrint("line \(line) invalid dest port \(port)")
+                        return nil
+                    }
+                    //start code snippet B
+                    guard let tempDestPortOperator = tempDestPortOperator else {
+                        debugPrint("line \(line) error destPortOperator not found")
+                        return nil
+                    }
+                    switch tempDestPortOperator {
+                        
+                    case .eq:
+                        tempMinDestPort = port
+                        tempMaxDestPort = port
+                        linePosition = .lastDestPort
+                    case .gt:
+                        guard port < 65535 else {
+                            debugPrint("line \(line) invalid dest port \(port)")
+                            return nil
+                        }
+                        tempMinDestPort = port + 1
+                        tempMaxDestPort = 65535
+                        linePosition = .lastDestPort
+                    case .lt:
+                        guard port > 0 else {
+                            debugPrint("line \(line) invalid dest port \(port)")
+                            return nil
+                        }
+                        tempMinDestPort = 0
+                        tempMaxDestPort = port - 1
+                        linePosition = .lastDestPort
+                    case .range:
+                        tempMinDestPort = port
+                        linePosition = .firstDestPort
+                    }
+                //end code snippet B
+                case .name(var name):
+                    let possiblePort: UInt?
+                    switch tempIpProtocol {
+                    case 6:  // tcp
+                        possiblePort = name.tcpPort
+                    case 17: //udp
+                        possiblePort = name.udpPort
+                    default:
+                        debugPrint("line \(line) protocol does not support dest port")
+                        return nil
+                    }
+                    guard let port = possiblePort else {
+                        debugPrint("line \(line) invalid dest port")
+                        return nil
+                    }
+                    //start code snippet B
+                    guard let tempDestPortOperator = tempDestPortOperator else {
+                        debugPrint("line \(line) error destPortOperator not found")
+                        return nil
+                    }
+                    switch tempDestPortOperator {
+                        
+                    case .eq:
+                        tempMinDestPort = port
+                        tempMaxDestPort = port
+                        linePosition = .lastDestPort
+                    case .gt:
+                        guard port < 65535 else {
+                            debugPrint("line \(line) invalid dest port \(port)")
+                            return nil
+                        }
+                        tempMinDestPort = port + 1
+                        tempMaxDestPort = 65535
+                        linePosition = .lastDestPort
+                    case .lt:
+                        guard port > 0 else {
+                            debugPrint("line \(line) invalid dest port \(port)")
+                            return nil
+                        }
+                        tempMinDestPort = 0
+                        tempMaxDestPort = port - 1
+                        linePosition = .lastDestPort
+                    case .range:
+                        tempMinDestPort = port
+                        linePosition = .firstDestPort
+                    }
+                    //end code snippet B
                 }
             case .firstDestPort:
-                guard let firstDestPort32 = UInt32(word) else {
-                    debugPrint("line \(line) invalid at firstPort")
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .fourOctet:
+                    debugPrint("line \(line) invalid dest port")
                     return nil
-                }
-                let firstDestPort = UInt(firstDestPort32)
-                guard let destPortOperator = destPortOperator else {
-                    debugPrint("line \(line) invalid at firstDestPort, destPortOperator is nil")
-                    return nil
-                }
-                switch destPortOperator {
-                case .eq:
-                    leastDestPort = firstDestPort
-                    maxDestPort = firstDestPort
-                    linePosition = .end
-                case .gt:
-                    if firstDestPort == 65535 {
-                        debugPrint("line \(line) invalid at firstDestPort, cannot be gt 65535")
+                case .number(let port):
+                    guard let tempMinDestPort = tempMinDestPort else {
+                        debugPrint("line \(line) error decoding dest port range")
                         return nil
-                    } else {
-                        leastDestPort = firstDestPort + 1
-                        maxDestPort = 65535
-                        linePosition = .end
                     }
-                case .lt:
-                    if firstDestPort == 0 {
-                        debugPrint("line \(line) invalid at firstDestPort, cannot be lt 0")
+                    guard port >= tempMinDestPort && port < 65536 else {
+                        debugPrint("line \(line) error decoding dest port range")
                         return nil
-                    } else {
-                        leastDestPort = 0
-                        maxDestPort = firstDestPort - 1
-                        linePosition = .end
                     }
-                case .range:
-                    leastDestPort = firstDestPort
+                    tempMaxDestPort = port
+                    linePosition = .lastDestPort
+                case .name(let name):
+                    let possiblePort: UInt?
+                    switch tempIpProtocol {
+                    case 6:  // tcp
+                        possiblePort = name.tcpPort
+                    case 17: //udp
+                        possiblePort = name.udpPort
+                    default:
+                        debugPrint("line \(line) protocol does not support dest port")
+                        return nil
+                    }
+                    guard let port = possiblePort else {
+                        debugPrint("line \(line) invalid dest port")
+                        return nil
+                    }
+                    guard let tempMinDestPort = tempMinDestPort else {
+                        debugPrint("line \(line) error decoding dest port range")
+                        return nil
+                    }
+                    guard port >= tempMinDestPort && port < 65536 else {
+                        debugPrint("line \(line) error decoding dest port range")
+                        return nil
+                    }
+                    tempMaxDestPort = port
                     linePosition = .lastDestPort
                 }
             case .lastDestPort:
-                guard let destPortOperator = destPortOperator else {
-                    debugPrint("line \(line) invalid at firstDestPort, destPortOperator is nil")
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .gt, .lt, .number, .name, .host, .any, .fourOctet:
+                    debugPrint("line \(line) invalid after \(linePosition)")
                     return nil
+                case .log:
+                    linePosition = .end
+                case .comment:
+                    linePosition = .comment
+                case .established:
+                    tempEstablished = true
+                    linePosition = .end
                 }
 
-                switch destPortOperator {
-                case .eq, .gt, .lt:
-                    debugPrint("line \(line) invalid at lastDestPort, unknown state error")
-                    return nil
-                case .range:
-                    guard let lastDestPort32 = UInt32(word) else {
-                        debugPrint("line \(line) invalid at lastDestPort")
-                        return nil
-                    }
-                    let lastDestPort = UInt(lastDestPort32)
-                    guard let leastDestPort = leastDestPort else {
-                        debugPrint("line \(line) invalid at lastDestPort, no leastDestPort found in range")
-                        return nil
-                    }
-                    guard lastDestPort > leastDestPort else {
-                        debugPrint("line \(line) invalid at range, \(lastDestPort) should be larger than \(leastDestPort)")
-                        return nil
-                    }
-                    maxDestPort = lastDestPort
-                }
             case .end:
-                switch word {
-                case "log":
+                switch token {
+                case .log:
                     break  // do nothing
+                case .comment:
+                    linePosition = .comment
                 default:
                     debugPrint("line \(line) invalid at end")
                     return nil
                 }
+            case .comment:
+                break // do nothing, we are in a comment
+            case .remark:
+                return nil
             }
         }
-        guard let tempAclAction = aclAction else {
-            return nil
-        }
-        self.aclAction = tempAclAction
         
-        guard let tempIpVersion = ipVersion else {
+        guard tempAclAction != nil else {
+            debugPrint("line \(line) no acl action found")
             return nil
         }
-        self.ipVersion = tempIpVersion
+        self.aclAction = tempAclAction!
+        self.ipVersion = .IPv4
+        self.listName = tempListName
         
-        self.listName = listName
+        guard tempIpProtocol != nil else {
+            debugPrint("line \(line) no ip protocol found")
+            return nil
+        }
+        self.ipProtocol = tempIpProtocol!
         
-        guard let tempIpProtocol = ipProtocol else {
+        guard tempMinSourceIp != nil else {
+            debugPrint("line \(line) source ip not found")
             return nil
         }
-        self.ipProtocol = tempIpProtocol
+        self.minSourceIp = tempMinSourceIp!
         
-        guard let tempLeastSourceIp = leastSourceIp else {
+        guard tempMaxSourceIp != nil else {
+            debugPrint("line \(line) source ip not found")
             return nil
         }
-        self.leastSourceIp = tempLeastSourceIp
+        self.maxSourceIp = tempMaxSourceIp!
         
-        guard let tempMaxSourceIp = maxSourceIp else {
-            return nil
-        }
-        self.maxSourceIp = tempMaxSourceIp
+        self.minSourcePort = tempMinSourcePort ?? 0
+        self.maxSourcePort = tempMaxSourcePort ?? 65535
         
-        guard let tempLeastDestIp = leastDestIp else {
+        guard tempMinDestIp != nil else {
+            debugPrint("line \(line) dest ip not found")
             return nil
         }
-        self.leastDestIp = tempLeastDestIp
+        self.minDestIp = tempMinDestIp!
         
-        guard let tempMaxDestIp = maxDestIp else {
+        guard tempMaxDestIp != nil else {
+            debugPrint("line \(line) dest ip not found")
             return nil
         }
-        self.maxDestIp = tempMaxDestIp
-
-        // either both ports must be nil or non-nil
-        if leastDestPort == nil && maxDestPort != nil {
-            return nil
-        }
-        if leastDestPort != nil && maxDestPort == nil {
-            return nil
-        }
-        self.leastDestPort = leastDestPort
-        self.maxDestPort = maxDestPort
+        self.maxDestIp = tempMaxDestIp!
         
+        self.minDestPort = tempMinDestPort ?? 0
+        self.maxDestPort = tempMaxDestPort ?? 65535
+        
+        self.established = tempEstablished
         self.line = line
-        
+
         debugPrint(self)
+        
     }
 }
 
 extension AccessControlEntry: CustomStringConvertible {
     var description: String {
-        return "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(leastSourceIp.ipv4) through \(maxSourceIp.ipv4) to \(leastDestIp.ipv4) through \(maxDestIp.ipv4) ports \(leastDestPort) through \(maxDestPort)\n"
+        
+        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(minSourceIp.ipv4) through \(maxSourceIp.ipv4) source ports \(minSourcePort)-\(maxSourcePort) to \(minDestIp.ipv4) through \(maxDestIp.ipv4) dest ports \(minDestPort)-\(maxDestPort)"
+        if self.established {
+            returnString.append(" established\n")
+        } else {
+            returnString.append("\n")
+        }
+        return returnString
     }
 }
 

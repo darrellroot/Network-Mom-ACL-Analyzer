@@ -12,9 +12,12 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var inputAccessListControllers: [InputAccessListController] = []
-
+    var analyzeDashboardController: AnalyzeDashboardController?
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
+        analyzeDashboardController = AnalyzeDashboardController()
+        analyzeDashboardController?.showWindow(self)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -26,6 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         inputAccessListControllers.append(inputAccessListController)
         inputAccessListController.showWindow(self)
     }
+
     
 }
 

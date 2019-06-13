@@ -116,6 +116,19 @@ extension UInt {
         let octet4 = self % 256
         return "\(octet1).\(octet2).\(octet3).\(octet4)"
     }
+    var ipProto: String {
+        switch self {
+        case 0:
+            return "ip"
+        case 6:
+            return "tcp"
+        case 17:
+            return "udp"
+        default:
+            return "\(self)"
+        }
+    }
+
 }
 
 
