@@ -25,6 +25,8 @@
 		2F4B851D22B2EC2A00927DD2 /* AclErrorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B851B22B2EC2A00927DD2 /* AclErrorDelegate.swift */; };
 		2F4B851F22B2EFE300927DD2 /* Severity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B851E22B2EFE300927DD2 /* Severity.swift */; };
 		2F4B852022B2EFE300927DD2 /* Severity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B851E22B2EFE300927DD2 /* Severity.swift */; };
+		2F4B852222B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
+		2F4B852322B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
 		2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D0679228A0702002C09EE /* Assets.xcassets */; };
 		2F9D067D228A0702002C09EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D067B228A0702002C09EE /* Main.storyboard */; };
@@ -66,6 +68,7 @@
 		2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AnalyzeDashboardController.xib; sourceTree = "<group>"; };
 		2F4B851B22B2EC2A00927DD2 /* AclErrorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AclErrorDelegate.swift; sourceTree = "<group>"; };
 		2F4B851E22B2EFE300927DD2 /* Severity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Severity.swift; sourceTree = "<group>"; };
+		2F4B852122B555F200927DD2 /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
 		2F9D0672228A0700002C09EE /* Network Mom ACL Analyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Network Mom ACL Analyzer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F9D0675228A0700002C09EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2F9D0679228A0702002C09EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -186,6 +189,7 @@
 			children = (
 				2FBAA077228A12D500B53113 /* AccessList.swift */,
 				2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */,
+				2F4B852122B555F200927DD2 /* Socket.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -310,6 +314,7 @@
 				2F4B851D22B2EC2A00927DD2 /* AclErrorDelegate.swift in Sources */,
 				2F2698AD22A7798900517AC9 /* UInt8+extensions.swift in Sources */,
 				2F2698B322A779A100517AC9 /* String+extensions.swift in Sources */,
+				2F4B852322B555F200927DD2 /* Socket.swift in Sources */,
 				2F4B852022B2EFE300927DD2 /* Severity.swift in Sources */,
 				2FCE6AA822AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2F2698B122A7799B00517AC9 /* AccessList.swift in Sources */,
@@ -337,6 +342,7 @@
 				2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */,
 				2F4B851C22B2EC2A00927DD2 /* AclErrorDelegate.swift in Sources */,
 				2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */,
+				2F4B852222B555F200927DD2 /* Socket.swift in Sources */,
 				2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
 				2FBAA07D228A392B00B53113 /* AclAction.swift in Sources */,

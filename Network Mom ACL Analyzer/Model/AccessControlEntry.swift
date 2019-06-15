@@ -498,10 +498,13 @@ struct AccessControlEntry {
                 linePosition = .destMask
             case .destMask:
                 switch token {
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .remark, .comment, .number, .host, .any, .name, .established, .fourOctet:
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .remark, .comment, .number, .host, .any, .name, .fourOctet:
                     delegate?.report(severity: .linetext, message: line, line: linenum)
                     delegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
+                case .established:
+                    tempEstablished = true
+                    linePosition = .end
                 case .eq:
                     tempDestPortOperator = .eq
                     linePosition = .destPortOperator

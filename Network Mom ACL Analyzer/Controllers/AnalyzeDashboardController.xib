@@ -7,10 +7,17 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AnalyzeDashboardController" customModule="Network_Mom_ACL_Analyzer" customModuleProvider="target">
             <connections>
+                <outlet property="destinationIpOutlet" destination="caD-yT-NPl" id="hhT-QE-yxh"/>
+                <outlet property="destinationPortOutlet" destination="97O-Wj-yHt" id="RMZ-o5-2hH"/>
+                <outlet property="egressAclAnalysis" destination="1JM-OC-Bbe" id="TkE-gM-cU9"/>
                 <outlet property="egressAclTextView" destination="f6y-fx-VLP" id="oX6-jR-P6K"/>
-                <outlet property="egressAclValidation" destination="NRW-2n-cmB" id="JqR-B0-PGY"/>
+                <outlet property="egressAclValidation" destination="NRW-2n-cmB" id="uFn-H3-Lb0"/>
+                <outlet property="ingressAclAnalysis" destination="8SF-Zg-E35" id="67P-PE-6Qm"/>
                 <outlet property="ingressAclTextView" destination="oxa-LT-8k6" id="Zc9-ma-Hwa"/>
                 <outlet property="ingressAclValidation" destination="YaA-tn-p3E" id="Ul1-9a-yOe"/>
+                <outlet property="protocolButton" destination="tVc-eB-Tf7" id="AiN-8v-8Do"/>
+                <outlet property="sourceIpOutlet" destination="geL-Qf-Xky" id="jEW-xz-k7v"/>
+                <outlet property="sourcePortOutlet" destination="Q14-Xh-kUd" id="zJM-o2-ncq"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -22,7 +29,7 @@
             <rect key="contentRect" x="50" y="200" width="1240" height="552"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" misplaced="YES" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="1088" height="599"/>
+                <rect key="frame" x="0.0" y="0.0" width="1240" height="552"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <stackView distribution="fillEqually" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HDt-aD-yac" userLabel="Overall Stack View">
@@ -236,13 +243,13 @@
                                             </textField>
                                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tVc-eB-Tf7">
                                                 <rect key="frame" x="-2" y="-3" width="62" height="25"/>
-                                                <popUpButtonCell key="cell" type="push" title="tcp" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="1I4-1r-cu6" id="78F-hn-2Ft">
+                                                <popUpButtonCell key="cell" type="push" title="tcp" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" tag="6" imageScaling="proportionallyDown" inset="2" selectedItem="1I4-1r-cu6" id="78F-hn-2Ft">
                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                                     <font key="font" metaFont="menu"/>
                                                     <menu key="menu" id="Vop-6s-prv">
                                                         <items>
-                                                            <menuItem title="tcp" state="on" id="1I4-1r-cu6" userLabel="tcp"/>
-                                                            <menuItem title="udp" id="kRV-QC-8zb" userLabel="udp"/>
+                                                            <menuItem title="tcp" state="on" tag="6" id="1I4-1r-cu6" userLabel="tcp"/>
+                                                            <menuItem title="udp" tag="17" id="kRV-QC-8zb" userLabel="udp"/>
                                                         </items>
                                                     </menu>
                                                 </popUpButtonCell>
@@ -393,11 +400,14 @@
                                 </customSpacing>
                             </stackView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gBf-Qu-GOY">
-                                <rect key="frame" x="478" y="136" width="92" height="32"/>
-                                <buttonCell key="cell" type="push" title="Analyze!" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9dn-Iy-EqE">
+                                <rect key="frame" x="401" y="136" width="247" height="32"/>
+                                <buttonCell key="cell" type="push" title="Validate ACLs and Analyze Socket" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9dn-Iy-EqE">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="analyzeButton:" target="-2" id="v3O-zp-uja"/>
+                                </connections>
                             </button>
                             <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IkT-Z0-yUw" userLabel="Analyze Output H Stack View">
                                 <rect key="frame" x="20" y="0.0" width="1008" height="135"/>
