@@ -11,4 +11,5 @@ import Foundation
 enum AclAction: String {
     case permit
     case deny
+    case neither
 }
