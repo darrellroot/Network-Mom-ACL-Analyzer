@@ -8,8 +8,10 @@
 
 import Cocoa
 
-class AnalyzeDashboardController: NSWindowController, AclErrorDelegate {
+class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclErrorDelegate {
     
+    let appDelegate = NSApplication.shared.delegate as! AppDelegate
+
     enum ActiveWarningWindow {
         case ingressValidation
         case egressValidation
@@ -37,6 +39,10 @@ class AnalyzeDashboardController: NSWindowController, AclErrorDelegate {
     
     override var windowNibName: NSNib.Name? {
         return NSNib.Name("AnalyzeDashboardController")
+    }
+    
+    func windowWillClose(_ notification: Notification) {
+    appDelegate.analyzeDashboardControllers.remove(object: self)
     }
 
     override func windowDidLoad() {
@@ -90,7 +96,7 @@ class AnalyzeDashboardController: NSWindowController, AclErrorDelegate {
             self.report(severity: .error, message: "Unable to generate reverse socket", window: .egressAnalyze)
             return
         }
-        self.report(severity: .notification, message: "Socket configured: \(socket)", window: .egressAnalyze)
+        self.report(severity: .notification, message: "Socket configured: \(reverseSocket)", window: .egressAnalyze)
         activeWarningWindow = .egressAnalyze
         _ = egressAccessList?.analyze(socket: reverseSocket, delegate: self)
 
@@ -111,8 +117,6 @@ class AnalyzeDashboardController: NSWindowController, AclErrorDelegate {
         if ingressAccessList?.count == 0 {
             ingressAccessList = nil
         }
-        debugPrint("ingress access list count \(ingressAccessList?.count)")
-        debugPrint("egress access list count \(egressAccessList?.count)")
     }
     
     func report(severity: Severity, message: String, line: Int, window: ActiveWarningWindow) {

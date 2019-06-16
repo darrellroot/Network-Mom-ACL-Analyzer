@@ -95,6 +95,22 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
         XCTAssert(ace.minDestIp == destip)
     }
 
+    func testInvalidProtocolDestPort() {
+        let ace = AccessControlEntry(line: "permit ip 1.1.1.0 255.255.255.0 2.2.2.0 255.255.255.0 eq 80", type: .netmask, linenum: 5)
+        XCTAssert(ace == nil)
+    }
+    
+    func testInvalidProtocolSourcePort() {
+        let ace = AccessControlEntry(line: "permit ip 1.1.1.0 0.0.0.255 eq 80 2.2.2.128 0.0.0.63", type: .dontCareBit, linenum: 5)
+        XCTAssert(ace == nil)
+    }
+    
+    func testUdpNamedPort() {
+        let ace = AccessControlEntry(line: "permit udp 1.1.1.0 0.0.0.255 eq snmp 2.2.2.128 0.0.0.63 eq ntp", type: .dontCareBit, linenum: 5)
+        XCTAssert(ace?.minSourcePort == 161)
+        XCTAssert(ace?.maxDestPort == 123)
+    }
+
 
     func testPerformanceExample() {
         // This is an example of a performance test case.

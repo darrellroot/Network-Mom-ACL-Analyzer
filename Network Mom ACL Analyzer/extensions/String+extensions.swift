@@ -23,8 +23,28 @@ extension String {
         switch self {
         case "bgp":
             return 179
+        case "domain":
+            return 53
+        case "exec":
+            return 512
+        case "ftp":
+            return 21
+        case "ftp-data":
+            return 20
+        case "https":
+            return 443
+        case "mms":
+            return 1755
+        case "nfs":
+            return 2049
         case "smtp":
             return 25
+        case "ssh":
+            return 22
+        case "tacacs":
+            return 49
+        case "telnet":
+            return 23
         case "www":
             return 80
         default:
@@ -33,8 +53,34 @@ extension String {
     }
     var udpPort: UInt? {
         switch self {
+        case "bootpc":
+            return 68
+        case "bootps":
+            return 67
         case "domain":
             return 53
+        case "mms":
+            return 1755
+        case "netbios-dgm":
+            return 138
+        case "netbios-ns":
+            return 137
+        case "netbios-ss":
+            return 139
+        case "nfs":
+            return 2049
+        case "ntp":
+            return 123
+        case "snmp":
+            return 161
+        case "snmptrap":
+            return 162
+        case "tacacs":
+            return 49
+        case "tftp":
+            return 69
+        case "wccp":
+            return 2048
         default:
             return nil
         }

@@ -11,25 +11,23 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    var inputAccessListControllers: [InputAccessListController] = []
-    var analyzeDashboardController: AnalyzeDashboardController?
+    var analyzeDashboardControllers: [AnalyzeDashboardController] = []
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
-        analyzeDashboardController = AnalyzeDashboardController()
-        analyzeDashboardController?.showWindow(self)
+        let analyzeDashboardController = AnalyzeDashboardController()
+        analyzeDashboardControllers.append(analyzeDashboardController)
+        analyzeDashboardController.showWindow(self)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
 
-    @IBAction func inputAccessList(_ sender: NSMenuItem) {
-        let inputAccessListController = InputAccessListController()
-        inputAccessListControllers.append(inputAccessListController)
-        inputAccessListController.showWindow(self)
+    @IBAction func newAclAnalyzer(_ sender: NSMenuItem) {
+        let analyzeDashboardController = AnalyzeDashboardController()
+        analyzeDashboardControllers.append(analyzeDashboardController)
+        analyzeDashboardController.showWindow(self)
     }
-
-    
 }
 

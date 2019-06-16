@@ -282,11 +282,11 @@ struct AccessControlEntry {
                         delegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum)
                         return nil
                     }
-                    guard port >= 0 else {
+                    /*guard port >= 0 else {
                         delegate?.report(severity: .linetext, message: line, line: linenum)
                         delegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum)
                         return nil
-                    }
+                    }*/
                     //start code snippet A
                     guard let tempSourcePortOperator = tempSourcePortOperator else {
                         delegate?.report(severity: .linetext, message: line, line: linenum)
@@ -322,7 +322,7 @@ struct AccessControlEntry {
                         linePosition = .firstSourcePort
                     }
                     //end code snippet A
-                case .name(var name):
+                case .name(let name):
                     let possiblePort: UInt?
                     switch tempIpProtocol {
                     case 6:  // tcp
@@ -535,11 +535,11 @@ struct AccessControlEntry {
                         delegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                         return nil
                     }
-                    guard port >= 0 else {
+                    /*guard port >= 0 else {
                         delegate?.report(severity: .linetext, message: line, line: linenum)
                         delegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                         return nil
-                    }
+                    }*/
                     //start code snippet B
                     guard let tempDestPortOperator = tempDestPortOperator else {
                         delegate?.report(severity: .linetext, message: line, line: linenum)
@@ -584,7 +584,7 @@ struct AccessControlEntry {
                         possiblePort = name.udpPort
                     default:
                         delegate?.report(severity: .linetext, message: line, line: linenum)
-                        delegate?.report(severity: .error, message: "protocol \(tempIpProtocol) does not support destination port", line: linenum)
+                        delegate?.report(severity: .error, message: "protocol \(String(describing: tempIpProtocol)) does not support destination port", line: linenum)
                         return nil
                     }
                     guard let port = possiblePort else {
@@ -656,7 +656,7 @@ struct AccessControlEntry {
                         possiblePort = name.udpPort
                     default:
                         delegate?.report(severity: .linetext, message: line, line: linenum)
-                        delegate?.report(severity: .error, message: "protocol \(tempIpProtocol) does not support destination port after \(linePosition)", line: linenum)
+                        delegate?.report(severity: .error, message: "protocol \(String(describing: tempIpProtocol)) does not support destination port after \(linePosition)", line: linenum)
                         return nil
                     }
                     guard let port = possiblePort else {
@@ -719,12 +719,27 @@ struct AccessControlEntry {
         self.ipVersion = .IPv4
         self.listName = tempListName
         
-        guard tempIpProtocol != nil else {
+        //guard tempIpProtocol != nil else {
+        guard let localTempIpProtocol = tempIpProtocol else {
             delegate?.report(severity: .linetext, message: line, line: linenum)
             delegate?.report(severity: .error, message: "no protocol found", line: linenum)
             return nil
         }
-        self.ipProtocol = tempIpProtocol!
+        switch localTempIpProtocol {
+        case 6, 17:
+            break
+        case 0...255:
+            if tempMinSourcePort != nil || tempMaxSourcePort != nil || tempMinDestPort != nil || tempMaxSourcePort != nil {
+                delegate?.report(severity: .linetext, message: line, line: linenum)
+                delegate?.report(severity: .error, message: "Only protocols tcp and udp support port numbers", line: linenum)
+                return nil
+            }
+        default:
+            // should not get here
+            delegate?.report(severity: .linetext, message: line, line: linenum)
+            delegate?.report(severity: .error, message: "Unable to identify ip protocol", line: linenum)
+        }
+        self.ipProtocol = localTempIpProtocol
         
         guard tempMinSourceIp != nil else {
             delegate?.report(severity: .linetext, message: line, line: linenum)
@@ -818,7 +833,7 @@ struct AccessControlEntry {
 extension AccessControlEntry: CustomStringConvertible {
     var description: String {
         
-        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(minSourceIp.ipv4) through \(maxSourceIp.ipv4) source ports \(minSourcePort)-\(maxSourcePort) to \(minDestIp.ipv4) through \(maxDestIp.ipv4) dest ports \(minDestPort)-\(maxDestPort)"
+        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(minSourceIp.ipv4) through \(maxSourceIp.ipv4) source ports \(String(describing: minSourcePort))-\(String(describing: maxSourcePort)) to \(minDestIp.ipv4) through \(maxDestIp.ipv4) dest ports \(String(describing: minDestPort))-\(String(describing: maxDestPort))"
         if self.established {
             returnString.append(" established\n")
         } else {
