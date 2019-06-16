@@ -13,7 +13,7 @@ struct AccessControlEntry {
     var aclAction: AclAction
     var ipVersion: IpVersion
     var listName: String?
-    var ipProtocol: UInt
+    var ipProtocol: UInt  // 0 means ip
     var minSourceIp: UInt
     var maxSourceIp: UInt
     var minSourcePort: UInt?
@@ -23,7 +23,7 @@ struct AccessControlEntry {
     var minDestPort: UInt?
     var maxDestPort: UInt?
     var established: Bool
-    var line: String?
+    var line: String
     
     func findAction(word: String) -> AclAction? {
         switch word {
@@ -62,7 +62,7 @@ struct AccessControlEntry {
         //var candidate = AccessControlEntryCandidate()
         
         let words = line.components(separatedBy: NSCharacterSet.whitespaces)
-        if words.count < 2 {
+        if words.count < 1 {
             return nil
         }
 
@@ -97,8 +97,10 @@ struct AccessControlEntry {
                     delegate?.report(severity: .notification, message: "line has remark after \(linePosition)", line: linenum)
                     return nil
                 case .comment:
-                    linePosition = .comment
-                    continue wordLoop
+                    // comment at beginning
+                    return nil
+                    //linePosition = .comment
+                    //continue wordLoop
                 }
             case .accessList:
                 switch token {
@@ -763,6 +765,53 @@ struct AccessControlEntry {
 
         debugPrint(self)
         
+    }
+    func analyze(socket: Socket) -> AclAction {
+        // check ip protocol
+        guard self.ipProtocol == 0 || self.ipProtocol == socket.ipProtocol else {
+            return .neither
+        }
+        // check source ip
+        guard socket.sourceIp >= self.minSourceIp && socket.sourceIp <= self.maxSourceIp else {
+            return .neither
+        }
+        // check destination ip
+        guard socket.destinationIp >= self.minDestIp && socket.destinationIp <= self.maxDestIp else {
+            return .neither
+        }
+        // check ports if protocol udp or tcp
+        if socket.ipProtocol == 17 || socket.ipProtocol == 6 {
+            if let minSourcePort = minSourcePort, let socketSourcePort = socket.sourcePort {
+                guard socketSourcePort >= minSourcePort else {
+                    return .neither
+                }
+            }
+            if let maxSourcePort = maxSourcePort, let socketSourcePort = socket.sourcePort {
+                guard socketSourcePort <= maxSourcePort else {
+                    return .neither
+                }
+            }
+            if let minDestPort = minDestPort, let socketDestPort = socket.destinationPort {
+                guard socketDestPort >= minDestPort else {
+                    return .neither
+                }
+            }
+            if let maxDestPort = maxDestPort, let socketDestPort = socket.destinationPort {
+                guard socketDestPort <= maxDestPort else {
+                    return .neither
+                }
+            }
+        }
+        // check established flag if tcp and if ace requires established
+        if socket.ipProtocol == 6 {
+            if self.established == true {
+                guard socket.established == true else {
+                    return .neither
+                }
+            }
+        }
+        // at this point the acl is a match so we obey the action
+        return self.aclAction
     }
 }
 

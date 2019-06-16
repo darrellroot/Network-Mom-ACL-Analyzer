@@ -10,7 +10,6 @@ import Cocoa
 
 class AnalyzeDashboardController: NSWindowController, AclErrorDelegate {
     
-    
     enum ActiveWarningWindow {
         case ingressValidation
         case egressValidation
@@ -84,6 +83,17 @@ class AnalyzeDashboardController: NSWindowController, AclErrorDelegate {
         }
         self.report(severity: .notification, message: "Socket configured: \(socket)", window: .ingressAnalyze)
         
+        activeWarningWindow = .ingressAnalyze
+        _ = ingressAccessList?.analyze(socket: socket, delegate: self)
+        
+        guard let reverseSocket = socket.reverse() else {
+            self.report(severity: .error, message: "Unable to generate reverse socket", window: .egressAnalyze)
+            return
+        }
+        self.report(severity: .notification, message: "Socket configured: \(socket)", window: .egressAnalyze)
+        activeWarningWindow = .egressAnalyze
+        _ = egressAccessList?.analyze(socket: reverseSocket, delegate: self)
+
     }
     @IBAction func validateAcl(_ sender: Any) {
         ingressAclValidation.string = ""
@@ -103,7 +113,6 @@ class AnalyzeDashboardController: NSWindowController, AclErrorDelegate {
         }
         debugPrint("ingress access list count \(ingressAccessList?.count)")
         debugPrint("egress access list count \(egressAccessList?.count)")
-
     }
     
     func report(severity: Severity, message: String, line: Int, window: ActiveWarningWindow) {

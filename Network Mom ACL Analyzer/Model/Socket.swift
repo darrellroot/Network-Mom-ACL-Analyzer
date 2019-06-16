@@ -9,7 +9,7 @@
 import Foundation
 
 struct Socket {
-    let ipProtocol: UInt
+    let ipProtocol: UInt // 0 means ip
     let sourceIp: UInt
     let sourcePort: UInt?  // always nonoptional for tcp, udp
     let destinationIp: UInt
@@ -68,6 +68,12 @@ struct Socket {
             debugPrint("Unknown error in socket")
             return nil
         }
+    }
+    func reverse() -> Socket? {
+        guard let reverseSocket = Socket(ipProtocol: self.ipProtocol, sourceIp: self.destinationIp, destinationIp: self.sourceIp, sourcePort: self.destinationPort, destinationPort: self.sourcePort, established: true) else {
+            return nil
+        }
+        return reverseSocket
     }
 }
 extension Socket: CustomStringConvertible {

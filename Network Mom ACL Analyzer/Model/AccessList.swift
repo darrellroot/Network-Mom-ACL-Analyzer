@@ -65,4 +65,31 @@ class AccessList {
         }
         self.accessListType = accessListType
     }
+    public func analyze(socket: Socket, delegate: AclErrorDelegate? = nil) -> AclAction {
+        var aclAction: AclAction? = nil
+        for (lineNumber,accessControlEntry) in accessControlEntries.enumerated() {
+            let aceAction = accessControlEntry.analyze(socket: socket)
+            switch aceAction {
+            case .neither:
+                continue
+            case .permit, .deny:
+                if aclAction == nil {
+                    // first match in acl
+                    aclAction = aceAction
+                    delegate?.report(severity: .result, message: "FIRST MATCH \(accessControlEntry.line)", line: lineNumber)
+                    //delegate?.report(severity: .result, message: "FIRST MATCH \(aclAction)", line: lineNumber)
+                } else {
+                    // later match in acl
+                    delegate?.report(severity: .result, message: "ALSO MATCH \(accessControlEntry.line)", line: lineNumber)
+                    //delegate?.report(severity: .result, message: "Also matches \(aclAction)", line: lineNumber)
+                }
+            }
+        }
+        guard let finalAclAction = aclAction else {
+            // no match found, implicit deny
+            delegate?.report(severity: .result, message: "No Match Found, implicit \(AclAction.deny)")
+            return .deny
+        }
+        return finalAclAction
+    }
 }
