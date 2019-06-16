@@ -111,6 +111,24 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
         XCTAssert(ace?.maxDestPort == 123)
     }
 
+    func testTcpNamedPort() {
+        let ace = AccessControlEntry(line: "permit tcp 1.1.1.0 0.0.0.255 eq domain 2.2.2.128 0.0.0.63 eq nfs", type: .dontCareBit, linenum: 5)
+        XCTAssert(ace?.maxSourcePort == 53)
+        XCTAssert(ace?.minDestPort == 2049)
+    }
+    func testIcmpName() {
+        let ace = AccessControlEntry(line: "access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1 timestamp-reply", type: .dontCareBit, linenum: 6)
+        XCTAssert(ace?.ipProtocol == 1)
+    }
+    func testIcmpNumber() {
+        let ace = AccessControlEntry(line: "access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1 14", type: .dontCareBit, linenum: 6)
+        XCTAssert(ace?.ipProtocol == 1)
+        XCTAssert(ace?.icmpMessage?.type == 14)
+    }
+    func testIcmpInvalidName() {
+        let ace = AccessControlEntry(line: "access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1 timestamp-bogus", type: .dontCareBit, linenum: 6)
+        XCTAssert(ace == nil)
+    }
 
     func testPerformanceExample() {
         // This is an example of a performance test case.

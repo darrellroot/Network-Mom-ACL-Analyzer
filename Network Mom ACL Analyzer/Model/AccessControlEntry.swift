@@ -24,6 +24,7 @@ struct AccessControlEntry {
     var maxDestPort: UInt?
     var established: Bool
     var line: String
+    var icmpMessage: IcmpMessage?
     
     func findAction(word: String) -> AclAction? {
         switch word {
@@ -500,10 +501,26 @@ struct AccessControlEntry {
                 linePosition = .destMask
             case .destMask:
                 switch token {
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .remark, .comment, .number, .host, .any, .name, .fourOctet:
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .remark, .comment, .host, .any, .fourOctet:
                     delegate?.report(severity: .linetext, message: line, line: linenum)
                     delegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
+                case .name(let name):  // only valid for icmp here
+                    guard tempIpProtocol == 1, let icmpMessage = IcmpMessage(message: name) else {
+                        delegate?.report(severity: .linetext, message: line, line: linenum)
+                        delegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                        return nil
+                    }
+                    self.icmpMessage = icmpMessage
+                    debugPrint("warning: specific icmp syntax not supported")
+                case .number(let number):
+                    guard tempIpProtocol == 1, let icmpMessage = IcmpMessage(type: number, code: nil) else {
+                        delegate?.report(severity: .linetext, message: line, line: linenum)
+                        delegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                        return nil
+                    }
+                    self.icmpMessage = icmpMessage
+                    debugPrint("warning: specific icmp syntax not supported")
                 case .established:
                     tempEstablished = true
                     linePosition = .end

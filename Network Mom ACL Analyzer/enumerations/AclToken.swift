@@ -40,12 +40,12 @@ enum AclToken: Equatable {
             self = .deny
         case "tcp":
             self = .tcp
+        case "icmp":
+            self = .icmp
         case "ip":
             self = .ip
         case "udp":
             self = .udp
-        case "icmp":
-            self = .icmp
         case "host":
             self = .host
         case "any":
