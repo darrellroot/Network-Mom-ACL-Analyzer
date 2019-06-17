@@ -24,6 +24,7 @@
 		2F4B852022B2EFE300927DD2 /* Severity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B851E22B2EFE300927DD2 /* Severity.swift */; };
 		2F4B852222B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
 		2F4B852322B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
+		2F5930C022B80CB700434C6E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2F5930BF22B80CB700434C6E /* Credits.rtf */; };
 		2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
@@ -64,6 +65,7 @@
 		2F4B851B22B2EC2A00927DD2 /* AclErrorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AclErrorDelegate.swift; sourceTree = "<group>"; };
 		2F4B851E22B2EFE300927DD2 /* Severity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Severity.swift; sourceTree = "<group>"; };
 		2F4B852122B555F200927DD2 /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
+		2F5930BF22B80CB700434C6E /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcmpMessage.swift; sourceTree = "<group>"; };
 		2F9D0672228A0700002C09EE /* Network Mom ACL Analyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Network Mom ACL Analyzer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F9D0675228A0700002C09EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -119,6 +121,14 @@
 			path = Protocols;
 			sourceTree = "<group>";
 		};
+		2F5930BE22B80C8A00434C6E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				2F5930BF22B80CB700434C6E /* Credits.rtf */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		2F9D0669228A0700002C09EE = {
 			isa = PBXGroup;
 			children = (
@@ -146,6 +156,7 @@
 				2FBAA072228A0DE200B53113 /* extensions */,
 				2FCE6AA522AAFCF000E0B4D7 /* enumerations */,
 				2F4B851A22B2EBB100927DD2 /* Protocols */,
+				2F5930BE22B80C8A00434C6E /* Resources */,
 				2FBAA076228A12A400B53113 /* Model */,
 				2FBAA075228A0E5F00B53113 /* Controllers */,
 				2F9D067E228A0702002C09EE /* Info.plist */,
@@ -252,6 +263,11 @@
 					};
 					2F9D0671228A0700002C09EE = {
 						CreatedOnToolsVersion = 10.2.1;
+						SystemCapabilities = {
+							com.apple.HardenedRuntime = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -289,6 +305,7 @@
 				2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */,
 				2F9D067D228A0702002C09EE /* Main.storyboard in Resources */,
 				2F4B851922B16C8E00927DD2 /* AnalyzeDashboardController.xib in Resources */,
+				2F5930C022B80CB700434C6E /* Credits.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -527,6 +544,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 8DU2Q8ABKY;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "Network Mom ACL Analyzer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -546,6 +564,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 8DU2Q8ABKY;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = "Network Mom ACL Analyzer/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
