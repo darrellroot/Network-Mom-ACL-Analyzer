@@ -33,9 +33,14 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclError
     @IBOutlet weak var destinationIpOutlet: NSTextField!
     @IBOutlet weak var destinationPortOutlet: NSTextField!
     
+    @IBOutlet weak var ingressDeviceTypeOutlet: NSPopUpButton!
+    @IBOutlet weak var egressDeviceTypeOutlet: NSPopUpButton!
+    
     var ingressAccessList: AccessList?
     var egressAccessList: AccessList?
     var activeWarningWindow: ActiveWarningWindow?
+    var ingressDeviceType: DeviceType = .ios
+    var egressDeviceType: DeviceType = .ios
     
     override var windowNibName: NSNib.Name? {
         return NSNib.Name("AnalyzeDashboardController")
@@ -102,14 +107,41 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclError
 
     }
     @IBAction func validateAcl(_ sender: Any) {
-        ingressAclValidation.string = ""
-        egressAclValidation.string = ""
+        
+        ingressAclValidation.string.removeAll()
+        egressAclValidation.string.removeAll()
+
+        guard let ingressDeviceTypeString = ingressDeviceTypeOutlet.titleOfSelectedItem else {
+            self.report(severity: .error, message: "Unable to identify ingress device type", window: .ingressValidation)
+            return
+        }
+        guard let egressDeviceTypeString = egressDeviceTypeOutlet.titleOfSelectedItem else {
+            self.report(severity: .error, message: "Unable to identify egress device type", window: .ingressValidation)
+            return
+        }
+        switch ingressDeviceTypeString {
+        case "IOS":
+            ingressDeviceType = .ios
+        case "ASA":
+            ingressDeviceType = .asa
+        default:
+            self.report(severity: .error, message: "Unable to identify ingress device type", window: .ingressValidation)
+            return
+        }
+        switch egressDeviceTypeString {
+        case "IOS":
+            egressDeviceType = .ios
+        default:
+            self.report(severity: .error, message: "Unable to identify egress device type", window: .egressValidation)
+            return
+        }
+
         let ingressString = ingressAclTextView.string
         let egressString = egressAclTextView.string
         activeWarningWindow = .ingressValidation
-        ingressAccessList = AccessList(sourceText: ingressString, delegate: self)
+        ingressAccessList = AccessList(sourceText: ingressString, deviceType: ingressDeviceType, delegate: self)
         activeWarningWindow = .egressValidation
-        egressAccessList = AccessList(sourceText: egressString, delegate: self)
+        egressAccessList = AccessList(sourceText: egressString, deviceType: egressDeviceType, delegate: self)
         activeWarningWindow = nil
         if egressAccessList?.count == 0 {
             egressAccessList = nil
@@ -131,15 +163,19 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclError
         self.report(severity: severity, message: message, line: line, window: activeWarningWindow)
     }
     func report(severity: Severity, message: String, window: ActiveWarningWindow) {
+        var severityText = "\(severity) "
+        if severity == .linetext {
+            severityText = ""
+        }
         switch window {
         case .ingressValidation:
-            ingressAclValidation.string.append(contentsOf: "\(severity) \(message)\n")
+            ingressAclValidation.string.append(contentsOf: "\(severityText)\(message)\n")
         case .egressValidation:
-            egressAclValidation.string.append(contentsOf: "\(severity) \(message)\n")
+            egressAclValidation.string.append(contentsOf: "\(severityText)\(message)\n")
         case .ingressAnalyze:
-            ingressAclAnalysis.string.append(contentsOf: "\(severity) \(message)\n")
+            ingressAclAnalysis.string.append(contentsOf: "\(severityText)\(message)\n")
         case .egressAnalyze:
-            egressAclAnalysis.string.append(contentsOf: "\(severity) \(message)\n")
+            egressAclAnalysis.string.append(contentsOf: "\(severityText)\(message)\n")
 
         }
     }

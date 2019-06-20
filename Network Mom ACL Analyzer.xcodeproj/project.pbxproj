@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F1FD8AF22B9DBB3008ADBC7 /* AceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FD8AE22B9DBB3008ADBC7 /* AceType.swift */; };
+		2F1FD8B022B9DBB3008ADBC7 /* AceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FD8AE22B9DBB3008ADBC7 /* AceType.swift */; };
+		2F1FD8B222B9EE26008ADBC7 /* Collection+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FD8B122B9EE26008ADBC7 /* Collection+extensions.swift */; };
+		2F1FD8B322B9EE26008ADBC7 /* Collection+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FD8B122B9EE26008ADBC7 /* Collection+extensions.swift */; };
+		2F1FD8B522B9EF33008ADBC7 /* AceInfoDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FD8B422B9EF33008ADBC7 /* AceInfoDelegate.swift */; };
+		2F1FD8B622B9EF33008ADBC7 /* AceInfoDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1FD8B422B9EF33008ADBC7 /* AceInfoDelegate.swift */; };
 		2F2698A322A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */; };
 		2F2698AA22A7795800517AC9 /* AccessControlEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */; };
 		2F2698AB22A7798300517AC9 /* LinePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA084228F5EAB00B53113 /* LinePosition.swift */; };
@@ -57,6 +63,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2F1FD8AE22B9DBB3008ADBC7 /* AceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AceType.swift; sourceTree = "<group>"; };
+		2F1FD8B122B9EE26008ADBC7 /* Collection+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+extensions.swift"; sourceTree = "<group>"; };
+		2F1FD8B422B9EF33008ADBC7 /* AceInfoDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AceInfoDelegate.swift; sourceTree = "<group>"; };
 		2F2698A022A7784300517AC9 /* Network Mom ACL AnalyzerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Network Mom ACL AnalyzerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network_Mom_ACL_AnalyzerTests.swift; sourceTree = "<group>"; };
 		2F2698A422A7784300517AC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -117,6 +126,7 @@
 			isa = PBXGroup;
 			children = (
 				2F4B851B22B2EC2A00927DD2 /* AclErrorDelegate.swift */,
+				2F1FD8B422B9EF33008ADBC7 /* AceInfoDelegate.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -171,6 +181,7 @@
 				2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */,
 				2FBAA082228F5B9D00B53113 /* String+extensions.swift */,
 				2FBAA073228A0DF200B53113 /* Array+extensions.swift */,
+				2F1FD8B122B9EE26008ADBC7 /* Collection+extensions.swift */,
 			);
 			path = extensions;
 			sourceTree = "<group>";
@@ -197,12 +208,13 @@
 		2FCE6AA522AAFCF000E0B4D7 /* enumerations */ = {
 			isa = PBXGroup;
 			children = (
+				2F1FD8AE22B9DBB3008ADBC7 /* AceType.swift */,
 				2FBAA07C228A392B00B53113 /* AclAction.swift */,
+				2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */,
 				2FBAA07E228A399300B53113 /* IpVersion.swift */,
 				2FBAA084228F5EAB00B53113 /* LinePosition.swift */,
 				2FBAA086228F613700B53113 /* MaskType.swift */,
 				2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */,
-				2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */,
 				2F4B851E22B2EFE300927DD2 /* Severity.swift */,
 				2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */,
 			);
@@ -317,6 +329,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F2698AE22A7798D00517AC9 /* AclAction.swift in Sources */,
+				2F1FD8B022B9DBB3008ADBC7 /* AceType.swift in Sources */,
 				2F4B851D22B2EC2A00927DD2 /* AclErrorDelegate.swift in Sources */,
 				2F2698B322A779A100517AC9 /* String+extensions.swift in Sources */,
 				2F4B852322B555F200927DD2 /* Socket.swift in Sources */,
@@ -326,8 +339,10 @@
 				2F2698AA22A7795800517AC9 /* AccessControlEntry.swift in Sources */,
 				2FCE6AAB22ACAF5100E0B4D7 /* AclToken.swift in Sources */,
 				2F2698AB22A7798300517AC9 /* LinePosition.swift in Sources */,
+				2F1FD8B322B9EE26008ADBC7 /* Collection+extensions.swift in Sources */,
 				2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
 				2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */,
+				2F1FD8B622B9EF33008ADBC7 /* AceInfoDelegate.swift in Sources */,
 				2F2698A322A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift in Sources */,
 				2F2698B022A7799200517AC9 /* MaskType.swift in Sources */,
 				2F2698B222A7799F00517AC9 /* Array+extensions.swift in Sources */,
@@ -346,6 +361,8 @@
 				2F4B851C22B2EC2A00927DD2 /* AclErrorDelegate.swift in Sources */,
 				2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */,
 				2F4B852222B555F200927DD2 /* Socket.swift in Sources */,
+				2F1FD8B222B9EE26008ADBC7 /* Collection+extensions.swift in Sources */,
+				2F1FD8B522B9EF33008ADBC7 /* AceInfoDelegate.swift in Sources */,
 				2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
 				2FBAA07D228A392B00B53113 /* AclAction.swift in Sources */,
@@ -354,6 +371,7 @@
 				2FBAA07A228A38AE00B53113 /* AccessControlEntry.swift in Sources */,
 				2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
 				2FBAA083228F5B9D00B53113 /* String+extensions.swift in Sources */,
+				2F1FD8AF22B9DBB3008ADBC7 /* AceType.swift in Sources */,
 				2F4B851F22B2EFE300927DD2 /* Severity.swift in Sources */,
 				2FBAA074228A0DF200B53113 /* Array+extensions.swift in Sources */,
 			);

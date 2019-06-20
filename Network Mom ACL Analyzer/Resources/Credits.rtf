@@ -11,7 +11,7 @@
 
 \f0\fs24 \cf0 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\qj\partightenfactor0
-\cf0 READ THIS WHOLE MESSAGE BEFORE USING THIS TOOL--its not long\
+\cf0 READ THIS WHOLE MESSAGE BEFORE USING THIS TOOL\
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 \cf0 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
@@ -19,7 +19,7 @@
 \
 PLEASE send feedback, including ACL samples this analyzer has difficulty with, to feedback@networkmom.net\
 \
-The only thing we promise is that Network Mom ACL Analyzer does not save your data and does not send your data anywhere.  This is enforced by Apple's "App Sandbox" feature.  Specifically:\
+We promise that Network Mom ACL Analyzer does not save your data and does not send your data anywhere.  This is enforced by Apple's "App Sandbox" feature.  Specifically:\
 \
 \pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural\partightenfactor0
 \ls1\ilvl0\cf2 {\listtext	1.	}App Sandbox is enabled\
@@ -39,16 +39,15 @@ Known limitations as of 17 June 2019\
 {\listtext	2.	}Only supports extended ACLs, not standard ACLs\
 {\listtext	3.	}Only supports analysis of TCP and UDP sockets\
 {\listtext	4.	}Does not support object-groups\
-{\listtext	5.	}Does not support DNS lookup of hostnames in ACLs (this is a required side-effect of not allowing outbound network connections, we do not expect this to change in future publicly released versions)\
-{\listtext	6.	}Does not support IOS-XR ACL syntax (we appreciate samples)\
+{\listtext	5.	}Does not support DNS lookup of hostnames in ACLs (this is a required side-effect of not allowing outbound network connections)\
+{\listtext	6.	}Does not support ASA neq (port not equal to) operator.\
 \pard\tx560\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 \cf2 \
 Other notes:\
 \pard\tx220\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\li720\fi-720\pardirnatural\partightenfactor0
-\ls3\ilvl0\cf2 {\listtext	1.	}This tool attempts to determine whether the ACL is don't care bit (IOS) or netmask (ASA), and reports errors when inconsistencies are detected.\
-{\listtext	2.	}ACLs using names for ports (such as "eq ssh") are very IOS version dependent.  An ACL line may be accepted by this tool but not accepted by a network device (or vice versa).\
-{\listtext	3.	}Only put statements from one ACL in the input windows at a time (of course an ACL can have thousands of lines...just don't put two ACLs in one input window).\
-{\listtext	4.	}Make certain to look at errors in the ACL Validation output.  A single line could permit all traffic but fail to be parsed by the validator.  If the validator does not parse the line, the socket analyzer does not consider the line.\
+\ls3\ilvl0\cf2 {\listtext	1.	}ACLs using names for ports (such as "eq ssh") are IOS version dependent.  An ACL line may be accepted by this tool but not accepted by a network device (or vice versa).\
+{\listtext	2.	}Only put statements from one ACL in the input windows at a time (an ACL can have thousands of lines...just don't put two ACLs in one input window).\
+{\listtext	3.	}Review errors in the ACL Validation output.  A single line could permit all traffic but fail to be parsed by the validator.  If the validator does not parse the line, the socket analyzer does not consider the line.\
 \pard\tx560\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 \cf2 \
 }

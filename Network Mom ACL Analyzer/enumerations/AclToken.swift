@@ -17,6 +17,8 @@ enum AclToken: Equatable {
     case udp
     case icmp
     case eq
+    case extended
+    case objectGroup
     case range
     case host
     case any
@@ -52,6 +54,10 @@ enum AclToken: Equatable {
             self = .any
         case "eq":
             self = .eq
+        case "extended":
+            self = .extended
+        case "object-group":
+            self = .objectGroup
         case "range":
             self = .range
         case "gt":

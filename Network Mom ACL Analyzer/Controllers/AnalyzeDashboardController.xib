@@ -12,9 +12,11 @@
                 <outlet property="egressAclAnalysis" destination="1JM-OC-Bbe" id="TkE-gM-cU9"/>
                 <outlet property="egressAclTextView" destination="f6y-fx-VLP" id="oX6-jR-P6K"/>
                 <outlet property="egressAclValidation" destination="NRW-2n-cmB" id="uFn-H3-Lb0"/>
+                <outlet property="egressDeviceTypeOutlet" destination="cis-8y-h4o" id="8Nh-id-eAL"/>
                 <outlet property="ingressAclAnalysis" destination="8SF-Zg-E35" id="67P-PE-6Qm"/>
                 <outlet property="ingressAclTextView" destination="oxa-LT-8k6" id="Zc9-ma-Hwa"/>
-                <outlet property="ingressAclValidation" destination="YaA-tn-p3E" id="Ul1-9a-yOe"/>
+                <outlet property="ingressAclValidation" destination="YaA-tn-p3E" id="zQ7-Le-jcz"/>
+                <outlet property="ingressDeviceTypeOutlet" destination="7qC-1R-IGq" id="3T3-xx-NQs"/>
                 <outlet property="protocolButton" destination="tVc-eB-Tf7" id="AiN-8v-8Do"/>
                 <outlet property="sourceIpOutlet" destination="geL-Qf-Xky" id="jEW-xz-k7v"/>
                 <outlet property="sourcePortOutlet" destination="Q14-Xh-kUd" id="zJM-o2-ncq"/>
@@ -29,26 +31,63 @@
             <rect key="contentRect" x="50" y="200" width="1240" height="552"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" misplaced="YES" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="1240" height="552"/>
+                <rect key="frame" x="0.0" y="0.0" width="1088" height="603"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <stackView distribution="fillEqually" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HDt-aD-yac" userLabel="Overall Stack View">
-                        <rect key="frame" x="20" y="20" width="1048" height="559"/>
+                        <rect key="frame" x="20" y="20" width="1048" height="563"/>
                         <subviews>
                             <stackView distribution="fillEqually" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hGL-5r-dvO" userLabel="ACL Input H Stack View">
-                                <rect key="frame" x="20" y="399" width="1008" height="160"/>
+                                <rect key="frame" x="2" y="399" width="1044" height="164"/>
                                 <subviews>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="juK-P8-AV9" userLabel="Ingress ACL V Stack View">
-                                        <rect key="frame" x="0.0" y="0.0" width="500" height="160"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="518" height="164"/>
                                         <subviews>
-                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OGC-IH-5X4">
-                                                <rect key="frame" x="-2" y="143" width="210" height="17"/>
-                                                <textFieldCell key="cell" lineBreakMode="clipping" title="Ingress ACL (stateless or stateful)" id="rKE-dJ-vEd">
-                                                    <font key="font" usesAppearanceFont="YES"/>
-                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                </textFieldCell>
-                                            </textField>
+                                            <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9Pl-27-zg8" userLabel="H Stack View">
+                                                <rect key="frame" x="0.0" y="143" width="518" height="21"/>
+                                                <subviews>
+                                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OGC-IH-5X4">
+                                                        <rect key="frame" x="-2" y="4" width="352" height="17"/>
+                                                        <textFieldCell key="cell" lineBreakMode="clipping" title="Ingress ACL (stateless or stateful)" id="rKE-dJ-vEd">
+                                                            <font key="font" usesAppearanceFont="YES"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Cl2-J8-Wy9">
+                                                        <rect key="frame" x="354" y="4" width="83" height="17"/>
+                                                        <textFieldCell key="cell" lineBreakMode="clipping" title="Device Type:" id="OKK-CV-z5I">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <popUpButton horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7qC-1R-IGq">
+                                                        <rect key="frame" x="441" y="-3" width="80" height="25"/>
+                                                        <popUpButtonCell key="cell" type="push" title="IOS" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="0k0-sB-D2S" id="DmE-jz-8vI">
+                                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" metaFont="menu"/>
+                                                            <menu key="menu" id="FZH-ih-KI8">
+                                                                <items>
+                                                                    <menuItem title="IOS" state="on" id="0k0-sB-D2S"/>
+                                                                    <menuItem title="ASA" id="hF5-FH-g3I"/>
+                                                                    <menuItem title="NX-OS" id="UIE-ED-SCf"/>
+                                                                </items>
+                                                            </menu>
+                                                        </popUpButtonCell>
+                                                    </popUpButton>
+                                                </subviews>
+                                                <visibilityPriorities>
+                                                    <integer value="1000"/>
+                                                    <integer value="1000"/>
+                                                    <integer value="1000"/>
+                                                </visibilityPriorities>
+                                                <customSpacing>
+                                                    <real value="3.4028234663852886e+38"/>
+                                                    <real value="3.4028234663852886e+38"/>
+                                                    <real value="3.4028234663852886e+38"/>
+                                                </customSpacing>
+                                            </stackView>
                                             <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pvl-g4-J1d">
                                                 <rect key="frame" x="0.0" y="0.0" width="500" height="135"/>
                                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="u6T-Vt-bVm">
@@ -76,6 +115,10 @@
                                                 </scroller>
                                             </scrollView>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstItem="9Pl-27-zg8" firstAttribute="leading" secondItem="juK-P8-AV9" secondAttribute="leading" id="b75-UD-VCV"/>
+                                            <constraint firstAttribute="trailing" secondItem="9Pl-27-zg8" secondAttribute="trailing" id="eyf-hy-1dO"/>
+                                        </constraints>
                                         <visibilityPriorities>
                                             <integer value="1000"/>
                                             <integer value="1000"/>
@@ -86,16 +129,52 @@
                                         </customSpacing>
                                     </stackView>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sKv-MI-jKE" userLabel="Egress ACL V Stack View">
-                                        <rect key="frame" x="508" y="0.0" width="500" height="160"/>
+                                        <rect key="frame" x="526" y="0.0" width="518" height="164"/>
                                         <subviews>
-                                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WeC-eg-j95">
-                                                <rect key="frame" x="-2" y="143" width="327" height="17"/>
-                                                <textFieldCell key="cell" lineBreakMode="clipping" title="Egress ACL for return traffic (optional): stateless only" id="cxW-F2-qC5">
-                                                    <font key="font" usesAppearanceFont="YES"/>
-                                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                </textFieldCell>
-                                            </textField>
+                                            <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IDD-Au-x5o" userLabel="H Stack View">
+                                                <rect key="frame" x="0.0" y="143" width="518" height="21"/>
+                                                <subviews>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WeC-eg-j95">
+                                                        <rect key="frame" x="-2" y="4" width="327" height="17"/>
+                                                        <textFieldCell key="cell" lineBreakMode="clipping" title="Egress ACL for return traffic (optional): stateless only" id="cxW-F2-qC5">
+                                                            <font key="font" usesAppearanceFont="YES"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vaf-lW-OKL">
+                                                        <rect key="frame" x="329" y="4" width="108" height="17"/>
+                                                        <textFieldCell key="cell" lineBreakMode="clipping" title="       Device Type:" id="xaE-C6-b5k">
+                                                            <font key="font" metaFont="system"/>
+                                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
+                                                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cis-8y-h4o">
+                                                        <rect key="frame" x="441" y="-3" width="80" height="25"/>
+                                                        <popUpButtonCell key="cell" type="push" title="IOS" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="oqL-pG-Qac" id="JMI-s3-4iS">
+                                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" metaFont="menu"/>
+                                                            <menu key="menu" id="Lfu-02-cbt">
+                                                                <items>
+                                                                    <menuItem title="IOS" state="on" id="oqL-pG-Qac"/>
+                                                                    <menuItem title="NX-OS" id="ibF-2G-2Pt"/>
+                                                                </items>
+                                                            </menu>
+                                                        </popUpButtonCell>
+                                                    </popUpButton>
+                                                </subviews>
+                                                <visibilityPriorities>
+                                                    <integer value="1000"/>
+                                                    <integer value="1000"/>
+                                                    <integer value="1000"/>
+                                                </visibilityPriorities>
+                                                <customSpacing>
+                                                    <real value="3.4028234663852886e+38"/>
+                                                    <real value="3.4028234663852886e+38"/>
+                                                    <real value="3.4028234663852886e+38"/>
+                                                </customSpacing>
+                                            </stackView>
                                             <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i7N-36-oTl">
                                                 <rect key="frame" x="0.0" y="0.0" width="500" height="135"/>
                                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="zJD-Dm-z17">
@@ -126,6 +205,10 @@
                                                 </scroller>
                                             </scrollView>
                                         </subviews>
+                                        <constraints>
+                                            <constraint firstItem="IDD-Au-x5o" firstAttribute="leading" secondItem="sKv-MI-jKE" secondAttribute="leading" id="EdU-bU-n3g"/>
+                                            <constraint firstAttribute="trailing" secondItem="IDD-Au-x5o" secondAttribute="trailing" id="NqK-xa-wQV"/>
+                                        </constraints>
                                         <visibilityPriorities>
                                             <integer value="1000"/>
                                             <integer value="1000"/>
