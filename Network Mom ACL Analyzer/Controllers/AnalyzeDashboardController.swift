@@ -56,6 +56,38 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclError
         // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
     }
     
+    @IBAction func importIngressButton(_ sender: NSButton) {
+        let openPanel = NSOpenPanel()
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        openPanel.canCreateDirectories = false
+        openPanel.canChooseFiles = true
+        openPanel.beginSheetModal(for: self.window!) { (result) in
+            if result == .OK, let url = openPanel.url {
+                debugPrint(url)
+                if let newAcl =  try? String(contentsOf: url) {
+                    self.ingressAclTextView.string = newAcl
+                }
+            }
+        }
+    }
+    
+    @IBAction func importEgressButton(_ sender: NSButton) {
+        let openPanel = NSOpenPanel()
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        openPanel.canCreateDirectories = false
+        openPanel.canChooseFiles = true
+        openPanel.beginSheetModal(for: self.window!) { (result) in
+            if result == .OK, let url = openPanel.url {
+                debugPrint(url)
+                if let newAcl =  try? String(contentsOf: url) {
+                    self.egressAclTextView.string = newAcl
+                }
+            }
+        }
+    }
+    
     @IBAction func analyzeButton(_ sender: NSButton) {
         self.validateAcl(self)
         ingressAclAnalysis.string = ""
