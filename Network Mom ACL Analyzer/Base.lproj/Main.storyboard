@@ -618,6 +618,12 @@
                                                 <action selector="showHelp:" target="Ady-hI-5gd" id="y7X-2Q-9no"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Privacy Policy" id="JfX-5i-tcz" userLabel="Privacy Policy">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="privacyPolicy:" target="Voe-Tx-rLC" id="sh8-Vv-SJW"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>

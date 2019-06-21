@@ -35,6 +35,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Insert code here to tear down your application
     }
 
+    @IBAction func privacyPolicy(_ sender: NSMenuItem) {
+        let privacyPolicyController = PrivacyPolicyController()
+        privacyPolicyController.showWindow(self)
+    }
     @IBAction func newAclAnalyzer(_ sender: NSMenuItem) {
         let expirationDate = Calendar.current.nextDate(after: Date(timeIntervalSinceReferenceDate: 0), matching: expirationDateComponents, matchingPolicy: .nextTime)
         if let expirationDate = expirationDate, expirationDate > Date() {

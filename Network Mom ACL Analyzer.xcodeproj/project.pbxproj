@@ -36,6 +36,9 @@
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
 		2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D0679228A0702002C09EE /* Assets.xcassets */; };
 		2F9D067D228A0702002C09EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D067B228A0702002C09EE /* Main.storyboard */; };
+		2FA4F54322BC101C006040A4 /* PrivacyPolicyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA4F54122BC101C006040A4 /* PrivacyPolicyController.swift */; };
+		2FA4F54422BC101C006040A4 /* PrivacyPolicyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4F54222BC101C006040A4 /* PrivacyPolicyController.xib */; };
+		2FA4F54622BC10D6006040A4 /* PrivacyPolicy.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4F54522BC10D6006040A4 /* PrivacyPolicy.rtfd */; };
 		2FBAA074228A0DF200B53113 /* Array+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA073228A0DF200B53113 /* Array+extensions.swift */; };
 		2FBAA078228A12D500B53113 /* AccessList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA077228A12D500B53113 /* AccessList.swift */; };
 		2FBAA07A228A38AE00B53113 /* AccessControlEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */; };
@@ -82,6 +85,9 @@
 		2F9D067C228A0702002C09EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2F9D067E228A0702002C09EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2F9D067F228A0702002C09EE /* Network_Mom_ACL_Analyzer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Network_Mom_ACL_Analyzer.entitlements; sourceTree = "<group>"; };
+		2FA4F54122BC101C006040A4 /* PrivacyPolicyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyController.swift; sourceTree = "<group>"; };
+		2FA4F54222BC101C006040A4 /* PrivacyPolicyController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrivacyPolicyController.xib; sourceTree = "<group>"; };
+		2FA4F54522BC10D6006040A4 /* PrivacyPolicy.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = PrivacyPolicy.rtfd; sourceTree = "<group>"; };
 		2FBAA073228A0DF200B53113 /* Array+extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+extensions.swift"; sourceTree = "<group>"; };
 		2FBAA077228A12D500B53113 /* AccessList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessList.swift; sourceTree = "<group>"; };
 		2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessControlEntry.swift; sourceTree = "<group>"; };
@@ -135,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				2F5930BF22B80CB700434C6E /* Credits.rtf */,
+				2FA4F54522BC10D6006040A4 /* PrivacyPolicy.rtfd */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -191,6 +198,8 @@
 			children = (
 				2F4B851622B16C8E00927DD2 /* AnalyzeDashboardController.swift */,
 				2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */,
+				2FA4F54122BC101C006040A4 /* PrivacyPolicyController.swift */,
+				2FA4F54222BC101C006040A4 /* PrivacyPolicyController.xib */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -317,7 +326,9 @@
 				2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */,
 				2F9D067D228A0702002C09EE /* Main.storyboard in Resources */,
 				2F4B851922B16C8E00927DD2 /* AnalyzeDashboardController.xib in Resources */,
+				2FA4F54622BC10D6006040A4 /* PrivacyPolicy.rtfd in Resources */,
 				2F5930C022B80CB700434C6E /* Credits.rtf in Resources */,
+				2FA4F54422BC101C006040A4 /* PrivacyPolicyController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -358,6 +369,7 @@
 				2FBAA07F228A399300B53113 /* IpVersion.swift in Sources */,
 				2FBAA078228A12D500B53113 /* AccessList.swift in Sources */,
 				2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */,
+				2FA4F54322BC101C006040A4 /* PrivacyPolicyController.swift in Sources */,
 				2F4B851C22B2EC2A00927DD2 /* AclErrorDelegate.swift in Sources */,
 				2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */,
 				2F4B852222B555F200927DD2 /* Socket.swift in Sources */,
