@@ -39,6 +39,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let privacyPolicyController = PrivacyPolicyController()
         privacyPolicyController.showWindow(self)
     }
+    @IBAction func helpMenu(_ sender: NSMenuItem) {
+        let helpController = HelpController()
+        helpController.showWindow(self)
+    }
+
     @IBAction func newAclAnalyzer(_ sender: NSMenuItem) {
         let expirationDate = Calendar.current.nextDate(after: Date(timeIntervalSinceReferenceDate: 0), matching: expirationDateComponents, matchingPolicy: .nextTime)
         if let expirationDate = expirationDate, expirationDate > Date() {

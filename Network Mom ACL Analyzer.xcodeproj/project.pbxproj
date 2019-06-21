@@ -31,6 +31,8 @@
 		2F4B852222B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
 		2F4B852322B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
 		2F5930C022B80CB700434C6E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2F5930BF22B80CB700434C6E /* Credits.rtf */; };
+		2F69332222BD892D00634455 /* HelpController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F69332122BD892D00634455 /* HelpController.xib */; };
+		2F69332422BD894000634455 /* HelpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F69332322BD894000634455 /* HelpController.swift */; };
 		2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
@@ -39,6 +41,7 @@
 		2FA4F54322BC101C006040A4 /* PrivacyPolicyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA4F54122BC101C006040A4 /* PrivacyPolicyController.swift */; };
 		2FA4F54422BC101C006040A4 /* PrivacyPolicyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4F54222BC101C006040A4 /* PrivacyPolicyController.xib */; };
 		2FA4F54622BC10D6006040A4 /* PrivacyPolicy.rtfd in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4F54522BC10D6006040A4 /* PrivacyPolicy.rtfd */; };
+		2FA4F54822BD8208006040A4 /* Help.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2FA4F54722BD8208006040A4 /* Help.rtf */; };
 		2FBAA074228A0DF200B53113 /* Array+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA073228A0DF200B53113 /* Array+extensions.swift */; };
 		2FBAA078228A12D500B53113 /* AccessList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA077228A12D500B53113 /* AccessList.swift */; };
 		2FBAA07A228A38AE00B53113 /* AccessControlEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */; };
@@ -78,6 +81,8 @@
 		2F4B851E22B2EFE300927DD2 /* Severity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Severity.swift; sourceTree = "<group>"; };
 		2F4B852122B555F200927DD2 /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
 		2F5930BF22B80CB700434C6E /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
+		2F69332122BD892D00634455 /* HelpController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HelpController.xib; sourceTree = "<group>"; };
+		2F69332322BD894000634455 /* HelpController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpController.swift; sourceTree = "<group>"; };
 		2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcmpMessage.swift; sourceTree = "<group>"; };
 		2F9D0672228A0700002C09EE /* Network Mom ACL Analyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Network Mom ACL Analyzer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F9D0675228A0700002C09EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -88,6 +93,7 @@
 		2FA4F54122BC101C006040A4 /* PrivacyPolicyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyController.swift; sourceTree = "<group>"; };
 		2FA4F54222BC101C006040A4 /* PrivacyPolicyController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrivacyPolicyController.xib; sourceTree = "<group>"; };
 		2FA4F54522BC10D6006040A4 /* PrivacyPolicy.rtfd */ = {isa = PBXFileReference; lastKnownFileType = wrapper.rtfd; path = PrivacyPolicy.rtfd; sourceTree = "<group>"; };
+		2FA4F54722BD8208006040A4 /* Help.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Help.rtf; sourceTree = "<group>"; };
 		2FBAA073228A0DF200B53113 /* Array+extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+extensions.swift"; sourceTree = "<group>"; };
 		2FBAA077228A12D500B53113 /* AccessList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessList.swift; sourceTree = "<group>"; };
 		2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessControlEntry.swift; sourceTree = "<group>"; };
@@ -142,6 +148,7 @@
 			children = (
 				2F5930BF22B80CB700434C6E /* Credits.rtf */,
 				2FA4F54522BC10D6006040A4 /* PrivacyPolicy.rtfd */,
+				2FA4F54722BD8208006040A4 /* Help.rtf */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -200,6 +207,8 @@
 				2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */,
 				2FA4F54122BC101C006040A4 /* PrivacyPolicyController.swift */,
 				2FA4F54222BC101C006040A4 /* PrivacyPolicyController.xib */,
+				2F69332322BD894000634455 /* HelpController.swift */,
+				2F69332122BD892D00634455 /* HelpController.xib */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -323,12 +332,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2F69332222BD892D00634455 /* HelpController.xib in Resources */,
 				2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */,
 				2F9D067D228A0702002C09EE /* Main.storyboard in Resources */,
 				2F4B851922B16C8E00927DD2 /* AnalyzeDashboardController.xib in Resources */,
 				2FA4F54622BC10D6006040A4 /* PrivacyPolicy.rtfd in Resources */,
 				2F5930C022B80CB700434C6E /* Credits.rtf in Resources */,
 				2FA4F54422BC101C006040A4 /* PrivacyPolicyController.xib in Resources */,
+				2FA4F54822BD8208006040A4 /* Help.rtf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,6 +384,7 @@
 				2F4B851C22B2EC2A00927DD2 /* AclErrorDelegate.swift in Sources */,
 				2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */,
 				2F4B852222B555F200927DD2 /* Socket.swift in Sources */,
+				2F69332422BD894000634455 /* HelpController.swift in Sources */,
 				2F1FD8B222B9EE26008ADBC7 /* Collection+extensions.swift in Sources */,
 				2F1FD8B522B9EF33008ADBC7 /* AceInfoDelegate.swift in Sources */,
 				2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
