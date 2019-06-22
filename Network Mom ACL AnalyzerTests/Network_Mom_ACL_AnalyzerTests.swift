@@ -27,7 +27,6 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        
         XCTAssert(ace.minSourceIp == sourceip)
     }
     
@@ -96,7 +95,12 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
     }
 
     func testInvalidProtocolDestPort() {
-        let ace = AccessControlEntry(line: "permit ip 1.1.1.0 255.255.255.0 2.2.2.0 255.255.255.0 eq 80", deviceType: .ios, linenum: 5)
+        let ace = AccessControlEntry(line: "permit ip 1.1.1.0 0.0.0.255 2.2.2.0 0.0.0.255 eq 80", deviceType: .ios, linenum: 5)
+        XCTAssert(ace == nil)
+    }
+    
+    func testInvalidNetmaskIos() {
+        let ace = AccessControlEntry(line: "permit ip 1.1.1.0 255.255.255.0 2.2.2.0 255.255.255.0", deviceType: .ios, linenum: 5)
         XCTAssert(ace == nil)
     }
     
@@ -183,25 +187,55 @@ ipv4 access-list acl_hw_1
         XCTAssert(acl.count == 3)
     }
     
-    func testAsaObjectGroupAclInvalid() {
+    
+    func testAsaRemark1() {
         let sample = """
-access-list outside_in remark Section 1 - Specific whitelist
-access-list outside_in remark Temporary exception - #50662 - 2016-10-20 - KD
-access-list outside_in extended permit tcp object-group SPECIAL_DEVICES any eq http
-access-list outside_in remark Section 2 - General blacklist
-access-list outside_in remark Suspicious Ranges - #11246 - 2015-11-05 - KD
-access-list outside_in extended deny ip object-group SuspiciousRanges any
-access-list outside_in remark Section 3 - General whitelist
-access-list outside_in remark web servers - #24548 - 2016-08-19 - KD
-access-list outside_in extended permit tcp object-group any WebServers object-group WebProtocols
-access-list outside_in remark Section 4 - Specific rules
-access-list outside_in remark mail relay - #10456 - 2015-07-29 - KD
-access-list outside_in extended permit tcp object-group MailRelay object-group MailServer object-group MailProtocols
-"""
+        access-list OUT remark - this is the inside admin address
+        access-list OUT extended permit ip host 209.168.200.3 any
+        access-list OUT remark - this is the hr admin address
+        access-list OUT extended permit ip host 209.168.200.4 any
+        """
         let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.count == 2)
+        XCTAssert(acl.accessControlEntries[0].minDestIp == 0)
+        XCTAssert(acl.accessControlEntries[1].maxSourceIp == "209.168.200.4".ipv4address!)
+    }
+    func testAsaIosReject1() {
+        let sample = """
+        access-list OUT extended permit ip host 209.168.200.3 any
+        access-list OUT remark - this is the hr admin address
+        access-list OUT extended permit ip host 209.168.200.4 any
+        access-list OUT remark - this is the inside admin address
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .ios)
         XCTAssert(acl.count == 0)
     }
+
+    func testAsaObject1() {
+        let sample = """
+        access-list ACL_IN extended permit ip any any
+        access-list ACL_IN extended permit object service-obj-http any any
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.count == 1)
+        XCTAssert(acl.accessControlEntries[0].minSourceIp == 0)
+    }
     
+    func testAsaPortMatch() {
+        let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 eq www"
+        guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8) else {
+            XCTAssert(false)
+            return
+        }
+        XCTAssert(ace.minDestIp == "209.165.201.29".ipv4address)
+        XCTAssert(ace.minDestPort == 80)
+        XCTAssert(ace.maxDestPort == 80)
+    }
+    func testAsaIosReject2() {
+        let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 eq www"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 8)
+        XCTAssert(ace == nil)
+    }
     func testAsaAce1() {
         let line = "access-list outside_in extended permit ip any host 172.16.1.2"
         guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8) else {
@@ -216,10 +250,15 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
         }
         XCTAssert(ace.minDestIp == destIp)
     }
-
-    func testAsaObjectGroupAceInvalid() {
-        let line = "access-list outside_in extended permit tcp object-group MailRelay object-group MailServer object-group MailProtocols"
-        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 9)
+    func testAsaIcmp() {
+        let line = "access-list abc extended permit icmp any any echo"
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
+        XCTAssert(ace!.ipProtocol == 1)
+        XCTAssert(ace!.minSourceIp == 0)
+    }
+    func testAsaIosIcmpReject() {
+        let line = "access-list abc extended permit icmp any any echo"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 8)
         XCTAssert(ace == nil)
     }
 

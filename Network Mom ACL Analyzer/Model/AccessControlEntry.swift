@@ -152,6 +152,7 @@ struct AccessControlEntry {
                     if deviceType == .ios {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "ASA-syntax ace detected despite IOS device Type selected", line: linenum)
+                        return nil
                     }
                 case .permit:
                     tempAclAction = .permit

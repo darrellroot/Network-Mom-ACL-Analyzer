@@ -33,6 +33,7 @@
 		2F5930C022B80CB700434C6E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2F5930BF22B80CB700434C6E /* Credits.rtf */; };
 		2F69332222BD892D00634455 /* HelpController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F69332122BD892D00634455 /* HelpController.xib */; };
 		2F69332422BD894000634455 /* HelpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F69332322BD894000634455 /* HelpController.swift */; };
+		2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */; };
 		2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
@@ -83,6 +84,7 @@
 		2F5930BF22B80CB700434C6E /* Credits.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		2F69332122BD892D00634455 /* HelpController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HelpController.xib; sourceTree = "<group>"; };
 		2F69332322BD894000634455 /* HelpController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpController.swift; sourceTree = "<group>"; };
+		2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedFeatureTests.swift; sourceTree = "<group>"; };
 		2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcmpMessage.swift; sourceTree = "<group>"; };
 		2F9D0672228A0700002C09EE /* Network Mom ACL Analyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Network Mom ACL Analyzer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F9D0675228A0700002C09EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 		2F2698A122A7784300517AC9 /* Network Mom ACL AnalyzerTests */ = {
 			isa = PBXGroup;
 			children = (
+				2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */,
 				2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */,
 				2F2698A422A7784300517AC9 /* Info.plist */,
 			);
@@ -366,6 +369,7 @@
 				2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */,
 				2F1FD8B622B9EF33008ADBC7 /* AceInfoDelegate.swift in Sources */,
 				2F2698A322A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift in Sources */,
+				2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */,
 				2F2698B022A7799200517AC9 /* MaskType.swift in Sources */,
 				2F2698B222A7799F00517AC9 /* Array+extensions.swift in Sources */,
 				2FCE6AA422A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
