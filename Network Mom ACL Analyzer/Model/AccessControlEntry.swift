@@ -132,9 +132,11 @@ struct AccessControlEntry {
                 case .number(let number):
                     tempListName = "\(number)"
                     linePosition = .listName
+                    infoDelegate?.foundName("\(number)")
                 case .name(let name):
                     tempListName = name
                     linePosition = .listName
+                    infoDelegate?.foundName(name)
                 }
             case .listName:
                 switch token {

@@ -210,6 +210,23 @@ ipv4 access-list acl_hw_1
         let acl = AccessList(sourceText: sample, deviceType: .ios)
         XCTAssert(acl.count == 0)
     }
+    
+    func testAsaMultiNames() {
+        let sample = """
+        access-list OUT1 extended permit ip host 209.168.200.3 any
+        access-list OUT2 extended permit ip host 209.168.200.4 any
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.names.count == 2)
+    }
+    func testIosMultiNames() {
+        let sample = """
+        access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1
+        access-list 101 permit icmp host 10.1.1.1 host 172.16.1.1
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        XCTAssert(acl.names.count == 2)
+    }
 
     func testAsaObject1() {
         let sample = """

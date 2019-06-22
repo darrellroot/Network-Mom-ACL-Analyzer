@@ -130,8 +130,8 @@
 		2F2698A122A7784300517AC9 /* Network Mom ACL AnalyzerTests */ = {
 			isa = PBXGroup;
 			children = (
-				2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */,
 				2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */,
+				2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */,
 				2F2698A422A7784300517AC9 /* Info.plist */,
 			);
 			path = "Network Mom ACL AnalyzerTests";

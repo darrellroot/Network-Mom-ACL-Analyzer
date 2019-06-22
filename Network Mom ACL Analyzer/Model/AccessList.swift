@@ -14,7 +14,7 @@ class AccessList: AceInfoDelegate {
     let sourceText: String
     var accessControlEntries: [AccessControlEntry] = []
     var deviceType: DeviceType
-    var name: String?
+    var names: Set<String> = []
     var delegate: AclErrorDelegate?
     
     var count: Int {
@@ -99,13 +99,9 @@ class AccessList: AceInfoDelegate {
         return finalAclAction
     }
     func foundName(_ name: String) {
-        if self.name == nil {
-            self.name = name
-        } else {
-            if self.name != name {
-                self.delegate?.report(severity: .error, message: "ACL has inconsistent name, both \(name) and \(self.name!) found")
-            }
+        names.insert(name)
+        if names.count > 1 {
+            self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found")
         }
     }
-
 }
