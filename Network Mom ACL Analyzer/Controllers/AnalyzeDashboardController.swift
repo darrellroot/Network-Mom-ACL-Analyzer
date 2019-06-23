@@ -181,6 +181,16 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclError
         if ingressAccessList?.count == 0 {
             ingressAccessList = nil
         }
+        if let ingressAccessList = ingressAccessList {
+            ingressAclValidation.string.append("Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)")
+        } else {
+            ingressAclValidation.string.append("Ingress Access List Not Analyzed")
+        }
+        if let egressAccessList = egressAccessList {
+            egressAclValidation.string.append("Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)")
+        } else {
+            egressAclValidation.string.append("Egress Access List Not Analyzed")
+        }
     }
     
     func report(severity: Severity, message: String, line: Int, window: ActiveWarningWindow) {

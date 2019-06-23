@@ -22,6 +22,13 @@ class UnsupportedFeatureTests: XCTestCase {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
+    
+    func testAsaPortNe() {
+        let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 ne www"
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
+        XCTAssert(ace == nil)
+    }
+    
 
     func testAsaObjectGroupAclInvalid() {
         let sample = """

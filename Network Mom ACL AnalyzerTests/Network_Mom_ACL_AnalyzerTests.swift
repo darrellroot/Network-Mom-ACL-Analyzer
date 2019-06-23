@@ -238,6 +238,33 @@ ipv4 access-list acl_hw_1
         XCTAssert(acl.accessControlEntries[0].minSourceIp == 0)
     }
     
+    func testIosName() {
+        let sample = """
+        ip access-list extended blockacl
+        deny tcp 172.16.40.0 0.0.0.255 172.16.50.0 0.0.0.255 eq 21
+        deny tcp any 172.16.50.0 0.0.0.255 eq 23
+        permit ip any any
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        XCTAssert(acl.count == 3)
+        XCTAssert(acl.names.contains("blockacl"))
+        
+    }
+    func testIos() {
+        let line = "access-list 110 deny tcp 172.16.40.0 0.0.0.255 172.16.50.0 0.0.0.255 eq 21"
+        guard let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 8) else {
+            XCTAssert(false)
+            return
+        }
+        XCTAssert(ace.minDestPort == 21)
+        XCTAssert(ace.ipProtocol == 6)
+        XCTAssert(ace.aclAction == .deny)
+    }
+    func testAsaReject() {
+        let line = "access-list 110 deny tcp 172.16.40.0 0.0.0.255 172.16.50.0 0.0.0.255 eq 21"
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
+        XCTAssert(ace == nil)
+    }
     func testAsaPortMatch() {
         let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 eq www"
         guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8) else {

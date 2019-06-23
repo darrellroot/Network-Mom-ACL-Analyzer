@@ -65,6 +65,18 @@ class AccessList: AceInfoDelegate {
                 //delegate?.report(severity: .notification, message: "line is empty", line: linenum)
                 continue lineLoop
             }
+            let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+            
+            if line.starts(with: "ip access-list extended") {
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                if let aclName = words[safe: 3] {
+                    names.insert(aclName)
+                    if names.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found")
+                    }
+                }
+                continue lineLoop
+            }
             
             if let accessControlEntry = AccessControlEntry(line: line, deviceType: deviceType, linenum: linenum, infoDelegate: self, errorDelegate: delegate) {
                 accessControlEntries.append(accessControlEntry)
