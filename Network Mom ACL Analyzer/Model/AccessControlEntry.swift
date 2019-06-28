@@ -14,12 +14,14 @@ struct AccessControlEntry {
     var ipVersion: IpVersion
     var listName: String?
     var ipProtocol: UInt  // 0 means ip
-    var minSourceIp: UInt
-    var maxSourceIp: UInt
+    var sourceIp: IpRange
+    //var minSourceIp: UInt
+    //var maxSourceIp: UInt
     var minSourcePort: UInt?
     var maxSourcePort: UInt?
-    var minDestIp: UInt
-    var maxDestIp: UInt
+    var destIp: IpRange
+    //var minDestIp: UInt
+    //var maxDestIp: UInt
     var minDestPort: UInt?
     var maxDestPort: UInt?
     var established: Bool
@@ -841,14 +843,16 @@ struct AccessControlEntry {
             errorDelegate?.report(severity: .error, message: "source ip not found", line: linenum)
             return nil
         }
-        self.minSourceIp = tempMinSourceIp!
+        //self.minSourceIp = tempMinSourceIp!
         
         guard tempMaxSourceIp != nil else {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum)
             errorDelegate?.report(severity: .error, message: "source ip not found", line: linenum)
             return nil
         }
-        self.maxSourceIp = tempMaxSourceIp!
+        let sourceIp = IpRange(minIp: tempMinSourceIp!, maxIp: tempMaxSourceIp!)
+        self.sourceIp = sourceIp
+        //self.maxSourceIp = tempMaxSourceIp!
         
         self.minSourcePort = tempMinSourcePort ?? 0
         self.maxSourcePort = tempMaxSourcePort ?? 65535
@@ -858,14 +862,16 @@ struct AccessControlEntry {
             errorDelegate?.report(severity: .error, message: "dest ip not found", line: linenum)
             return nil
         }
-        self.minDestIp = tempMinDestIp!
+        //self.minDestIp = tempMinDestIp!
         
         guard tempMaxDestIp != nil else {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum)
             errorDelegate?.report(severity: .error, message: "dest ip not found", line: linenum)
             return nil
         }
-        self.maxDestIp = tempMaxDestIp!
+        let destIp = IpRange(minIp: tempMinDestIp!, maxIp: tempMaxDestIp!)
+        self.destIp = destIp
+        //self.maxDestIp = tempMaxDestIp!
         
         self.minDestPort = tempMinDestPort ?? 0
         self.maxDestPort = tempMaxDestPort ?? 65535
@@ -882,11 +888,11 @@ struct AccessControlEntry {
             return .neither
         }
         // check source ip
-        guard socket.sourceIp >= self.minSourceIp && socket.sourceIp <= self.maxSourceIp else {
+        guard socket.sourceIp >= self.sourceIp.minIp && socket.sourceIp <= self.sourceIp.maxIp else {
             return .neither
         }
         // check destination ip
-        guard socket.destinationIp >= self.minDestIp && socket.destinationIp <= self.maxDestIp else {
+        guard socket.destinationIp >= self.destIp.minIp && socket.destinationIp <= self.destIp.maxIp else {
             return .neither
         }
         // check ports if protocol udp or tcp
@@ -928,7 +934,7 @@ struct AccessControlEntry {
 extension AccessControlEntry: CustomStringConvertible {
     var description: String {
         
-        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(minSourceIp.ipv4) through \(maxSourceIp.ipv4) source ports \(String(describing: minSourcePort))-\(String(describing: maxSourcePort)) to \(minDestIp.ipv4) through \(maxDestIp.ipv4) dest ports \(String(describing: minDestPort))-\(String(describing: maxDestPort))"
+        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(sourceIp) source ports \(String(describing: minSourcePort))-\(String(describing: maxSourcePort)) to \(destIp) dest ports \(String(describing: minDestPort))-\(String(describing: maxDestPort))"
         if self.established {
             returnString.append(" established\n")
         } else {

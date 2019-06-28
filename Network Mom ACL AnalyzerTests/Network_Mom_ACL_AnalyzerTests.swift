@@ -27,7 +27,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.minSourceIp == sourceip)
+        XCTAssert(ace.sourceIp.minIp == sourceip)
     }
     
     func testDontCareHostsThree() {
@@ -63,7 +63,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.minSourceIp == sourceip)
+        XCTAssert(ace.sourceIp.minIp == sourceip)
     }
 
     func testEstablished() {
@@ -73,6 +73,31 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
         }
         XCTAssert(ace.established == true)
     }
+    func testAnalyzeEstablished1() {
+        guard let ace = AccessControlEntry(line: "access-list 101 permit tcp any any established", deviceType: .ios, linenum: 3) else {
+            XCTAssert(false)
+            return
+        }
+        guard let socket = Socket(ipProtocol: 6, sourceIp: 3, destinationIp: 5, sourcePort: 33, destinationPort: 44, established: true) else {
+            XCTAssert(false)
+            return
+        }
+        let result = ace.analyze(socket: socket)
+        XCTAssert(result == .permit)
+    }
+    func testAnalyzeEstablished2() {
+        guard let ace = AccessControlEntry(line: "access-list 101 permit tcp any any established", deviceType: .ios, linenum: 3) else {
+            XCTAssert(false)
+            return
+        }
+        guard let socket = Socket(ipProtocol: 6, sourceIp: 3, destinationIp: 5, sourcePort: 33, destinationPort: 44, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result = ace.analyze(socket: socket)
+        XCTAssert(result == .neither)
+    }
+
     
     func testNotEstablished() {
         guard let ace = AccessControlEntry(line: "access-list 101 permit tcp host 1.1.1.1 host 2.2.2.2", deviceType: .ios, linenum: 4) else {
@@ -91,7 +116,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.minDestIp == destip)
+        XCTAssert(ace.destIp.minIp == destip)
     }
 
     func testInvalidProtocolDestPort() {
@@ -141,7 +166,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace?.minSourceIp == sourceip)
+        XCTAssert(ace?.sourceIp.minIp == sourceip)
     }
     func testIosXrIndented() {
         let line = "  10 permit tcp 192.168.36.0 0.0.0.255 any eq 80"
@@ -151,7 +176,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace?.minSourceIp == sourceip)
+        XCTAssert(ace?.sourceIp.minIp == sourceip)
     }
 
     func testIosXrLineNumbered() {
@@ -162,7 +187,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace?.minSourceIp == sourceip)
+        XCTAssert(ace?.sourceIp.minIp == sourceip)
     }
     
     func testIosXrSequence() {
@@ -197,8 +222,8 @@ ipv4 access-list acl_hw_1
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa)
         XCTAssert(acl.count == 2)
-        XCTAssert(acl.accessControlEntries[0].minDestIp == 0)
-        XCTAssert(acl.accessControlEntries[1].maxSourceIp == "209.168.200.4".ipv4address!)
+        XCTAssert(acl.accessControlEntries[0].destIp.minIp == 0)
+        XCTAssert(acl.accessControlEntries[1].sourceIp.maxIp == "209.168.200.4".ipv4address!)
     }
     func testAsaIosReject1() {
         let sample = """
@@ -235,7 +260,7 @@ ipv4 access-list acl_hw_1
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa)
         XCTAssert(acl.count == 1)
-        XCTAssert(acl.accessControlEntries[0].minSourceIp == 0)
+        XCTAssert(acl.accessControlEntries[0].sourceIp.minIp == 0)
     }
     
     func testIosName() {
@@ -271,7 +296,7 @@ ipv4 access-list acl_hw_1
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.minDestIp == "209.165.201.29".ipv4address)
+        XCTAssert(ace.destIp.minIp == "209.165.201.29".ipv4address)
         XCTAssert(ace.minDestPort == 80)
         XCTAssert(ace.maxDestPort == 80)
     }
@@ -286,19 +311,19 @@ ipv4 access-list acl_hw_1
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.minSourceIp == 0)
-        XCTAssert(ace.maxSourceIp == "255.255.255.255".ipv4address)
+        XCTAssert(ace.sourceIp.minIp == 0)
+        XCTAssert(ace.sourceIp.maxIp == "255.255.255.255".ipv4address)
         guard let destIp = "172.16.1.2".ipv4address else {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.minDestIp == destIp)
+        XCTAssert(ace.destIp.minIp == destIp)
     }
     func testAsaIcmp() {
         let line = "access-list abc extended permit icmp any any echo"
         let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
         XCTAssert(ace!.ipProtocol == 1)
-        XCTAssert(ace!.minSourceIp == 0)
+        XCTAssert(ace!.sourceIp.minIp == 0)
     }
     func testAsaIosIcmpReject() {
         let line = "access-list abc extended permit icmp any any echo"
