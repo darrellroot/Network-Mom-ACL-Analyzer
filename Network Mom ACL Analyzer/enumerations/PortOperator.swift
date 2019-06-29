@@ -12,5 +12,6 @@ enum PortOperator: String {
     case eq
     case gt
     case lt
+    case ne
     case range
 }

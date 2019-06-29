@@ -11,19 +11,21 @@ import Network
 
 struct AccessControlEntry {
     var aclAction: AclAction
-    var ipVersion: IpVersion
+    var ipVersion: IpVersion = .IPv4
     var listName: String?
-    var ipProtocol: UInt  // 0 means ip
+    var ipProtocol: UInt = 0  // 0 means ip
     var sourceIp: IpRange
     //var minSourceIp: UInt
     //var maxSourceIp: UInt
-    var minSourcePort: UInt?
-    var maxSourcePort: UInt?
+    var sourcePort: [PortRange] = []  //empty list means no port restriction
+    //var minSourcePort: UInt?
+    //var maxSourcePort: UInt?
     var destIp: IpRange
     //var minDestIp: UInt
     //var maxDestIp: UInt
-    var minDestPort: UInt?
-    var maxDestPort: UInt?
+    var destPort: [PortRange] = []  // empty means no port restriction
+    //var minDestPort: UInt?
+    //var maxDestPort: UInt?
     var established: Bool
     var line: String
     var icmpMessage: IcmpMessage?
@@ -52,13 +54,18 @@ struct AccessControlEntry {
         var tempMinSourceIp: UInt? = nil
         var tempMaxSourceIp: UInt? = nil
         var tempSourcePortOperator: PortOperator? = nil
-        var tempMinSourcePort: UInt? = nil
-        var tempMaxSourcePort: UInt? = nil
+        
+        var tempRangeSourcePort: UInt? = nil
+        //var tempSourcePort: [PortRange] = []
+        //var tempMinSourcePort: UInt? = nil
+        //var tempMaxSourcePort: UInt? = nil
         var tempMinDestIp: UInt? = nil
         var tempMaxDestIp: UInt? = nil
+        var tempDestPort: [PortRange] = []
         var tempDestPortOperator: PortOperator? = nil
-        var tempMinDestPort: UInt? = nil
-        var tempMaxDestPort: UInt? = nil
+        var tempRangeDestPort: UInt? = nil
+        //var tempMinDestPort: UInt? = nil
+        //var tempMaxDestPort: UInt? = nil
         var tempEstablished = false
 
         var linePosition: LinePosition = .beginning
@@ -98,7 +105,7 @@ struct AccessControlEntry {
                     tempAclAction = .deny
                     linePosition = .action
                     continue wordLoop
-                case .tcp, .ip, .udp, .icmp, .eq, .extended, .range, .gt, .lt, .established, .fourOctet, .name, .host, .log, .any:
+                case .tcp, .ip, .udp, .icmp, .eq, .extended, .range, .gt, .lt, .ne, .established, .fourOctet, .name, .host, .log, .any:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid at \(linePosition)", line: linenum)
                     return nil
@@ -123,7 +130,7 @@ struct AccessControlEntry {
             case .accessList:
                 switch token {
                     
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq , .range, .remark, .comment, .gt, .lt, .extended, .established, .log, .fourOctet, .host, .any:
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq , .range, .remark, .comment, .gt, .lt, .ne, .extended, .established, .log, .fourOctet, .host, .any:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -143,7 +150,7 @@ struct AccessControlEntry {
             case .listName:
                 switch token {
                     
-                case .accessList, .tcp, .ip, .udp, .icmp, .eq, .range, .comment, .gt, .lt, .established, .log, .fourOctet, .number, .name, .host, .any:
+                case .accessList, .tcp, .ip, .udp, .icmp, .eq, .range, .comment, .gt, .lt, .ne, .established, .log, .fourOctet, .number, .name, .host, .any:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -172,7 +179,7 @@ struct AccessControlEntry {
             case .action:
                 switch token {
                 
-                case .accessList, .permit, .deny, .eq, .range, .remark, .comment, .gt, .lt, .established, .extended, .log, .fourOctet, .name, .host, .any:
+                case .accessList, .permit, .deny, .eq, .range, .remark, .comment, .gt, .lt, .ne, .established, .extended, .log, .fourOctet, .name, .host, .any:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -181,15 +188,19 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum)
                     return nil
                 case .tcp:
+                    self.ipProtocol = 6
                     tempIpProtocol = 6
                     linePosition = .ipProtocol
                 case .ip:
+                    self.ipProtocol = 0
                     tempIpProtocol = 0
                     linePosition = .ipProtocol
                 case .udp:
+                    self.ipProtocol = 17
                     tempIpProtocol = 17
                     linePosition = .ipProtocol
                 case .icmp:
+                    self.ipProtocol = 1
                     tempIpProtocol = 1
                     linePosition = .ipProtocol
                 case .number(let number):
@@ -198,6 +209,7 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .error, message: "invalid ip protocol after \(linePosition)", line: linenum)
                         return nil
                     } else {
+                        self.ipProtocol = number
                         tempIpProtocol = number
                         linePosition = .ipProtocol
                     }
@@ -205,7 +217,7 @@ struct AccessControlEntry {
             case .ipProtocol:
                 switch token {
                     
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .comment, .extended, .gt, .lt, .established, .log, .number, .name:
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .comment, .extended, .gt, .lt, .ne, .established, .log, .number, .name:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -225,7 +237,7 @@ struct AccessControlEntry {
                 }
             case .sourceIp:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .number, .name:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number, .name:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -269,7 +281,7 @@ struct AccessControlEntry {
                 
             case .sourceIpHost:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .number:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -311,6 +323,14 @@ struct AccessControlEntry {
                 case .gt:
                     tempSourcePortOperator = .gt
                     linePosition = .sourcePortOperator
+                case .ne:
+                    if deviceType == .ios {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) IOS does not support ne port operator", line: linenum)
+                        return nil
+                    }
+                    tempSourcePortOperator = .ne
+                    linePosition = .sourcePortOperator
                 case .lt:
                     tempSourcePortOperator = .lt
                     linePosition = .sourcePortOperator
@@ -321,7 +341,7 @@ struct AccessControlEntry {
             case .sourcePortOperator:
                 switch token {
                     
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .fourOctet:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .fourOctet:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -349,17 +369,38 @@ struct AccessControlEntry {
                     switch tempSourcePortOperator {
                         
                     case .eq:
-                        tempMinSourcePort = port
-                        tempMaxSourcePort = port
+                        let sourcePort = PortRange(minPort: port, maxPort: port)
+                        self.sourcePort.append(sourcePort)
+                        //tempMinSourcePort = port
+                        //tempMaxSourcePort = port
                         linePosition = .lastSourcePort
+                    case .ne:
+                        
+                        switch port {
+                        case 0:
+                            let sourcePort = PortRange(minPort: 1, maxPort: 65535)
+                            self.sourcePort.append(sourcePort)
+                        case 65535:
+                            let sourcePort = PortRange(minPort: 0, maxPort: 65534)
+                            self.sourcePort.append(sourcePort)
+                        case 1...65534:
+                            let sourcePort1 = PortRange(minPort: 0, maxPort: port - 1)
+                            self.sourcePort.append(sourcePort1)
+                            let sourcePort2 = PortRange(minPort: port + 1, maxPort: 65535)
+                            self.sourcePort.append(sourcePort2)
+                        default:
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                            return nil
+                        }
                     case .gt:
                         guard port < 65535 else {
                             errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                             errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum)
                             return nil
                         }
-                        tempMinSourcePort = port + 1
-                        tempMaxSourcePort = 65535
+                        let sourcePort = PortRange(minPort: port + 1, maxPort: 65535)
+                        self.sourcePort.append(sourcePort)
                         linePosition = .lastSourcePort
                     case .lt:
                         guard port > 0 else {
@@ -367,11 +408,11 @@ struct AccessControlEntry {
                             errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum)
                             return nil
                         }
-                        tempMinSourcePort = 0
-                        tempMaxSourcePort = port - 1
+                        let sourcePort = PortRange(minPort: 0, maxPort: port - 1)
+                        self.sourcePort.append(sourcePort)
                         linePosition = .lastSourcePort
                     case .range:
-                        tempMinSourcePort = port
+                        tempRangeSourcePort = port
                         linePosition = .firstSourcePort
                     }
                     //end code snippet A
@@ -393,6 +434,62 @@ struct AccessControlEntry {
                         return nil
                     }
                     //start code snippet A
+                    guard let tempSourcePortOperator = tempSourcePortOperator else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                        return nil
+                    }
+                    switch tempSourcePortOperator {
+                        
+                    case .eq:
+                        let sourcePort = PortRange(minPort: port, maxPort: port)
+                        self.sourcePort.append(sourcePort)
+                        //tempMinSourcePort = port
+                        //tempMaxSourcePort = port
+                        linePosition = .lastSourcePort
+                    case .ne:
+                        switch port {
+                        case 0:
+                            let sourcePort = PortRange(minPort: 1, maxPort: 65535)
+                            self.sourcePort.append(sourcePort)
+                        case 65535:
+                            let sourcePort = PortRange(minPort: 0, maxPort: 65534)
+                            self.sourcePort.append(sourcePort)
+                        case 1...65534:
+                            let sourcePort1 = PortRange(minPort: 0, maxPort: port - 1)
+                            self.sourcePort.append(sourcePort1)
+                            let sourcePort2 = PortRange(minPort: port + 1, maxPort: 65535)
+                            self.sourcePort.append(sourcePort2)
+                        default:
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                            return nil
+                        }
+                    case .gt:
+                        guard port < 65535 else {
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum)
+                            return nil
+                        }
+                        let sourcePort = PortRange(minPort: port + 1, maxPort: 65535)
+                        self.sourcePort.append(sourcePort)
+                        linePosition = .lastSourcePort
+                    case .lt:
+                        guard port > 0 else {
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum)
+                            return nil
+                        }
+                        let sourcePort = PortRange(minPort: 0, maxPort: port - 1)
+                        self.sourcePort.append(sourcePort)
+                        linePosition = .lastSourcePort
+                    case .range:
+                        tempRangeSourcePort = port
+                        linePosition = .firstSourcePort
+                    }
+                    //end code snippet A
+
+/*
                     guard let tempSourcePortOperator = tempSourcePortOperator else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "source port operator not found", line: linenum)
@@ -425,12 +522,13 @@ struct AccessControlEntry {
                         tempMinSourcePort = port
                         linePosition = .firstSourcePort
                     }
+ */
                     //end code snippet A
                 }
             case .firstSourcePort:
                 switch token {
                     
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .fourOctet:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .fourOctet:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid source port)", line: linenum)
                     return nil
@@ -439,17 +537,18 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum)
                     return nil
                 case .number(let port):
-                    guard let tempMinSourcePort = tempMinSourcePort else {
+                    guard let tempRangeSourcePort = tempRangeSourcePort else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "error decoding source port range", line: linenum)
                         return nil
                     }
-                    guard port >= tempMinSourcePort && port < 65536 else {
+                    guard port >= tempRangeSourcePort && port < 65536 else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "error decoding source port range", line: linenum)
                         return nil
                     }
-                    tempMaxSourcePort = port
+                    let sourcePort = PortRange(minPort: tempRangeSourcePort, maxPort: port)
+                    self.sourcePort.append(sourcePort)
                     linePosition = .lastSourcePort
                 case .name(let name):
                     let possiblePort: UInt?
@@ -468,22 +567,23 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .error, message: "invalid source port)", line: linenum)
                         return nil
                     }
-                    guard let tempMinSourcePort = tempMinSourcePort else {
+                    guard let tempRangeSourcePort = tempRangeSourcePort else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "error decoding source port range", line: linenum)
                         return nil
                     }
-                    guard port >= tempMinSourcePort && port < 65536 else {
+                    guard port >= tempRangeSourcePort && port < 65536 else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "error decoding source port range", line: linenum)
                         return nil
                     }
-                    tempMaxSourcePort = port
+                    let sourcePort = PortRange(minPort: tempRangeSourcePort, maxPort: port)
+                    self.sourcePort.append(sourcePort)
                     linePosition = .lastSourcePort
                 }
             case .lastSourcePort:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .comment, .gt, .lt, .established, .log, .number, .name:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .comment, .gt, .lt, .ne, .established, .log, .number, .name:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -503,7 +603,7 @@ struct AccessControlEntry {
                 }
             case .destIp:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .number, .name:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number, .name:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -546,7 +646,7 @@ struct AccessControlEntry {
 
             case .destIpHost:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .number:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -592,6 +692,14 @@ struct AccessControlEntry {
                 case .established:
                     tempEstablished = true
                     linePosition = .end
+                case .ne:
+                    if deviceType == .ios {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) IOS does not support ne port operator", line: linenum)
+                        return nil
+                    }
+                    tempDestPortOperator = .ne
+                    linePosition = .destPortOperator
                 case .eq:
                     tempDestPortOperator = .eq
                     linePosition = .destPortOperator
@@ -610,7 +718,7 @@ struct AccessControlEntry {
                 
             case .destPortOperator:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .fourOctet:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .fourOctet:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
@@ -638,8 +746,27 @@ struct AccessControlEntry {
                     switch tempDestPortOperator {
                         
                     case .eq:
-                        tempMinDestPort = port
-                        tempMaxDestPort = port
+                        let destPort = PortRange(minPort: port, maxPort: port)
+                        self.destPort.append(destPort)
+                        linePosition = .lastDestPort
+                    case .ne:
+                        switch port {
+                        case 0:
+                            let destPort = PortRange(minPort: 1, maxPort: 65535)
+                            self.destPort.append(destPort)
+                        case 65535:
+                            let destPort = PortRange(minPort: 0, maxPort: 65534)
+                            self.destPort.append(destPort)
+                        case 1...65534:
+                            let destPort1 = PortRange(minPort: 0, maxPort: port - 1)
+                            self.destPort.append(destPort1)
+                            let destPort2 = PortRange(minPort: port + 1, maxPort: 65535)
+                            self.destPort.append(destPort2)
+                        default:
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                            return nil
+                        }
                         linePosition = .lastDestPort
                     case .gt:
                         guard port < 65535 else {
@@ -647,8 +774,8 @@ struct AccessControlEntry {
                             errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                             return nil
                         }
-                        tempMinDestPort = port + 1
-                        tempMaxDestPort = 65535
+                        let destPort = PortRange(minPort: port + 1, maxPort: 65535)
+                        self.destPort.append(destPort)
                         linePosition = .lastDestPort
                     case .lt:
                         guard port > 0 else {
@@ -656,11 +783,10 @@ struct AccessControlEntry {
                             errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                             return nil
                         }
-                        tempMinDestPort = 0
-                        tempMaxDestPort = port - 1
+                        let destPort = PortRange(minPort: 0, maxPort: port - 1)
                         linePosition = .lastDestPort
                     case .range:
-                        tempMinDestPort = port
+                        tempRangeDestPort = port
                         linePosition = .firstDestPort
                     }
                 //end code snippet B
@@ -682,6 +808,62 @@ struct AccessControlEntry {
                         return nil
                     }
                     //start code snippet B
+                    
+                    guard let tempDestPortOperator = tempDestPortOperator else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "destination port operator not found after \(linePosition)", line: linenum)
+                        return nil
+                    }
+
+                    switch tempDestPortOperator {
+
+                        case .eq:
+                            let destPort = PortRange(minPort: port, maxPort: port)
+                            self.destPort.append(destPort)
+                            linePosition = .lastDestPort
+                        case .ne:
+                            switch port {
+                            case 0:
+                                let destPort = PortRange(minPort: 1, maxPort: 65535)
+                                self.destPort.append(destPort)
+                            case 65535:
+                                let destPort = PortRange(minPort: 0, maxPort: 65534)
+                                self.destPort.append(destPort)
+                            case 1...65534:
+                                let destPort1 = PortRange(minPort: 0, maxPort: port - 1)
+                                self.destPort.append(destPort1)
+                                let destPort2 = PortRange(minPort: port + 1, maxPort: 65535)
+                                self.destPort.append(destPort2)
+                            default:
+                                errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                                errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                                return nil
+                            }
+                            linePosition = .lastDestPort
+                        case .gt:
+                            guard port < 65535 else {
+                                errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                                errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
+                                return nil
+                            }
+                            let destPort = PortRange(minPort: port + 1, maxPort: 65535)
+                            self.destPort.append(destPort)
+                            linePosition = .lastDestPort
+                        case .lt:
+                            guard port > 0 else {
+                                errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                                errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
+                                return nil
+                            }
+                            let destPort = PortRange(minPort: 0, maxPort: port - 1)
+                            linePosition = .lastDestPort
+                        case .range:
+                            tempRangeDestPort = port
+                            linePosition = .firstDestPort
+                        }
+                    //end code snippet B
+
+/*
                     guard let tempDestPortOperator = tempDestPortOperator else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "destination port operator not found after \(linePosition)", line: linenum)
@@ -716,10 +898,11 @@ struct AccessControlEntry {
                         linePosition = .firstDestPort
                     }
                     //end code snippet B
+ */
                 }
             case .firstDestPort:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .established, .log, .fourOctet:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .fourOctet:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                     return nil
@@ -728,17 +911,18 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum)
                     return nil
                 case .number(let port):
-                    guard let tempMinDestPort = tempMinDestPort else {
+                    guard let tempRangeDestPort = tempRangeDestPort else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                         return nil
                     }
-                    guard port >= tempMinDestPort && port < 65536 else {
+                    guard port >= tempRangeDestPort && port < 65536 else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                         return nil
                     }
-                    tempMaxDestPort = port
+                    let destPort = PortRange(minPort: tempRangeDestPort, maxPort: port)
+                    self.destPort.append(destPort)
                     linePosition = .lastDestPort
                 case .name(let name):
                     let possiblePort: UInt?
@@ -757,22 +941,23 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                         return nil
                     }
-                    guard let tempMinDestPort = tempMinDestPort else {
+                    guard let tempRangeDestPort = tempRangeDestPort else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                         return nil
                     }
-                    guard port >= tempMinDestPort && port < 65536 else {
+                    guard port >= tempRangeDestPort && port < 65536 else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                         return nil
                     }
-                    tempMaxDestPort = port
+                    let destPort = PortRange(minPort: tempRangeDestPort, maxPort: port)
+                    self.destPort.append(destPort)
                     linePosition = .lastDestPort
                 }
             case .lastDestPort:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .gt, .lt, .number, .name, .host, .any, .fourOctet:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .gt, .lt, .ne, .number, .name, .host, .any, .fourOctet:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum)
                     return nil
@@ -822,22 +1007,6 @@ struct AccessControlEntry {
             errorDelegate?.report(severity: .error, message: "no protocol found", line: linenum)
             return nil
         }
-        switch localTempIpProtocol {
-        case 6, 17:
-            break
-        case 0...255:
-            if tempMinSourcePort != nil || tempMaxSourcePort != nil || tempMinDestPort != nil || tempMaxSourcePort != nil {
-                errorDelegate?.report(severity: .linetext, message: line, line: linenum)
-                errorDelegate?.report(severity: .error, message: "Only protocols tcp and udp support port numbers", line: linenum)
-                return nil
-            }
-        default:
-            // should not get here
-            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
-            errorDelegate?.report(severity: .error, message: "Unable to identify ip protocol", line: linenum)
-        }
-        self.ipProtocol = localTempIpProtocol
-        
         guard tempMinSourceIp != nil else {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum)
             errorDelegate?.report(severity: .error, message: "source ip not found", line: linenum)
@@ -852,11 +1021,7 @@ struct AccessControlEntry {
         }
         let sourceIp = IpRange(minIp: tempMinSourceIp!, maxIp: tempMaxSourceIp!)
         self.sourceIp = sourceIp
-        //self.maxSourceIp = tempMaxSourceIp!
-        
-        self.minSourcePort = tempMinSourcePort ?? 0
-        self.maxSourcePort = tempMaxSourcePort ?? 65535
-        
+
         guard tempMinDestIp != nil else {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum)
             errorDelegate?.report(severity: .error, message: "dest ip not found", line: linenum)
@@ -871,13 +1036,46 @@ struct AccessControlEntry {
         }
         let destIp = IpRange(minIp: tempMinDestIp!, maxIp: tempMaxDestIp!)
         self.destIp = destIp
-        //self.maxDestIp = tempMaxDestIp!
-        
-        self.minDestPort = tempMinDestPort ?? 0
-        self.maxDestPort = tempMaxDestPort ?? 65535
+
+        self.ipProtocol = localTempIpProtocol
         
         self.established = tempEstablished
         self.line = line
+
+        switch localTempIpProtocol {
+        case 6, 17:
+            if self.sourcePort.count == 0 {
+                let sourcePort = PortRange(minPort: 0, maxPort: 65535)
+                self.sourcePort.append(sourcePort)
+            }
+            if self.destPort.count == 0 {
+                let destPort = PortRange(minPort: 0, maxPort: 65535)
+                self.destPort.append(destPort)
+            }
+        case 0...255:
+            if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
+                errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                errorDelegate?.report(severity: .error, message: "Only protocols tcp and udp support port numbers", line: linenum)
+                return nil
+            }
+        default:
+            // should not get here
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+            errorDelegate?.report(severity: .error, message: "Unable to identify ip protocol", line: linenum)
+        }
+        
+        //self.maxSourceIp = tempMaxSourceIp!
+        
+        //self.sourcePort = PortRange(minPort: tempMinSourcePort ?? 0, maxPort: tempMaxSourcePort ?? 65535)
+        //self.minSourcePort = tempMinSourcePort ?? 0
+        //self.maxSourcePort = tempMaxSourcePort ?? 65535
+        
+        //self.maxDestIp = tempMaxDestIp!
+        
+        //self.destPort = PortRange(minPort: tempMinDestPort ?? 0, maxPort: tempMaxDestPort ?? 65535)
+        //self.minDestPort = tempMinDestPort ?? 0
+        //self.maxDestPort = tempMaxDestPort ?? 65535
+        
 
         //debugPrint(self)
         
@@ -896,26 +1094,21 @@ struct AccessControlEntry {
             return .neither
         }
         // check ports if protocol udp or tcp
-        if socket.ipProtocol == 17 || socket.ipProtocol == 6 {
-            if let minSourcePort = minSourcePort, let socketSourcePort = socket.sourcePort {
-                guard socketSourcePort >= minSourcePort else {
-                    return .neither
+        if socket.ipProtocol == 17 || socket.ipProtocol == 6, let socketSourcePort = socket.sourcePort, let socketDestPort = socket.destinationPort {
+            var sourcePortMatch = false
+            for aceSourcePort in self.sourcePort {
+                if socketSourcePort >= aceSourcePort.minPort && socketSourcePort <= aceSourcePort.maxPort {
+                    sourcePortMatch = true
                 }
             }
-            if let maxSourcePort = maxSourcePort, let socketSourcePort = socket.sourcePort {
-                guard socketSourcePort <= maxSourcePort else {
-                    return .neither
+            var destPortMatch = false
+            for aceDestPort in self.destPort {
+                if socketDestPort >= aceDestPort.minPort && socketDestPort <= aceDestPort.maxPort {
+                    destPortMatch = true
                 }
             }
-            if let minDestPort = minDestPort, let socketDestPort = socket.destinationPort {
-                guard socketDestPort >= minDestPort else {
-                    return .neither
-                }
-            }
-            if let maxDestPort = maxDestPort, let socketDestPort = socket.destinationPort {
-                guard socketDestPort <= maxDestPort else {
-                    return .neither
-                }
+            if sourcePortMatch == false || destPortMatch == false {
+                return .neither
             }
         }
         // check established flag if tcp and if ace requires established
@@ -933,8 +1126,16 @@ struct AccessControlEntry {
 
 extension AccessControlEntry: CustomStringConvertible {
     var description: String {
-        
-        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(sourceIp) source ports \(String(describing: minSourcePort))-\(String(describing: maxSourcePort)) to \(destIp) dest ports \(String(describing: minDestPort))-\(String(describing: maxDestPort))"
+        var sourcePortString = ""
+        for sourcePort in self.sourcePort {
+            sourcePortString = sourcePortString + sourcePort.description + " "
+        }
+        var destPortString = ""
+        for destPort in self.destPort {
+            destPortString = destPortString + destPort.description + " "
+        }
+
+        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol.ipProto) \(sourceIp) source ports \(sourcePortString) to \(destIp) dest ports \(destPortString)"
         if self.established {
             returnString.append(" established\n")
         } else {

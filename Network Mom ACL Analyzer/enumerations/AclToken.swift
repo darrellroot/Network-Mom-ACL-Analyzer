@@ -26,6 +26,7 @@ enum AclToken: Equatable {
     case comment
     case gt
     case lt
+    case ne
     case established
     case log
     case fourOctet(UInt)
@@ -62,6 +63,8 @@ enum AclToken: Equatable {
             self = .range
         case "gt":
             self = .gt
+        case "ne":
+            self = .ne
         case "established":
             self = .established
         case "remark":
