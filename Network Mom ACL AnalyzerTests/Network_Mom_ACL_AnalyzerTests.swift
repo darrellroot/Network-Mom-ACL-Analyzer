@@ -27,7 +27,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.sourceIp.minIp == sourceip)
+        XCTAssert(ace.sourceIp[0].minIp == sourceip)
     }
     
     func testDontCareHostsThree() {
@@ -63,7 +63,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.sourceIp.minIp == sourceip)
+        XCTAssert(ace.sourceIp[0].minIp == sourceip)
     }
 
     func testEstablished() {
@@ -116,7 +116,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.destIp.minIp == destip)
+        XCTAssert(ace.destIp[0].minIp == destip)
     }
 
     func testInvalidProtocolDestPort() {
@@ -166,7 +166,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace?.sourceIp.minIp == sourceip)
+        XCTAssert(ace?.sourceIp[0].minIp == sourceip)
     }
     func testIosXrIndented() {
         let line = "  10 permit tcp 192.168.36.0 0.0.0.255 any eq 80"
@@ -176,7 +176,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace?.sourceIp.minIp == sourceip)
+        XCTAssert(ace?.sourceIp[0].minIp == sourceip)
     }
 
     func testIosXrLineNumbered() {
@@ -187,7 +187,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace?.sourceIp.minIp == sourceip)
+        XCTAssert(ace?.sourceIp[0].minIp == sourceip)
     }
     
     func testIosXrSequence() {

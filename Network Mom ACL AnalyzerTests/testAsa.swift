@@ -33,7 +33,7 @@ class testAsa: XCTestCase {
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa)
         XCTAssert(acl.count == 1)
-        XCTAssert(acl.accessControlEntries[0].sourceIp.minIp == 0)
+        XCTAssert(acl.accessControlEntries[0].sourceIp[0].minIp == 0)
     }
 
     func testAsaRemark1() {
@@ -45,8 +45,8 @@ class testAsa: XCTestCase {
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa)
         XCTAssert(acl.count == 2)
-        XCTAssert(acl.accessControlEntries[0].destIp.minIp == 0)
-        XCTAssert(acl.accessControlEntries[1].sourceIp.maxIp == "209.168.200.4".ipv4address!)
+        XCTAssert(acl.accessControlEntries[0].destIp[0].minIp == 0)
+        XCTAssert(acl.accessControlEntries[1].sourceIp[0].maxIp == "209.168.200.4".ipv4address!)
     }
     func testAsaIosReject1() {
         let sample = """
@@ -70,7 +70,7 @@ class testAsa: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.destIp.minIp == "209.165.201.29".ipv4address)
+        XCTAssert(ace.destIp[0].minIp == "209.165.201.29".ipv4address)
         XCTAssert(ace.destPort[0].minPort == 80)
         XCTAssert(ace.destPort[0].maxPort == 80)
     }
@@ -85,19 +85,19 @@ class testAsa: XCTestCase {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.sourceIp.minIp == 0)
-        XCTAssert(ace.sourceIp.maxIp == "255.255.255.255".ipv4address)
+        XCTAssert(ace.sourceIp[0].minIp == 0)
+        XCTAssert(ace.sourceIp[0].maxIp == "255.255.255.255".ipv4address)
         guard let destIp = "172.16.1.2".ipv4address else {
             XCTAssert(false)
             return
         }
-        XCTAssert(ace.destIp.minIp == destIp)
+        XCTAssert(ace.destIp[0].minIp == destIp)
     }
     func testAsaIcmp() {
         let line = "access-list abc extended permit icmp any any echo"
         let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
         XCTAssert(ace!.ipProtocol == 1)
-        XCTAssert(ace!.sourceIp.minIp == 0)
+        XCTAssert(ace!.sourceIp[0].minIp == 0)
     }
     func testAsaIosIcmpReject() {
         let line = "access-list abc extended permit icmp any any echo"
@@ -130,6 +130,87 @@ class testAsa: XCTestCase {
         let result3 = ace!.analyze(socket: socket3)
         XCTAssert(result3 == .deny)
 
+    }
+    func testIpRange() {
+        let ip = "209.165.200.0".ipv4address
+        XCTAssert(ip != nil)
+        let maskIp = "255.255.255.0".ipv4address
+        XCTAssert(maskIp != nil)
+        let numHosts = maskIp?.netmaskHosts
+        XCTAssert(numHosts != nil)
+        let ipRange = IpRange(ip: "209.165.200.0", mask: "255.255.255.0", type: .asa)
+        XCTAssert(ipRange != nil)
+    }
+    func testAsaSourceObjectGroup() {
+        let sample = """
+        object-group network denied
+            network-object host 10.1.1.4
+            network-object host 10.1.1.78
+            network-object host 10.1.1.89
+        access-list ACL_IN extended deny tcp object-group denied any eq www
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.objectGroups.count == 1)
+        XCTAssert(acl.objectGroups["denied"]!.count == 3)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        guard let socket = Socket(ipProtocol: 6, sourceIp: "10.1.1.4".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result = acl.analyze(socket: socket)
+        XCTAssert(result == .deny)
+
+    }
+    func testAsaObjectGroupAcl() {
+        let sample = """
+        object-group network denied
+            network-object host 10.1.1.4
+            network-object host 10.1.1.78
+            network-object host 10.1.1.89
+        object-group network web
+            network-object host 209.165.201.29
+            network-object host 209.165.201.16
+            network-object host 209.165.201.78
+            network-object 209.165.200.0 255.255.255.0
+        access-list ACL_IN extended deny tcp object-group denied object-group web eq www
+        access-list ACL_IN extended permit ip any any
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.objectGroups.count == 2)
+        XCTAssert(acl.objectGroups["denied"]!.count == 3)
+        XCTAssert(acl.objectGroups["web"]!.count == 4)
+        XCTAssert(acl.accessControlEntries.count == 2)
+        
+        guard let socket = Socket(ipProtocol: 6, sourceIp: "10.1.1.4".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result = acl.analyze(socket: socket)
+        XCTAssert(result == .deny)
+        
+        guard let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.1.4".ipv4address!, destinationIp: "209.165.200.36".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+
+        guard let socket3 = Socket(ipProtocol: 6, sourceIp: "10.1.1.5".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result3 = acl.analyze(socket: socket3)
+        XCTAssert(result3 == .permit)
+    }
+    
+    func testAsaPermitAny() {
+        let ace = AccessControlEntry(line: "access-list ACL_IN extended permit ip any any", deviceType: .asa, linenum: 3)
+        guard let socket3 = Socket(ipProtocol: 6, sourceIp: "10.1.1.5".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result = ace?.analyze(socket: socket3)
+        XCTAssert(result == .permit)
     }
     
     

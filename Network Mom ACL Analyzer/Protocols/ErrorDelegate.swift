@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol AclErrorDelegate {
+protocol ErrorDelegate {
     func report(severity: Severity, message: String, line: Int)
     func report(severity: Severity, message: String)
 }

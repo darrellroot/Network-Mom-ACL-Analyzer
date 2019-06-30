@@ -9,55 +9,25 @@
 import Foundation
 import Network
 
-class AccessList: AceInfoDelegate {
+class AccessList {
     
     let sourceText: String
     var accessControlEntries: [AccessControlEntry] = []
     var deviceType: DeviceType
     var names: Set<String> = []
-    var delegate: AclErrorDelegate?
-    
+    var delegate: ErrorDelegate?
+    var objectGroups = [String:ObjectGroup]()
+
     var count: Int {
         return accessControlEntries.count
     }
     
-    init(sourceText: String, deviceType: DeviceType, delegate: AclErrorDelegate? = nil) {
+    init(sourceText: String, deviceType: DeviceType, delegate: ErrorDelegate? = nil) {
         self.sourceText = sourceText
         self.delegate = delegate
         self.deviceType = deviceType
         var linenum = 0
-        
-        /*// identify type of acl
-        var dontCareBitTotal = 0
-        var netmaskTotal = 0
-        var eitherTotal = 0
-        for line in sourceText.components(separatedBy: NSCharacterSet.newlines) {
-            for word in line.components(separatedBy: NSCharacterSet.whitespaces) {
-                if let ipv4address = word.ipv4address {
-                    if let maskType = ipv4address.maskType {
-                        switch maskType {
-                            
-                        case .dontCareBit:
-                            dontCareBitTotal += 1
-                        case .netmask:
-                            netmaskTotal += 1
-                        case .either:
-                            eitherTotal += 1
-                        }
-                    }
-                }
-            }
-        }*/
-        /*delegate?.report(severity: .notification, message: "Number of Dont Care Bits found: \(dontCareBitTotal)")
-        delegate?.report(severity: .notification, message: "Number of netmasks found: \(netmaskTotal)")
-        delegate?.report(severity: .notification, message: "Number of either found: \(eitherTotal)")
-        if dontCareBitTotal > netmaskTotal {
-            self.accessListType = .dontCareBit
-        } else if netmaskTotal > dontCareBitTotal {
-            self.accessListType = .netmask
-        } else {
-            self.accessListType = .either
-        }*/
+        var objectName: String? = nil  //non-nil if we are in object-group mode
         
         lineLoop: for line in sourceText.components(separatedBy: NSCharacterSet.newlines) {
             linenum = linenum + 1
@@ -67,7 +37,29 @@ class AccessList: AceInfoDelegate {
             }
             let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             
+            if line.starts(with: "object-group network") {
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                if let objectNameTemp = words[safe: 2] {
+                    objectName = objectNameTemp
+                }
+                continue lineLoop
+            }
+            
+            if line.starts(with: "network-object") {
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                if let term1 = words[safe: 1], let term2 = words[safe: 2], let objectName = objectName, let ipRange = IpRange(ip: term1, mask: term2, type: .asa) {
+                    if var objectGroup = objectGroups[objectName] {
+                        objectGroup.append(ipRange: ipRange)
+                    } else {
+                        let objectGroup = ObjectGroup(ipRange: ipRange)
+                        objectGroups[objectName] = objectGroup
+                    }
+                }
+                continue lineLoop
+            }
+            
             if line.starts(with: "ip access-list extended") {
+                objectName = nil
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 if let aclName = words[safe: 3] {
                     names.insert(aclName)
@@ -78,12 +70,14 @@ class AccessList: AceInfoDelegate {
                 continue lineLoop
             }
             
-            if let accessControlEntry = AccessControlEntry(line: line, deviceType: deviceType, linenum: linenum, infoDelegate: self, errorDelegate: delegate) {
+            if let accessControlEntry = AccessControlEntry(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: self, errorDelegate: delegate) {
+                objectName = nil
                 accessControlEntries.append(accessControlEntry)
             }
         }
     }
-    public func analyze(socket: Socket, delegate: AclErrorDelegate? = nil) -> AclAction {
+    
+    public func analyze(socket: Socket, errorDelegate: ErrorDelegate? = nil) -> AclAction {
         var aclAction: AclAction? = nil
         for (lineNumber,accessControlEntry) in accessControlEntries.enumerated() {
             let aceAction = accessControlEntry.analyze(socket: socket)
@@ -94,11 +88,11 @@ class AccessList: AceInfoDelegate {
                 if aclAction == nil {
                     // first match in acl
                     aclAction = aceAction
-                    delegate?.report(severity: .result, message: "FIRST MATCH \(accessControlEntry.line)", line: lineNumber)
+                    errorDelegate?.report(severity: .result, message: "FIRST MATCH \(accessControlEntry.line)", line: lineNumber)
                     //delegate?.report(severity: .result, message: "FIRST MATCH \(aclAction)", line: lineNumber)
                 } else {
                     // later match in acl
-                    delegate?.report(severity: .result, message: "ALSO MATCH \(accessControlEntry.line)", line: lineNumber)
+                    errorDelegate?.report(severity: .result, message: "ALSO MATCH \(accessControlEntry.line)", line: lineNumber)
                     //delegate?.report(severity: .result, message: "Also matches \(aclAction)", line: lineNumber)
                 }
             }
@@ -110,6 +104,15 @@ class AccessList: AceInfoDelegate {
         }
         return finalAclAction
     }
+}
+extension AccessList: AclDelegate {
+    func getObjectGroup(_ group: String) -> ObjectGroup? {
+        if let objectGroup = self.objectGroups[group] {
+            return objectGroup
+        } else {
+            return nil
+        }
+    }
     func foundName(_ name: String) {
         names.insert(name)
         if names.count > 1 {
@@ -117,3 +120,4 @@ class AccessList: AceInfoDelegate {
         }
     }
 }
+

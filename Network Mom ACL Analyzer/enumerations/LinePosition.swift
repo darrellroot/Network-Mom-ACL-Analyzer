@@ -15,6 +15,7 @@ enum LinePosition: String {
     case action
     case ipProtocol
     case sourceIp
+    case sourceObjectGroup
     case sourceIpHost
     case sourceMask
     case sourcePortOperator
@@ -22,6 +23,7 @@ enum LinePosition: String {
     case lastSourcePort
     case destIp
     case destIpHost
+    case destObjectGroup
     case destMask
     case destPortOperator
     case firstDestPort

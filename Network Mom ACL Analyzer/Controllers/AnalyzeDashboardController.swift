@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclErrorDelegate {
+class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, ErrorDelegate {
     
     let appDelegate = NSApplication.shared.delegate as! AppDelegate
 
@@ -127,7 +127,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclError
         self.report(severity: .notification, message: "Socket configured: \(socket)", window: .ingressAnalyze)
         
         activeWarningWindow = .ingressAnalyze
-        _ = ingressAccessList?.analyze(socket: socket, delegate: self)
+        _ = ingressAccessList?.analyze(socket: socket, errorDelegate: self)
         
         guard let reverseSocket = socket.reverse() else {
             self.report(severity: .error, message: "Unable to generate reverse socket", window: .egressAnalyze)
@@ -135,7 +135,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, AclError
         }
         self.report(severity: .notification, message: "Socket configured: \(reverseSocket)", window: .egressAnalyze)
         activeWarningWindow = .egressAnalyze
-        _ = egressAccessList?.analyze(socket: reverseSocket, delegate: self)
+        _ = egressAccessList?.analyze(socket: reverseSocket, errorDelegate: self)
 
     }
     @IBAction func validateAcl(_ sender: Any) {

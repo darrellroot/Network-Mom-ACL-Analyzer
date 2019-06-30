@@ -24,4 +24,22 @@ struct IpRange: CustomStringConvertible {
         self.minIp = minIp
         self.maxIp = maxIp
     }
+    init?(ip: String, mask: String, type: DeviceType, aclDelegate: ErrorDelegate? = nil) {
+        if ip == "host", let ipv4 = mask.ipv4address {
+            self.minIp = ipv4
+            self.maxIp = ipv4
+            return
+        } else if type == .asa {
+            if let ipv4 = ip.ipv4address, let maskIp = mask.ipv4address, let numHosts = maskIp.netmaskHosts {
+                let remainder = ipv4 % numHosts
+                if remainder > 0 {
+                    aclDelegate?.report(severity: .warning, message: "\(ip) \(mask) Destination IP not on netmask or bit boundary")
+                }
+                self.minIp = ipv4 - remainder
+                self.maxIp = self.minIp + numHosts - 1
+                return
+            }
+        }
+        return nil
+    }
 }
