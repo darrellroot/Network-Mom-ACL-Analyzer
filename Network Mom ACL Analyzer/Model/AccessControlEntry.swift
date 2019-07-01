@@ -20,6 +20,7 @@ struct AccessControlEntry {
     var destPort: [PortRange] = []  // empty means no port restriction
     var established: Bool
     var line: String
+    var linenum: Int
     var icmpMessage: IcmpMessage?
     
     func findAction(word: String) -> AclAction? {
@@ -39,6 +40,7 @@ struct AccessControlEntry {
         // If we successfully parse all of these
         // Then we can finish the initialization
         // at the end
+        self.linenum = linenum
         var tempAclAction: AclAction? = nil
         var tempIpVersion: IpVersion? = .IPv4
         var tempListName: String? = nil

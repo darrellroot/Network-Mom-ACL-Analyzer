@@ -79,7 +79,7 @@ class AccessList {
     
     public func analyze(socket: Socket, errorDelegate: ErrorDelegate? = nil) -> AclAction {
         var aclAction: AclAction? = nil
-        for (lineNumber,accessControlEntry) in accessControlEntries.enumerated() {
+        for accessControlEntry in accessControlEntries {
             let aceAction = accessControlEntry.analyze(socket: socket)
             switch aceAction {
             case .neither:
@@ -88,12 +88,10 @@ class AccessList {
                 if aclAction == nil {
                     // first match in acl
                     aclAction = aceAction
-                    errorDelegate?.report(severity: .result, message: "FIRST MATCH \(accessControlEntry.line)", line: lineNumber)
-                    //delegate?.report(severity: .result, message: "FIRST MATCH \(aclAction)", line: lineNumber)
+                    errorDelegate?.report(severity: .result, message: "FIRST MATCH \(accessControlEntry.line)", line: accessControlEntry.linenum)
                 } else {
                     // later match in acl
-                    errorDelegate?.report(severity: .result, message: "ALSO MATCH \(accessControlEntry.line)", line: lineNumber)
-                    //delegate?.report(severity: .result, message: "Also matches \(aclAction)", line: lineNumber)
+                    errorDelegate?.report(severity: .result, message: "ALSO MATCH \(accessControlEntry.line)", line: accessControlEntry.linenum)
                 }
             }
         }

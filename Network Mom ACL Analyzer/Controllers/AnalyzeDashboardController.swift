@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, ErrorDelegate {
+class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextViewDelegate, ErrorDelegate {
     
     let appDelegate = NSApplication.shared.delegate as! AppDelegate
 
@@ -41,6 +41,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, ErrorDel
     var activeWarningWindow: ActiveWarningWindow?
     var ingressDeviceType: DeviceType = .ios
     var egressDeviceType: DeviceType = .ios
+    var fontManager: NSFontManager!
     
     override var windowNibName: NSNib.Name? {
         return NSNib.Name("AnalyzeDashboardController")
@@ -52,8 +53,39 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, ErrorDel
 
     override func windowDidLoad() {
         super.windowDidLoad()
-
+        
+        self.fontManager = NSFontManager.shared
+        //fontManager.target = self
+        fontManager.target = self
+        fontManager.action = #selector(self.changeFont(sender:))
+        // setting up consistent fonts
+        //ingressAclTextView.delegate = self
+        //egressAclTextView.delegate = self
+        //ingressAclValidation.delegate = self
+        //egressAclValidation.delegate = self
+        //ingressAclAnalysis.delegate = self
+        //egressAclAnalysis.delegate = self
+        
         // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
+    }
+    @objc public func changeFont(sender: AnyObject) {
+        debugPrint("change font")
+        guard let sender = sender as? NSFontManager else {
+            return
+        }
+        guard let oldFont = ingressAclTextView.font else {
+            return
+        }
+        let newFont = sender.convert(oldFont)
+        ingressAclTextView.font = newFont
+        egressAclTextView.font = newFont
+        ingressAclValidation.font = newFont
+        egressAclValidation.font = newFont
+        ingressAclAnalysis.font = newFont
+        egressAclAnalysis.font = newFont
+        //let fm = sender as! NSFontManager
+        //let theFont = fm.convertFont((noteBody.textStorage?.font)!)
+            //noteBody.textStorage?.setAttributes([NSFontAttributeName: theFont], range: noteBody.selectedRange())
     }
     
     @IBAction func importIngressButton(_ sender: NSButton) {
