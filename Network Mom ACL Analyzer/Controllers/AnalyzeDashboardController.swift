@@ -55,21 +55,19 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         super.windowDidLoad()
         
         self.fontManager = NSFontManager.shared
+        if let newFont = fontManager.selectedFont {
+            ingressAclTextView.font = newFont
+            egressAclTextView.font = newFont
+            ingressAclValidation.font = newFont
+            egressAclValidation.font = newFont
+            ingressAclAnalysis.font = newFont
+            egressAclAnalysis.font = newFont
+        }
         //fontManager.target = self
-        fontManager.target = self
-        fontManager.action = #selector(self.changeFont(sender:))
-        // setting up consistent fonts
-        //ingressAclTextView.delegate = self
-        //egressAclTextView.delegate = self
-        //ingressAclValidation.delegate = self
-        //egressAclValidation.delegate = self
-        //ingressAclAnalysis.delegate = self
-        //egressAclAnalysis.delegate = self
-        
-        // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
+        //fontManager.action = #selector(self.changeFont(sender:))
     }
+    
     @objc public func changeFont(sender: AnyObject) {
-        debugPrint("change font")
         guard let sender = sender as? NSFontManager else {
             return
         }
@@ -83,9 +81,26 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         egressAclValidation.font = newFont
         ingressAclAnalysis.font = newFont
         egressAclAnalysis.font = newFont
-        //let fm = sender as! NSFontManager
-        //let theFont = fm.convertFont((noteBody.textStorage?.font)!)
-            //noteBody.textStorage?.setAttributes([NSFontAttributeName: theFont], range: noteBody.selectedRange())
+        
+        /*
+         let oldAttributes = ingressAclTextView.typingAttributes
+         var transitionAttributes: [String:Any] = [:]
+         for attribute in oldAttributes {
+         transitionAttributes[attribute.key.rawValue] = attribute.value
+         }
+         let newAttributes = sender.convertAttributes(transitionAttributes)
+        var finalAttributes: [NSAttributedString.Key : Any] = [:]
+        
+        for attribute in newAttributes {
+            let attributeKey = NSAttributedString.Key(attribute.key)
+            finalAttributes[attributeKey] = attribute.value
+        }
+        ingressAclTextView.typingAttributes = finalAttributes
+        egressAclTextView.typingAttributes = finalAttributes
+        ingressAclValidation.typingAttributes = finalAttributes
+        egressAclValidation.typingAttributes = finalAttributes
+        ingressAclAnalysis.typingAttributes = finalAttributes
+        egressAclAnalysis.typingAttributes = finalAttributes*/
     }
     
     @IBAction func importIngressButton(_ sender: NSButton) {
