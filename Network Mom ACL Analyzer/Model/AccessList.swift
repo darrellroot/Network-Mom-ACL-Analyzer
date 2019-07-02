@@ -48,7 +48,7 @@ class AccessList {
             if line.starts(with: "network-object") {
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 if let term1 = words[safe: 1], let term2 = words[safe: 2], let objectName = objectName, let ipRange = IpRange(ip: term1, mask: term2, type: .asa) {
-                    if var objectGroup = objectGroups[objectName] {
+                    if let objectGroup = objectGroups[objectName] {
                         objectGroup.append(ipRange: ipRange)
                     } else {
                         let objectGroup = ObjectGroup(ipRange: ipRange)

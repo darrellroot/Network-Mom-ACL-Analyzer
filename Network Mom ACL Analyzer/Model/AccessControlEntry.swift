@@ -42,7 +42,7 @@ struct AccessControlEntry {
         // at the end
         self.linenum = linenum
         var tempAclAction: AclAction? = nil
-        var tempIpVersion: IpVersion? = .IPv4
+        //var tempIpVersion: IpVersion? = .IPv4
         var tempListName: String? = nil
         //var tempIpProtocol: UInt? = nil
         var tempSourceOctet: UInt? = nil
@@ -56,7 +56,7 @@ struct AccessControlEntry {
         //var tempMaxSourcePort: UInt? = nil
         //var tempMinDestIp: UInt? = nil
         //var tempMaxDestIp: UInt? = nil
-        var tempDestPort: [PortRange] = []
+        //var tempDestPort: [PortRange] = []
         var tempDestOctet: UInt? = nil
         var tempDestPortOperator: PortOperator? = nil
         var tempRangeDestPort: UInt? = nil
@@ -580,8 +580,7 @@ struct AccessControlEntry {
                     linePosition = .destIpHost
                 case .any:
                     let ipRange = IpRange(minIp: 0, maxIp: UInt(UInt32.max))
-                    //tempMinDestIp = 0
-                    //tempMaxDestIp = UInt(UInt32.max)
+                    self.destIp.append(ipRange)
                     linePosition = .destMask
                 case .fourOctet(let ipNumber):
                     tempDestOctet = ipNumber
@@ -872,6 +871,7 @@ struct AccessControlEntry {
                                 return nil
                             }
                             let destPort = PortRange(minPort: 0, maxPort: port - 1)
+                            self.destPort.append(destPort)
                             linePosition = .lastDestPort
                         case .range:
                             tempRangeDestPort = port
@@ -1101,7 +1101,7 @@ extension AccessControlEntry: CustomStringConvertible {
             destPortString = destPortString + destPort.description + " "
         }
         
-        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol?.ipProto) \(sourceIp) source ports \(sourcePortString) to \(destIp) dest ports \(destPortString)"
+        var returnString = "\(aclAction) \(ipVersion) \(ipProtocol?.ipProto ?? "unknownProtocol") \(sourceIp) source ports \(sourcePortString) to \(destIp) dest ports \(destPortString)"
         if self.established {
             returnString.append(" established\n")
         } else {
