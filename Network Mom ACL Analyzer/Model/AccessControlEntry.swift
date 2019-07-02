@@ -695,6 +695,11 @@ struct AccessControlEntry {
                     self.icmpMessage = icmpMessage
                     debugPrint("warning: specific icmp syntax not supported")
                 case .established:
+                    guard self.ipProtocol == 6 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) established only has meaning for TCP protocol", line: linenum)
+                        return nil
+                    }
                     tempEstablished = true
                     linePosition = .end
                 case .ne:
@@ -950,6 +955,11 @@ struct AccessControlEntry {
                 case .comment:
                     linePosition = .comment
                 case .established:
+                    guard self.ipProtocol == 6 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) established only has meaning for TCP protocol", line: linenum)
+                        return nil
+                    }
                     tempEstablished = true
                     linePosition = .end
                 }
