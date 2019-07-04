@@ -150,8 +150,8 @@ class testAsa: XCTestCase {
         access-list ACL_IN extended deny tcp object-group denied any eq www
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa)
-        XCTAssert(acl.objectGroups.count == 1)
-        XCTAssert(acl.objectGroups["denied"]!.count == 3)
+        XCTAssert(acl.objectGroupNetworks.count == 1)
+        XCTAssert(acl.objectGroupNetworks["denied"]!.count == 3)
         XCTAssert(acl.accessControlEntries.count == 1)
         guard let socket = Socket(ipProtocol: 6, sourceIp: "10.1.1.4".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
             XCTAssert(false)
@@ -176,9 +176,9 @@ class testAsa: XCTestCase {
         access-list ACL_IN extended permit ip any any
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa)
-        XCTAssert(acl.objectGroups.count == 2)
-        XCTAssert(acl.objectGroups["denied"]!.count == 3)
-        XCTAssert(acl.objectGroups["web"]!.count == 4)
+        XCTAssert(acl.objectGroupNetworks.count == 2)
+        XCTAssert(acl.objectGroupNetworks["denied"]!.count == 3)
+        XCTAssert(acl.objectGroupNetworks["web"]!.count == 4)
         XCTAssert(acl.accessControlEntries.count == 2)
         
         guard let socket = Socket(ipProtocol: 6, sourceIp: "10.1.1.4".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {

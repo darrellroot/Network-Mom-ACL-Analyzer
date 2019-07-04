@@ -375,13 +375,7 @@
                                     <items>
                                         <menuItem title="Network Mom ACL Analyzer Help" keyEquivalent="?" id="FKE-Sm-Kum">
                                             <connections>
-                                                <action selector="helpMenu:" target="Voe-Tx-rLC" id="b0H-eo-D8y"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Privacy Policy" id="JfX-5i-tcz" userLabel="Privacy Policy">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="privacyPolicy:" target="Voe-Tx-rLC" id="sh8-Vv-SJW"/>
+                                                <action selector="showHelp:" target="Ady-hI-5gd" id="4Oj-Qv-yYf"/>
                                             </connections>
                                         </menuItem>
                                     </items>

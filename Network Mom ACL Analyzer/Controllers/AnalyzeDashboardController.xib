@@ -31,26 +31,17 @@
             <rect key="contentRect" x="50" y="200" width="1244" height="574"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" misplaced="YES" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="1244" height="574"/>
+                <rect key="frame" x="0.0" y="0.0" width="1358" height="574"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <stackView distribution="fillEqually" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HDt-aD-yac" userLabel="Overall Stack View">
                         <rect key="frame" x="20" y="20" width="1318" height="534"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EvI-C2-Oh2">
-                                <rect key="frame" x="41" y="517" width="1237" height="17"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" id="8Yg-8p-Yem">
-                                    <font key="font" usesAppearanceFont="YES"/>
-                                    <string key="title">Alpha Version: Do not rely solely on this tool.  Expires 8/1/2019.  Go to https://www.networkmom.net/acl for updated versions.  Please send ACL samples to feedback@networkmom.net to improve this tool.</string>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <stackView distribution="fillEqually" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hGL-5r-dvO" userLabel="ACL Input H Stack View">
-                                <rect key="frame" x="0.0" y="430" width="1318" height="79"/>
+                                <rect key="frame" x="0.0" y="399" width="1318" height="135"/>
                                 <subviews>
                                     <stackView distribution="fill" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="juK-P8-AV9" userLabel="Ingress ACL V Stack View">
-                                        <rect key="frame" x="0.0" y="0.0" width="655" height="79"/>
+                                        <rect key="frame" x="0.0" y="56" width="655" height="79"/>
                                         <subviews>
                                             <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9Pl-27-zg8" userLabel="H Stack View">
                                                 <rect key="frame" x="69" y="58" width="517" height="21"/>
@@ -153,7 +144,7 @@
                                         </customSpacing>
                                     </stackView>
                                     <stackView distribution="fill" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sKv-MI-jKE" userLabel="Egress ACL V Stack View">
-                                        <rect key="frame" x="663" y="0.0" width="655" height="79"/>
+                                        <rect key="frame" x="663" y="56" width="655" height="79"/>
                                         <subviews>
                                             <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IDD-Au-x5o" userLabel="H Stack View">
                                                 <rect key="frame" x="0.0" y="58" width="655" height="21"/>
@@ -266,7 +257,7 @@
                                 </customSpacing>
                             </stackView>
                             <button horizontalHuggingPriority="751" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vPO-bT-uUS">
-                                <rect key="frame" x="597" y="394" width="124" height="32"/>
+                                <rect key="frame" x="597" y="363" width="124" height="32"/>
                                 <buttonCell key="cell" type="push" title="Validate ACLs" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="LD2-mS-FPT">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -276,10 +267,10 @@
                                 </connections>
                             </button>
                             <stackView distribution="fillEqually" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="g0k-gr-t3L" userLabel="Validation Output H Stack View">
-                                <rect key="frame" x="35" y="227" width="1248" height="166"/>
+                                <rect key="frame" x="35" y="227" width="1248" height="135"/>
                                 <subviews>
                                     <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eea-mo-0Vc">
-                                        <rect key="frame" x="0.0" y="116" width="620" height="50"/>
+                                        <rect key="frame" x="0.0" y="85" width="620" height="50"/>
                                         <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="0tQ-dB-80x">
                                             <rect key="frame" x="0.0" y="0.0" width="605" height="50"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -305,7 +296,7 @@
                                         </scroller>
                                     </scrollView>
                                     <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ntd-sf-Tko">
-                                        <rect key="frame" x="628" y="31" width="620" height="135"/>
+                                        <rect key="frame" x="628" y="0.0" width="620" height="135"/>
                                         <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="cni-M9-IAC">
                                             <rect key="frame" x="0.0" y="0.0" width="605" height="135"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -598,10 +589,8 @@
                             <integer value="1000"/>
                             <integer value="1000"/>
                             <integer value="1000"/>
-                            <integer value="1000"/>
                         </visibilityPriorities>
                         <customSpacing>
-                            <real value="3.4028234663852886e+38"/>
                             <real value="3.4028234663852886e+38"/>
                             <real value="3.4028234663852886e+38"/>
                             <real value="3.4028234663852886e+38"/>

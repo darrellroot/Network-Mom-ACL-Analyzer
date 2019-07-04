@@ -9,6 +9,6 @@
 import Foundation
 
 protocol AclDelegate {
-    func getObjectGroup(_ group: String) -> ObjectGroup?
+    func getObjectGroupNetwork(_ group: String) -> ObjectGroupNetwork?
     func foundName(_ name: String)
 }

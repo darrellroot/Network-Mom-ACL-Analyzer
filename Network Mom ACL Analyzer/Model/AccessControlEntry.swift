@@ -267,7 +267,7 @@ struct AccessControlEntry {
                     let remainder = tempSourceOctet! % numSourceHosts
                     if remainder > 0 {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
-                        errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum)
+                        errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum)
                     }
                     let tempMinSourceIp = tempSourceOctet! - remainder
                     let tempMaxSourceIp = tempMinSourceIp + numSourceHosts - 1
@@ -304,7 +304,7 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum)
                         return nil
                 case .name(let objectName):
-                    let sourceObjectGroup = aclDelegate?.getObjectGroup(objectName)
+                    let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName)
                     if sourceObjectGroup == nil {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)")
@@ -622,7 +622,7 @@ struct AccessControlEntry {
                     let remainder = tempDestOctet! % numDestHosts
                     if remainder > 0 {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
-                        errorDelegate?.report(severity: .warning, message: "destination IP not on netmask or bit boundary", line: linenum)
+                        errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum)
                     }
                     let tempMinDestIp = tempDestOctet! - remainder
                     let tempMaxDestIp = tempMinDestIp + numDestHosts - 1
@@ -659,7 +659,7 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .error, message: "Error decoding object group at \(linePosition)", line: linenum)
                     return nil
                 case .name(let objectName):
-                    guard let destObjectGroup = aclDelegate?.getObjectGroup(objectName) else {
+                    guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)")
                         return nil

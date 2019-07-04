@@ -8,7 +8,7 @@
 
 import Foundation
 
-class ObjectGroup {
+class ObjectGroupNetwork {
     var ipRanges: [IpRange] = []
     
     init(ipRange: IpRange) {

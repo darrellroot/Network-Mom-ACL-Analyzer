@@ -16,10 +16,18 @@ class AccessList {
     var deviceType: DeviceType
     var names: Set<String> = []
     var delegate: ErrorDelegate?
-    var objectGroups = [String:ObjectGroup]()
+    var objectGroupNetworks = [String:ObjectGroupNetwork]()
 
     var count: Int {
         return accessControlEntries.count
+    }
+    
+    enum ConfigurationMode {
+        case objectGroupNetwork
+        case objectGroupProtocol
+        case objectGroupService
+        case accessListExtended
+        case accessControlEntry
     }
     
     init(sourceText: String, deviceType: DeviceType, delegate: ErrorDelegate? = nil) {
@@ -27,6 +35,7 @@ class AccessList {
         self.delegate = delegate
         self.deviceType = deviceType
         var linenum = 0
+        var configurationMode: ConfigurationMode = .accessControlEntry
         var objectName: String? = nil  //non-nil if we are in object-group mode
         
         lineLoop: for line in sourceText.components(separatedBy: NSCharacterSet.newlines) {
@@ -40,6 +49,16 @@ class AccessList {
             if line.starts(with: "object-group network") {
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 if let objectNameTemp = words[safe: 2] {
+                    configurationMode = .objectGroupNetwork
+                    objectName = objectNameTemp
+                }
+                continue lineLoop
+            }
+            
+            if line.starts(with: "object-group service") {
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                if let objectNameTemp = words[safe: 2] {
+                    configurationMode = .objectGroupService
                     objectName = objectNameTemp
                 }
                 continue lineLoop
@@ -47,12 +66,16 @@ class AccessList {
             
             if line.starts(with: "network-object") {
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                if configurationMode != .objectGroupNetwork {
+                    delegate?.report(severity: .error, message: "Unexpected network-object", line: linenum)
+                    continue lineLoop
+                }
                 if let term1 = words[safe: 1], let term2 = words[safe: 2], let objectName = objectName, let ipRange = IpRange(ip: term1, mask: term2, type: .asa) {
-                    if let objectGroup = objectGroups[objectName] {
-                        objectGroup.append(ipRange: ipRange)
+                    if let objectGroupNetwork = objectGroupNetworks[objectName] {
+                        objectGroupNetwork.append(ipRange: ipRange)
                     } else {
-                        let objectGroup = ObjectGroup(ipRange: ipRange)
-                        objectGroups[objectName] = objectGroup
+                        let objectGroupNetwork = ObjectGroupNetwork(ipRange: ipRange)
+                        objectGroupNetworks[objectName] = objectGroupNetwork
                     }
                 }
                 continue lineLoop
@@ -60,6 +83,7 @@ class AccessList {
             
             if line.starts(with: "ip access-list extended") {
                 objectName = nil
+                configurationMode = .accessListExtended
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 if let aclName = words[safe: 3] {
                     names.insert(aclName)
@@ -72,6 +96,7 @@ class AccessList {
             
             if let accessControlEntry = AccessControlEntry(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: self, errorDelegate: delegate) {
                 objectName = nil
+                configurationMode = .accessControlEntry
                 accessControlEntries.append(accessControlEntry)
             }
         }
@@ -104,9 +129,9 @@ class AccessList {
     }
 }
 extension AccessList: AclDelegate {
-    func getObjectGroup(_ group: String) -> ObjectGroup? {
-        if let objectGroup = self.objectGroups[group] {
-            return objectGroup
+    func getObjectGroupNetwork(_ group: String) -> ObjectGroupNetwork? {
+        if let objectGroupNetwork = self.objectGroupNetworks[group] {
+            return objectGroupNetwork
         } else {
             return nil
         }
