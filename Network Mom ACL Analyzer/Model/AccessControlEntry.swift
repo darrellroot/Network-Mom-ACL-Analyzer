@@ -181,9 +181,12 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                     return nil
                 case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum)
-                    return nil
+                    guard deviceType == .asa else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "Invalid objectgroup as position \(linePosition) for device type \(deviceType)", line: linenum)
+                        return nil
+                    }
+                    linePosition = .protocolObjectGroup
                 case .tcp:
                     self.ipProtocols.append(6)
                     linePosition = .ipProtocol
@@ -207,6 +210,21 @@ struct AccessControlEntry {
                         linePosition = .ipProtocol
                     }
                 }
+            case .protocolObjectGroup:
+                switch token {
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .objectGroup, .host, .any, .fourOctet(_), .range, .remark, .comment, .extended, .gt, .lt, .ne, .established, .log, .number:
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                    return nil
+                case .name(let objectName):
+                    guard let protocolObjectGroup = aclDelegate?.getObjectGroupProtocol(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)")
+                        return nil
+                    }
+                    self.ipProtocols = protocolObjectGroup.ipProtocols
+                }
+                linePosition = .ipProtocol
             case .ipProtocol:
                 switch token {
                     
@@ -365,11 +383,6 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum)
                         return nil
                     }
-                    /*guard port >= 0 else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
-                        errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum)
-                        return nil
-                    }*/
                     //start code snippet A
                     guard let tempSourcePortOperator = tempSourcePortOperator else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
@@ -1050,14 +1063,7 @@ struct AccessControlEntry {
         for ipProtocol in ipProtocols {
             switch ipProtocol {
             case 6, 17:
-                if self.sourcePort.count == 0 {
-                    let sourcePort = PortRange(minPort: 0, maxPort: 65535)!
-                    self.sourcePort.append(sourcePort)
-                }
-                if self.destPort.count == 0 {
-                    let destPort = PortRange(minPort: 0, maxPort: 65535)!
-                    self.destPort.append(destPort)
-                }
+                break
             case 0...255:
                 if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
@@ -1110,12 +1116,18 @@ struct AccessControlEntry {
         // check ports if protocol udp or tcp
         if socket.ipProtocol == 17 || socket.ipProtocol == 6, let socketSourcePort = socket.sourcePort, let socketDestPort = socket.destinationPort {
             var sourcePortMatch = false
+            if self.sourcePort.count == 0 {
+                sourcePortMatch = true
+            }
             for aceSourcePort in self.sourcePort {
                 if socketSourcePort >= aceSourcePort.minPort && socketSourcePort <= aceSourcePort.maxPort {
                     sourcePortMatch = true
                 }
             }
             var destPortMatch = false
+            if self.destPort.count == 0 {
+                destPortMatch = true
+            }
             for aceDestPort in self.destPort {
                 if socketDestPort >= aceDestPort.minPort && socketDestPort <= aceDestPort.maxPort {
                     destPortMatch = true

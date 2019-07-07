@@ -288,6 +288,26 @@ class testAsa: XCTestCase {
 
     }
     
+    func testAsaProtocolObject1() {
+        let sample = """
+        object-group protocol tcp_udp_icmp
+            protocol-object tcp
+            protocol-object icmp
+            protocol-object udp
+        access-list 101 extended permit object-group tcp_udp_icmp 1.1.63.0 255.255.192.0 2.2.4.0 255.255.254.0
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.0.3".ipv4address!, destinationIp: "2.2.4.31".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 1, sourceIp: "1.1.63.3".ipv4address!, destinationIp: "2.2.5.31".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .permit)
+        let socket3 = Socket(ipProtocol: 1, sourceIp: "1.1.64.3".ipv4address!, destinationIp: "2.2.4.31".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
+        let result3 = acl.analyze(socket: socket3)
+        XCTAssert(result3 == .deny)
+
+    }
     func testAsaObjectGroupDestNetmask() {
         let sample = """
         object-group service services1 tcp

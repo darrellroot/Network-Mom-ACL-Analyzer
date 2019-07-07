@@ -14,6 +14,7 @@ enum LinePosition: String {
     case listName
     case action
     case ipProtocol
+    case protocolObjectGroup
     case sourceIp
     case sourceObjectGroup
     case sourceIpHost
