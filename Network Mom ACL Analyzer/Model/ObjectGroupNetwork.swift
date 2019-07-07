@@ -11,8 +11,7 @@ import Foundation
 class ObjectGroupNetwork {
     var ipRanges: [IpRange] = []
     
-    init(ipRange: IpRange) {
-        self.ipRanges = [ipRange]
+    init() {
     }
     func append(ipRange: IpRange) {
         self.ipRanges.append(ipRange)

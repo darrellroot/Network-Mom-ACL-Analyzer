@@ -96,7 +96,7 @@ class testAsa: XCTestCase {
     func testAsaIcmp() {
         let line = "access-list abc extended permit icmp any any echo"
         let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
-        XCTAssert(ace!.ipProtocol == 1)
+        XCTAssert(ace!.ipProtocols.first == 1)
         XCTAssert(ace!.sourceIp[0].minIp == 0)
     }
     func testAsaIosIcmpReject() {
@@ -161,6 +161,151 @@ class testAsa: XCTestCase {
         XCTAssert(result == .deny)
 
     }
+    func testAsaObjectGroupServiceSource() {
+        let sample = """
+        object-group service services1 tcp-udp
+            description DNS Group
+            port-object eq domain
+        object-group service services2 udp
+            description RADIUS Group
+            port-object eq radius
+            port-object eq radius-acct
+        object-group service services3 tcp
+            description LDAP Group
+            port-object eq ldap
+        access-list ACL_IN extended permit tcp any object-group services1 any
+        """
+        let iosacl = AccessList(sourceText: sample, deviceType: .ios)
+        XCTAssert(iosacl.objectGroupServices.count == 0)
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.objectGroupServices.count == 3)
+        let socket = Socket(ipProtocol: 6, sourceIp: "131.252.209.11".ipv4address!, destinationIp: "198.133.212.39".ipv4address!, sourcePort: 53, destinationPort: 44, established: false)!
+        let result = acl.analyze(socket: socket)
+        XCTAssert(result == .permit)
+    }
+    
+    func testPortObjectLdap() {
+        let sample = """
+        object-group service services3 tcp
+            description LDAP Group
+            port-object eq ldap
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.objectGroupServices["services3"]!.portRanges.count == 1)
+    }
+    
+    func testAsaObjectGroupServiceDest() {
+        let sample = """
+        object-group service services1 tcp-udp
+            description DNS Group
+            port-object eq domain
+        object-group service services2 udp
+            description RADIUS Group
+            port-object eq radius
+            port-object eq radius-acct
+        object-group service services3 tcp
+            description LDAP Group
+            port-object eq ldap
+        access-list ACL_IN extended permit tcp any object-group services1 any object-group services3
+        """
+        let iosacl = AccessList(sourceText: sample, deviceType: .ios)
+        XCTAssert(iosacl.objectGroupServices.count == 0)
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.objectGroupServices.count == 3)
+        XCTAssert(acl.objectGroupServices["services3"] != nil)
+        XCTAssert(acl.getObjectGroupService("services3") != nil)
+        let service = acl.getObjectGroupService("services3")
+        XCTAssert(service!.portRanges.count == 1)
+        let socket = Socket(ipProtocol: 6, sourceIp: "131.252.209.11".ipv4address!, destinationIp: "198.133.212.39".ipv4address!, sourcePort: 53, destinationPort: 389, established: false)!
+        XCTAssert(acl.accessControlEntries.count == 1)
+        let result = acl.analyze(socket: socket)
+        XCTAssert(result == .permit)
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "131.252.209.11".ipv4address!, destinationIp: "198.133.212.39".ipv4address!, sourcePort: 53, destinationPort: 390, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+    
+    func testObjectGroupNetmask() {
+        let sample = """
+        object-group network eng
+            network-object 2.1.1.0 255.255.255.0
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.objectGroupNetworks.count == 1)
+        XCTAssert(acl.objectGroupNetworks["eng"]!.ipRanges.count == 1)
+    }
+    func testAsaObjectGroupNetmask() {
+        let sample = """
+        object-group service services1 tcp
+            description DNS Group
+            port-object eq domain
+            port-object eq ssh
+        object-group network eng
+            network-object host 1.1.1.1
+            network-object 2.1.1.0 255.255.255.0
+        access-list ACL extended permit tcp 3.2.0.0 255.255.0.0 object-group eng object-group services1
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "3.2.3.3".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "3.2.3.3".ipv4address!, destinationIp: "2.1.2.3".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+        
+        let socket3 = Socket(ipProtocol: 6, sourceIp: "3.2.3.3".ipv4address!, destinationIp: "2.1.1.3".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result3 = acl.analyze(socket: socket3)
+        XCTAssert(result3 == .permit)
+    }
+    
+    func testAsaEstablishedError() {
+        let sample = """
+        object-group service services1 tcp
+            description DNS Group
+            port-object eq domain
+            port-object eq ssh
+        object-group network eng
+            network-object host 1.1.1.1
+            network-object 2.1.0.0 255.255.128.0
+        access-list ACL extended permit tcp object-group eng 3.2.0.0 255.255.0.0 object-group services1 established
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.accessControlEntries.count == 0)
+    }
+    
+    func testAsaDuplicateObjectGroup() {
+        let sample = """
+        object-group service services1 tcp
+            description DNS Group
+            port-object eq domain
+            port-object eq ssh
+        object-group network services1
+            network-object host 1.1.1.1
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.objectGroupNetworks.count == 0)
+        XCTAssert(acl.objectGroupServices.count == 1)
+
+    }
+    
+    func testAsaObjectGroupDestNetmask() {
+        let sample = """
+        object-group service services1 tcp
+            description DNS Group
+            port-object eq domain
+            port-object eq ssh
+        object-group network eng
+            network-object host 1.1.1.1
+            network-object 2.1.0.0 255.255.128.0
+        access-list ACL extended permit tcp object-group eng 3.2.0.0 255.255.0.0 object-group services1
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "2.1.33.3".ipv4address!, destinationIp: "3.2.3.3".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+    }
+
+    
     func testAsaObjectGroupAcl() {
         let sample = """
         object-group network denied

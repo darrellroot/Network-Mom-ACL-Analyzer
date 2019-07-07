@@ -20,7 +20,10 @@ struct PortRange: CustomStringConvertible {
         }
     }
     
-    init(minPort: UInt, maxPort: UInt) {  // requires valid minSourceIp and maxSourceIp
+    init?(minPort: UInt, maxPort: UInt) {  // requires valid minSourceIp and maxSourceIp
+        guard minPort >= 0 && maxPort >= 0 && minPort <= 65535 && maxPort <= 65535 && minPort <= maxPort else {
+            return nil
+        }
         self.minPort = minPort
         self.maxPort = maxPort
     }

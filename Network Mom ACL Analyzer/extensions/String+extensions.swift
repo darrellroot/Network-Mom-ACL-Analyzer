@@ -59,6 +59,8 @@ extension String {
             return 67
         case "domain":
             return 53
+        case "ldap":
+            return 389
         case "mms":
             return 1755
         case "netbios-dgm":
@@ -83,6 +85,49 @@ extension String {
             return 2048
         default:
             return nil
+        }
+    }
+    var ipProtocol: UInt? {
+        switch self {
+        case "eigrp":
+            return 88
+        case "gre":
+            return 47
+        case "icmp":
+            return 1
+        case "igmp":
+            return 2
+        case "ip":
+            return 0
+        case "ipnip":
+            return 94
+        case "ospf":
+            return 89
+        case "pim":
+            return 103
+        case "tcp":
+            return 6
+        case "udp":
+            return 17
+        default:
+            return nil
+        }
+    }
+    var port: UInt? {
+        if let portNumber = UInt(self) {
+            if portNumber >= 0 && portNumber <= 65535 {
+                return portNumber
+            } else {
+                return nil
+            }
+        } else {
+            if let portNumber = self.tcpPort {
+                return portNumber
+            } else if let portNumber = self.udpPort {
+                return portNumber
+            } else {
+                return nil
+            }
         }
     }
 }

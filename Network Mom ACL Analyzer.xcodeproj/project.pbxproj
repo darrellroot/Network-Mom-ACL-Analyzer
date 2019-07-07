@@ -25,6 +25,12 @@
 		2F2698B222A7799F00517AC9 /* Array+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA073228A0DF200B53113 /* Array+extensions.swift */; };
 		2F2698B322A779A100517AC9 /* String+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA082228F5B9D00B53113 /* String+extensions.swift */; };
 		2F32001D22CBFA1100DC43E5 /* net.networkmom.acl-analyzer.help in Resources */ = {isa = PBXBuildFile; fileRef = 2F32001C22CBFA1100DC43E5 /* net.networkmom.acl-analyzer.help */; };
+		2F32058422CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058322CE82BA0013A3E8 /* ObjectGroupProtocol.swift */; };
+		2F32058522CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058322CE82BA0013A3E8 /* ObjectGroupProtocol.swift */; };
+		2F32058722CE89E60013A3E8 /* ObjectGroupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058622CE89E60013A3E8 /* ObjectGroupService.swift */; };
+		2F32058822CE89E60013A3E8 /* ObjectGroupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058622CE89E60013A3E8 /* ObjectGroupService.swift */; };
+		2F32058B22CE96120013A3E8 /* ServiceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058A22CE96120013A3E8 /* ServiceType.swift */; };
+		2F32058C22CE96120013A3E8 /* ServiceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058A22CE96120013A3E8 /* ServiceType.swift */; };
 		2F49B71422C6AC86001F0DB5 /* IpRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F49B71322C6AC86001F0DB5 /* IpRange.swift */; };
 		2F49B71522C6AC86001F0DB5 /* IpRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F49B71322C6AC86001F0DB5 /* IpRange.swift */; };
 		2F49B71722C6DAED001F0DB5 /* PortRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F49B71622C6DAED001F0DB5 /* PortRange.swift */; };
@@ -81,6 +87,9 @@
 		2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network_Mom_ACL_AnalyzerTests.swift; sourceTree = "<group>"; };
 		2F2698A422A7784300517AC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2F32001C22CBFA1100DC43E5 /* net.networkmom.acl-analyzer.help */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "net.networkmom.acl-analyzer.help"; sourceTree = "<group>"; };
+		2F32058322CE82BA0013A3E8 /* ObjectGroupProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectGroupProtocol.swift; sourceTree = "<group>"; };
+		2F32058622CE89E60013A3E8 /* ObjectGroupService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectGroupService.swift; sourceTree = "<group>"; };
+		2F32058A22CE96120013A3E8 /* ServiceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceType.swift; sourceTree = "<group>"; };
 		2F49B71322C6AC86001F0DB5 /* IpRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IpRange.swift; sourceTree = "<group>"; };
 		2F49B71622C6DAED001F0DB5 /* PortRange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortRange.swift; sourceTree = "<group>"; };
 		2F4B851622B16C8E00927DD2 /* AnalyzeDashboardController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeDashboardController.swift; sourceTree = "<group>"; };
@@ -220,6 +229,8 @@
 				2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */,
 				2F49B71322C6AC86001F0DB5 /* IpRange.swift */,
 				2F0E24EA22C81A460032962D /* ObjectGroupNetwork.swift */,
+				2F32058322CE82BA0013A3E8 /* ObjectGroupProtocol.swift */,
+				2F32058622CE89E60013A3E8 /* ObjectGroupService.swift */,
 				2F49B71622C6DAED001F0DB5 /* PortRange.swift */,
 				2F4B852122B555F200927DD2 /* Socket.swift */,
 			);
@@ -238,6 +249,7 @@
 				2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */,
 				2F4B851E22B2EFE300927DD2 /* Severity.swift */,
 				2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */,
+				2F32058A22CE96120013A3E8 /* ServiceType.swift */,
 			);
 			path = enumerations;
 			sourceTree = "<group>";
@@ -362,9 +374,12 @@
 				2FCE6AA822AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2F2698B122A7799B00517AC9 /* AccessList.swift in Sources */,
 				2F2698AA22A7795800517AC9 /* AccessControlEntry.swift in Sources */,
+				2F32058822CE89E60013A3E8 /* ObjectGroupService.swift in Sources */,
 				2FCE6AAB22ACAF5100E0B4D7 /* AclToken.swift in Sources */,
+				2F32058522CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */,
 				2F2698AB22A7798300517AC9 /* LinePosition.swift in Sources */,
 				2F1FD8B322B9EE26008ADBC7 /* Collection+extensions.swift in Sources */,
+				2F32058C22CE96120013A3E8 /* ServiceType.swift in Sources */,
 				2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
 				2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */,
 				2F2698A322A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift in Sources */,
@@ -383,8 +398,10 @@
 			files = (
 				2FBAA085228F5EAB00B53113 /* LinePosition.swift in Sources */,
 				2FBAA07F228A399300B53113 /* IpVersion.swift in Sources */,
+				2F32058722CE89E60013A3E8 /* ObjectGroupService.swift in Sources */,
 				2FBAA078228A12D500B53113 /* AccessList.swift in Sources */,
 				2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */,
+				2F32058B22CE96120013A3E8 /* ServiceType.swift in Sources */,
 				2F49B71722C6DAED001F0DB5 /* PortRange.swift in Sources */,
 				2F4B851C22B2EC2A00927DD2 /* ErrorDelegate.swift in Sources */,
 				2F7D69AF22C9576D0024348B /* AclDelegate.swift in Sources */,
@@ -399,6 +416,7 @@
 				2FBAA07A228A38AE00B53113 /* AccessControlEntry.swift in Sources */,
 				2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
 				2F49B71422C6AC86001F0DB5 /* IpRange.swift in Sources */,
+				2F32058422CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */,
 				2FBAA083228F5B9D00B53113 /* String+extensions.swift in Sources */,
 				2F1FD8AF22B9DBB3008ADBC7 /* AceType.swift in Sources */,
 				2F0E24EB22C81A460032962D /* ObjectGroupNetwork.swift in Sources */,

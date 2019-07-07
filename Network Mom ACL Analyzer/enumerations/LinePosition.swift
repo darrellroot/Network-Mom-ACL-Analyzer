@@ -28,6 +28,7 @@ enum LinePosition: String {
     case destPortOperator
     case firstDestPort
     case lastDestPort
+    case destObjectService
     case comment
     case remark
     case end

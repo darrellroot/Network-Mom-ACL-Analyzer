@@ -177,11 +177,11 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
     }
     func testIcmpName() {
         let ace = AccessControlEntry(line: "access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1 timestamp-reply", deviceType: .ios, linenum: 6)
-        XCTAssert(ace?.ipProtocol == 1)
+        XCTAssert(ace?.ipProtocols.first == 1)
     }
     func testIcmpNumber() {
         let ace = AccessControlEntry(line: "access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1 14", deviceType: .ios, linenum: 6)
-        XCTAssert(ace?.ipProtocol == 1)
+        XCTAssert(ace?.ipProtocols.first == 1)
         XCTAssert(ace?.icmpMessage?.type == 14)
     }
     func testIcmpInvalidName() {
@@ -273,7 +273,7 @@ ipv4 access-list acl_hw_1
             return
         }
         XCTAssert(ace.destPort[0].minPort == 21)
-        XCTAssert(ace.ipProtocol == 6)
+        XCTAssert(ace.ipProtocols.first == 6)
         XCTAssert(ace.aclAction == .deny)
     }
 

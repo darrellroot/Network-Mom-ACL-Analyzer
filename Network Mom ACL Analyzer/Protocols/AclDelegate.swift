@@ -10,5 +10,7 @@ import Foundation
 
 protocol AclDelegate {
     func getObjectGroupNetwork(_ group: String) -> ObjectGroupNetwork?
+    func getObjectGroupService(_ group: String) -> ObjectGroupService?
+    func getObjectGroupProtocol(_ group: String) -> ObjectGroupProtocol?
     func foundName(_ name: String)
 }
