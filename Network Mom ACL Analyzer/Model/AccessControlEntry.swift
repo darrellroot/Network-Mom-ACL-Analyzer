@@ -314,18 +314,33 @@ struct AccessControlEntry {
                 linePosition = .sourceMask
             case .sourceObjectGroup:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number, .objectGroup, .fourOctet:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .objectGroup:
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum)
                         return nil
-                case .name(let objectName):
-                    let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName)
-                    if sourceObjectGroup == nil {
+                case .fourOctet(let fourOctet):
+                    let objectName = fourOctet.ipv4
+                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)")
                         return nil
                     }
-                    self.sourceIp = sourceObjectGroup!.ipRanges
+                    self.sourceIp = sourceObjectGroup.ipRanges
+                case .number(let number): // could be object group name
+                    let objectName = "\(number)"
+                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)")
+                        return nil
+                    }
+                    self.sourceIp = sourceObjectGroup.ipRanges
+                case .name(let objectName):
+                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)")
+                        return nil
+                    }
+                    self.sourceIp = sourceObjectGroup.ipRanges
                 }
                 linePosition = .sourceMask
             case .sourceMask:
@@ -677,10 +692,52 @@ struct AccessControlEntry {
                 linePosition = .destMask
             case .destObjectGroup:
                 switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number, .objectGroup, .fourOctet:
+                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .objectGroup:
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                     errorDelegate?.report(severity: .error, message: "Error decoding object group at \(linePosition)", line: linenum)
                     return nil
+                case .fourOctet(let fourOctet):
+                    let objectName = fourOctet.ipv4
+                    // could be service object group for source port
+                    // or could be dest object group
+                    if let serviceObjectGroup = aclDelegate?.getObjectGroupService(objectName) {
+                        guard self.sourcePort.count == 0 else {
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "Duplicate source port configuration")
+                            return nil
+                        }
+                        self.sourcePort = serviceObjectGroup.portRanges
+                        linePosition = .lastSourcePort
+                    } else {
+                        guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)")
+                            return nil
+                        }
+                        self.destIp = destObjectGroup.ipRanges
+                        linePosition = .destMask
+                    }
+                case .number(let number): // could be object group name
+                    let objectName = "\(number)"
+                    // could be service object group for source port
+                    // or could be dest object group
+                    if let serviceObjectGroup = aclDelegate?.getObjectGroupService(objectName) {
+                        guard self.sourcePort.count == 0 else {
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "Duplicate source port configuration")
+                            return nil
+                        }
+                        self.sourcePort = serviceObjectGroup.portRanges
+                        linePosition = .lastSourcePort
+                    } else {
+                        guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                            errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)")
+                            return nil
+                        }
+                        self.destIp = destObjectGroup.ipRanges
+                        linePosition = .destMask
+                    }
                 case .name(let objectName):
                     // could be service object group for source port
                     // or could be dest object group
@@ -769,7 +826,7 @@ struct AccessControlEntry {
                     tempDestPortOperator = .lt
                     linePosition = .destPortOperator
                 case .log:
-                    linePosition = .end
+                    linePosition = .log
                 }
             case .destObjectService:
                 switch token {

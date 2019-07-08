@@ -254,6 +254,7 @@ class testAsa: XCTestCase {
         let ipRange = IpRange(ip: "209.165.200.0", mask: "255.255.255.0", type: .asa)
         XCTAssert(ipRange != nil)
     }
+    
     func testAsaSourceObjectGroup() {
         let sample = """
         object-group network denied
@@ -367,6 +368,17 @@ class testAsa: XCTestCase {
         let acl = AccessList(sourceText: sample, deviceType: .asa)
         XCTAssert(acl.objectGroupNetworks.count == 1)
         XCTAssert(acl.objectGroupNetworks["eng"]!.ipRanges.count == 1)
+    }
+    func testAsaAny4() {
+        let line = "access-list 101 extended permit tcp any4 host 2.2.2.2 eq 80 log 3 interval 10"
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 2)!
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "3.3.3.3".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 40, destinationPort: 80, established: false)!
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "3.3.3.3".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 40, destinationPort: 81, established: false)!
+        let result1 = ace.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let result2 = ace.analyze(socket: socket2)
+        XCTAssert(result2 == .neither)
+        
     }
     func testAsaObjectGroupNetmask() {
         let sample = """
@@ -696,7 +708,72 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
         XCTAssert(ace == nil)
     }
 
+    func testIosExample1() {
+        let sample = """
+        access-list 102 permit tcp any 10.88.0.0 0.0.255.255 established
+        access-list 102 permit tcp any host 10.88.1.2 eq smtp
+        access-list 102 permit tcp any any eq domain
+        access-list 102 permit udp any any eq domain
+        access-list 102 permit icmp any any echo
+        access-list 102 permit icmp any any echo-reply
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        XCTAssert(acl.accessControlEntries.count == 6)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "2.2.2.2".ipv4address!, destinationIp: "10.88.3.3".ipv4address!, sourcePort: 33, destinationPort: 22, established: true)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "2.2.2.2".ipv4address!, destinationIp: "10.88.3.3".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
 
+        let socket3 = Socket(ipProtocol: 6, sourceIp: "2.2.2.2".ipv4address!, destinationIp: "10.88.1.2".ipv4address!, sourcePort: 33, destinationPort: 25, established: false)!
+        let result3 = acl.analyze(socket: socket3)
+        XCTAssert(result3 == .permit)
+
+        let socket4 = Socket(ipProtocol: 6, sourceIp: "2.2.2.2".ipv4address!, destinationIp: "10.88.1.2".ipv4address!, sourcePort: 33, destinationPort: 26, established: false)!
+        let result4 = acl.analyze(socket: socket4)
+        XCTAssert(result4 == .deny)
+
+        let socket5 = Socket(ipProtocol: 17, sourceIp: "2.2.2.2".ipv4address!, destinationIp: "10.88.1.2".ipv4address!, sourcePort: 33, destinationPort: 53, established: false)!
+        let result5 = acl.analyze(socket: socket5)
+        XCTAssert(result5 == .permit)
+
+        let socket6 = Socket(ipProtocol: 17, sourceIp: "2.2.2.2".ipv4address!, destinationIp: "10.88.1.2".ipv4address!, sourcePort: 33, destinationPort: 54, established: false)!
+        let result6 = acl.analyze(socket: socket6)
+        XCTAssert(result6 == .deny)
+
+    }
+
+    func testIosLog() {
+        let sample = """
+        access-list 101 permit tcp host 10.1.1.1 host 10.1.1.2 log UserDefinedValue
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.1.1.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+    
+    func testIosLogInput() {
+        let sample = """
+        access-list 101 permit tcp host 10.1.1.1 host 10.1.1.2 log-input UserDefinedValue
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.1.1.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+
+    }
 
     func testPerformanceExample() {
         // This is an example of a performance test case.

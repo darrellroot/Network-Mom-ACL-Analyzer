@@ -48,7 +48,10 @@ class AccessList {
             }
             let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             
-            if line.starts(with: "object-group network") || line.starts(with: "object network") {
+            if line.starts(with: "object network") {
+                
+            }
+            if line.starts(with: "object-group network") {
                 if deviceType == .ios {
                     delegate?.report(severity: .linetext, message: line, line: linenum)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
@@ -69,7 +72,7 @@ class AccessList {
                 continue lineLoop
             }
             
-            if line.starts(with: "object-group service") || line.starts(with: "object service") {
+            if line.starts(with: "object-group service") {
                 if deviceType == .ios {
                     delegate?.report(severity: .linetext, message: line, line: linenum)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
@@ -112,7 +115,7 @@ class AccessList {
                 continue lineLoop //should not get here but just in case
             }
             
-            if line.starts(with: "object-group protocol") || line.starts(with: "object protocol") {
+            if line.starts(with: "object-group protocol") {
                 if deviceType == .ios {
                     delegate?.report(severity: .linetext, message: line, line: linenum)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
