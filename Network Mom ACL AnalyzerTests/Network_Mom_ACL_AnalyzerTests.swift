@@ -182,7 +182,7 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
     func testIcmpNumber() {
         let ace = AccessControlEntry(line: "access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1 14", deviceType: .ios, linenum: 6)
         XCTAssert(ace?.ipProtocols.first == 1)
-        XCTAssert(ace?.icmpMessage?.type == 14)
+        XCTAssert(ace?.icmpMessages.first!.type == 14)
     }
     func testIcmpInvalidName() {
         let ace = AccessControlEntry(line: "access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1 timestamp-bogus", deviceType: .ios, linenum: 6)

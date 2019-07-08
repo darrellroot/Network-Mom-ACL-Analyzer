@@ -11,6 +11,7 @@ import Foundation
 struct PortRange: CustomStringConvertible {
     let minPort: UInt
     let maxPort: UInt
+    var serviceType: ServiceType?  // only non-nil for service object groups
     
     var description: String {
         if minPort == maxPort {
@@ -26,5 +27,19 @@ struct PortRange: CustomStringConvertible {
         }
         self.minPort = minPort
         self.maxPort = maxPort
+    }
+    
+    public func contains(ipProtocol: UInt, port: UInt) -> Bool {
+        if self.serviceType == .tcp && ipProtocol != 6 {
+            return false
+        }
+        if self.serviceType == .udp && ipProtocol != 17 {
+            return false
+        }
+        if port >= minPort && port <= maxPort {
+            return true
+        } else {
+            return false
+        }
     }
 }

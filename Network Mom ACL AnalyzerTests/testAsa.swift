@@ -159,9 +159,8 @@ class testAsa: XCTestCase {
         }
         let result = acl.analyze(socket: socket)
         XCTAssert(result == .deny)
-
     }
-    func testAsaObjectGroupServiceSource() {
+    func testAsaObjectGroupServiceSource1() {
         let sample = """
         object-group service services1 tcp-udp
             description DNS Group
@@ -182,6 +181,28 @@ class testAsa: XCTestCase {
         let socket = Socket(ipProtocol: 6, sourceIp: "131.252.209.11".ipv4address!, destinationIp: "198.133.212.39".ipv4address!, sourcePort: 53, destinationPort: 44, established: false)!
         let result = acl.analyze(socket: socket)
         XCTAssert(result == .permit)
+    }
+    
+    func testAsaObjectGroupServiceSource2() {
+        let sample = """
+        object-group service services1 tcp-udp
+            description DNS Group
+            port-object eq domain
+        object-group service services2 udp
+            description RADIUS Group
+            port-object eq domain
+        object-group service services3 tcp
+            description LDAP Group
+            port-object eq ldap
+        access-list ACL_IN extended permit tcp any object-group services2 any
+        """
+        let iosacl = AccessList(sourceText: sample, deviceType: .ios)
+        XCTAssert(iosacl.objectGroupServices.count == 0)
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        XCTAssert(acl.objectGroupServices.count == 3)
+        let socket = Socket(ipProtocol: 6, sourceIp: "131.252.209.11".ipv4address!, destinationIp: "198.133.212.39".ipv4address!, sourcePort: 53, destinationPort: 44, established: false)!
+        let result = acl.analyze(socket: socket)
+        XCTAssert(result == .deny)
     }
     
     func testPortObjectLdap() {
@@ -368,8 +389,72 @@ class testAsa: XCTestCase {
         let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.31.33".ipv4address!, destinationIp: "20.1.63.3".ipv4address!, sourcePort: 80, destinationPort: 6, established: false)!
         let result2 = acl.analyze(socket: socket2)
         XCTAssert(result2 == .deny)
-
     }
+    func testAsaNestedObjectServiceInvalid1() {
+        let sample = """
+        object-group service alpha tcp
+            port-object eq 1
+            port-object range 2 5
+        object-group service beta udp
+            port-object eq 7
+            port-object range 7 9
+        object-group service gamma tcp
+            group-object alpha
+            group-object beta
+        access-list crazy extended permit tcp 10.1.16.0 255.255.240.0 20.1.32.0 255.255.224.0 object-group gamma
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.31.33".ipv4address!, destinationIp: "20.1.63.3".ipv4address!, sourcePort: 80, destinationPort: 5, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.31.33".ipv4address!, destinationIp: "20.1.63.3".ipv4address!, sourcePort: 80, destinationPort: 8, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+    func testComplexObject1() {
+        let sample = """
+        object-group protocol bob
+            protocol-object tcp
+            protocol-object udp
+        object-group service alpha tcp
+            port-object eq 1
+            port-object eq 2
+        object-group service beta tcp-udp
+            port-object eq 1
+            port-object eq 2
+        access-list 101 extended permit object-group bob 1.1.1.0 255.255.255.0 2.2.2.0 255.255.255.0 object-group alpha
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 17, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+    func testComplexObject2() {
+        let sample = """
+        object-group protocol bob
+            protocol-object tcp
+            protocol-object udp
+        object-group service alpha tcp
+            port-object eq 1
+            port-object eq 2
+        object-group service beta tcp-udp
+            port-object eq 1
+            port-object eq 2
+        access-list 101 extended permit object-group bob 1.1.1.0 255.255.255.0 2.2.2.0 255.255.255.0 object-group beta
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 17, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .permit)
+    }
+
+    
     func testAsaNestedObjectNetwork1() {
         let sample = """
         object-group network eng
@@ -399,8 +484,9 @@ class testAsa: XCTestCase {
         let socket3 = Socket(ipProtocol: 6, sourceIp: "10.2.130.9".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
         let result3 = acl.analyze(socket: socket3)
         XCTAssert(result3 == .deny)
-
     }
+    
+    
     func testAsaObjectGroupDestNetmask() {
         let sample = """
         object-group service services1 tcp

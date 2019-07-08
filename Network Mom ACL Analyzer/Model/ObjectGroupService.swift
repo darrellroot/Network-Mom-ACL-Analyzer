@@ -16,6 +16,8 @@ class ObjectGroupService {
         self.type = type
     }
     func append(portRange: PortRange) {
+        var portRange = portRange
+        portRange.serviceType = self.type
         self.portRanges.append(portRange)
     }
     var count: Int {

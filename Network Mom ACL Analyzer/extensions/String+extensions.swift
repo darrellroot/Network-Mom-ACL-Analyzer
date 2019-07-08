@@ -51,6 +51,48 @@ extension String {
             return nil
         }
     }
+    var asaIcmpType: UInt? {
+        switch self {
+        case "echo-reply":
+            return 0
+        case "unreachable":
+            return 3
+        case "source-quench":
+            return 4
+        case "redirect":
+            return 5
+        case "alternate-address":
+            return 6
+        case "echo":
+            return 8
+        case "router-advertisement":
+            return 9
+        case "router-solicitation":
+            return 10
+        case "time-exceeded":
+            return 11
+        case "parameter-problem":
+            return 12
+        case "timestamp-request":
+            return 13
+        case "timestamp-reply":
+            return 14
+        case "information-request":
+            return 15
+        case "information-reply":
+            return 16
+        case "address-mask-request":
+            return 17
+        case "address-mask-reply":
+            return 18
+        case "conversion-error":
+            return 31
+        case "mobile-redirect":
+            return 32
+        default:
+            return nil
+        }
+    }
     var udpPort: UInt? {
         switch self {
         case "bootpc":

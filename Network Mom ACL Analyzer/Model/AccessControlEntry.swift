@@ -21,7 +21,7 @@ struct AccessControlEntry {
     var established: Bool = false
     var line: String
     var linenum: Int
-    var icmpMessage: IcmpMessage?
+    var icmpMessages: [IcmpMessage] = []
     
     func findAction(word: String) -> AclAction? {
         switch word {
@@ -711,21 +711,30 @@ struct AccessControlEntry {
                 case .objectGroup:
                     linePosition = .destObjectService
                 case .name(let name):  // only valid for icmp here
-                    guard self.ipProtocols.first == 1, let icmpMessage = IcmpMessage(message: name) else {
+                    guard self.ipProtocols.contains(1) else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                         return nil
                     }
-                    self.icmpMessage = icmpMessage
-                    debugPrint("warning: specific icmp syntax not supported")
+                    if let icmpMessage = IcmpMessage(deviceType: deviceType, message: name) {
+                            self.icmpMessages.append(icmpMessage)
+                    } else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                        return nil
+                    }
                 case .number(let number):
-                    guard self.ipProtocols.first == 1, let icmpMessage = IcmpMessage(type: number, code: nil) else {
+                    guard self.ipProtocols.contains(1) else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                         return nil
                     }
-                    self.icmpMessage = icmpMessage
-                    debugPrint("warning: specific icmp syntax not supported")
+                    guard let icmpMessage = IcmpMessage(type: number, code: nil) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
+                        return nil
+                    }
+                    self.icmpMessages.append(icmpMessage)
                 case .established:
                     guard deviceType == .ios else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
@@ -1120,18 +1129,24 @@ struct AccessControlEntry {
                 sourcePortMatch = true
             }
             for aceSourcePort in self.sourcePort {
-                if socketSourcePort >= aceSourcePort.minPort && socketSourcePort <= aceSourcePort.maxPort {
+                if aceSourcePort.contains(ipProtocol: socket.ipProtocol, port: socketSourcePort) {
                     sourcePortMatch = true
                 }
+                /*if socketSourcePort >= aceSourcePort.minPort && socketSourcePort <= aceSourcePort.maxPort {
+                    sourcePortMatch = true
+                }*/
             }
             var destPortMatch = false
             if self.destPort.count == 0 {
                 destPortMatch = true
             }
             for aceDestPort in self.destPort {
-                if socketDestPort >= aceDestPort.minPort && socketDestPort <= aceDestPort.maxPort {
+                if aceDestPort.contains(ipProtocol: socket.ipProtocol, port: socketDestPort) {
                     destPortMatch = true
                 }
+                /*if socketDestPort >= aceDestPort.minPort && socketDestPort <= aceDestPort.maxPort {
+                    destPortMatch = true
+                }*/
             }
             if sourcePortMatch == false || destPortMatch == false {
                 return .neither
