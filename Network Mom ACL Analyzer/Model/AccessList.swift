@@ -133,6 +133,29 @@ class AccessList {
                 continue lineLoop
             }
             
+            if line.starts(with: "group-object") {
+                if deviceType != .asa {
+                    delegate?.report(severity: .linetext, message: line, line: linenum)
+                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
+                    continue lineLoop
+                }
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                switch configurationMode {
+                    
+                case .objectGroupNetwork:
+                    if let currentObjectName = objectName, let currentObjectGroup = objectGroupNetworks[currentObjectName], let nestedObjectName = words[safe: 1], let nestedObjectGroup = objectGroupNetworks[nestedObjectName] {
+                        currentObjectGroup.ipRanges.append(contentsOf: nestedObjectGroup.ipRanges)
+                    }
+                case .objectGroupProtocol:
+                    break
+                case .objectGroupService:
+                    break
+                case .accessListExtended, .accessControlEntry:
+                    delegate?.report(severity: .linetext, message: line, line: linenum)
+                    delegate?.report(severity: .error, message: "unexpected group-object", line: linenum)
+                    continue lineLoop
+                }
+            }
             if line.starts(with: "protocol-object") {
                 if deviceType == .ios {
                     delegate?.report(severity: .linetext, message: line, line: linenum)

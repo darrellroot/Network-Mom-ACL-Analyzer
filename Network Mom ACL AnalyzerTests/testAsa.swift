@@ -306,6 +306,37 @@ class testAsa: XCTestCase {
         let socket3 = Socket(ipProtocol: 1, sourceIp: "1.1.64.3".ipv4address!, destinationIp: "2.2.4.31".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
         let result3 = acl.analyze(socket: socket3)
         XCTAssert(result3 == .deny)
+    }
+    
+    func testAsaNestedObjectNetwork1() {
+        let sample = """
+        object-group network eng
+            network-object host 10.1.1.5
+            network-object host 10.1.1.9
+            network-object host 10.1.1.89
+        object-group network hr
+            network-object host 10.1.2.8
+            network-object host 10.1.2.12
+            network-object 10.2.128.0 255.255.254.0
+        object-group network finance
+            network-object host 10.1.4.89
+            network-object host 10.1.4.100
+        object-group network admin
+            group-object eng
+            group-object hr
+            group-object finance
+        access-list ACL_IN extended permit ip object-group admin host 209.165.201.29
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.1.9".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.2.129.9".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .permit)
+        let socket3 = Socket(ipProtocol: 6, sourceIp: "10.2.130.9".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result3 = acl.analyze(socket: socket3)
+        XCTAssert(result3 == .deny)
 
     }
     func testAsaObjectGroupDestNetmask() {
