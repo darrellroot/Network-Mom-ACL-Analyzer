@@ -308,6 +308,68 @@ class testAsa: XCTestCase {
         XCTAssert(result3 == .deny)
     }
     
+    func testAsaProtocolObject() {
+        let sample = """
+        object-group protocol blork
+            protocol-object tcp
+            protocol-object 8
+            protocol-object udp
+            protocol-object icmp
+            access-list zoom extended permit object-group blork 10.1.4.0 255.255.252.0 20.1.8.0 255.248.0.0
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 8, sourceIp: "10.1.7.8".ipv4address!, destinationIp: "20.1.15.3".ipv4address!, sourcePort: nil, destinationPort: nil, established: nil)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 8, sourceIp: "10.1.8.8".ipv4address!, destinationIp: "20.1.15.3".ipv4address!, sourcePort: nil, destinationPort: nil, established: nil)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+    
+    func testAsaNestedProtocolObject() {
+        let sample = """
+        object-group protocol alpha
+            protocol-object tcp
+            protocol-object 8
+        object-group protocol beta
+            protocol-object udp
+            protocol-object icmp
+        object-group protocol nest
+            group-object alpha
+            group-object beta
+        access-list zoom extended permit object-group nest 10.1.4.0 255.255.252.0 20.1.8.0 255.248.0.0
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 8, sourceIp: "10.1.7.8".ipv4address!, destinationIp: "20.1.15.3".ipv4address!, sourcePort: nil, destinationPort: nil, established: nil)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 7, sourceIp: "10.1.7.8".ipv4address!, destinationIp: "20.1.15.3".ipv4address!, sourcePort: nil, destinationPort: nil, established: nil)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+    
+    func testsaNestedObjectService1() {
+        let sample = """
+        object-group service alpha tcp
+            port-object eq 1
+            port-object range 2 5
+        object-group service beta tcp
+            port-object eq 7
+            port-object range 7 9
+        object-group service gamma tcp
+            group-object alpha
+            group-object beta
+        access-list crazy extended permit tcp 10.1.16.0 255.255.240.0 20.1.32.0 255.255.224.0 object-group gamma
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.31.33".ipv4address!, destinationIp: "20.1.63.3".ipv4address!, sourcePort: 80, destinationPort: 5, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.31.33".ipv4address!, destinationIp: "20.1.63.3".ipv4address!, sourcePort: 80, destinationPort: 6, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+
+    }
     func testAsaNestedObjectNetwork1() {
         let sample = """
         object-group network eng
