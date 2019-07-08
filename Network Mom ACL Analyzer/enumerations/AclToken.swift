@@ -33,7 +33,7 @@ enum AclToken: Equatable {
     case number(UInt)
     case name(String)
     
-    init?(string: String) {
+    init?(deviceType: DeviceType, string: String) {
         switch string {
         case "access-list":
             self = .accessList
@@ -53,12 +53,24 @@ enum AclToken: Equatable {
             self = .host
         case "any":
             self = .any
+        case "any4":
+            switch deviceType {
+            case .ios:
+                return nil
+            case .asa:
+                self = .any
+            }
         case "eq":
             self = .eq
         case "extended":
             self = .extended
-        case "object-group":
-            self = .objectGroup
+        case "object", "object-group":
+            switch deviceType {
+            case .ios:
+                return nil
+            case .asa:
+                self = .objectGroup
+            }
         case "range":
             self = .range
         case "gt":
@@ -71,6 +83,13 @@ enum AclToken: Equatable {
             self = .remark
         case "log":
             self = .log
+        case "log-input":
+            switch deviceType {
+            case .ios:
+                self = .log
+            case .asa:
+                return nil
+            }
         default:
             if let number = UInt(string) {
                 self = .number(number)

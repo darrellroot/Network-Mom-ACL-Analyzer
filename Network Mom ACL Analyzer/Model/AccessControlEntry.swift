@@ -82,7 +82,7 @@ struct AccessControlEntry {
         }
 
         wordLoop: for word in words {
-            guard let token = AclToken(string: word) else {
+            guard let token = AclToken(deviceType: deviceType, string: word) else {
                 errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                 errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum)
                 return nil
@@ -1005,7 +1005,7 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum)
                     return nil
                 case .log:
-                    linePosition = .end
+                    linePosition = .log
                 case .comment:
                     linePosition = .comment
                 case .established:
@@ -1023,10 +1023,52 @@ struct AccessControlEntry {
                     linePosition = .end
                 }
 
+            case .log:
+                switch token {
+                    
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .extended, .objectGroup, .range, .host, .any, .remark, .gt, .lt, .ne, .established, .log, .fourOctet(_):
+                    break
+                case .comment:
+                    linePosition = .comment
+                case .number(let logLevel):
+                    switch logLevel {
+                    case (0...7):
+                        break
+                    default:
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .warning, message: "possibly invalid logging level after \(linePosition)", line: linenum)
+                    }
+                case .name(let logName):
+                    switch logName {
+                    case "interval":
+                        linePosition = .logInterval
+                    case "disable", "default":
+                        linePosition = .log
+                    default:
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .warning, message: "possibly invalid logging level after \(linePosition)", line: linenum)
+                    }
+                }
+            case .logInterval:
+                switch token {
+                    
+                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .extended, .objectGroup, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .name(_),.fourOctet(_):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                    errorDelegate?.report(severity: .warning, message: "possibly invalid logging interval after \(linePosition)", line: linenum)
+                    linePosition = .end
+                case .number(let logLevel):
+                    switch logLevel {
+                    case (1...600):
+                        linePosition = .log
+                    default:
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
+                        errorDelegate?.report(severity: .warning, message: "possibly invalid logging interval after \(linePosition)", line: linenum)
+                    }
+                }
             case .end:
                 switch token {
                 case .log:
-                    break  // do nothing
+                    linePosition = .log
                 case .comment:
                     linePosition = .comment
                 default:

@@ -32,5 +32,7 @@ enum LinePosition: String {
     case destObjectService
     case comment
     case remark
+    case log
+    case logInterval
     case end
 }
