@@ -367,11 +367,11 @@ struct AccessControlEntry {
                     tempSourcePortOperator = .gt
                     linePosition = .sourcePortOperator
                 case .ne:
-                    if deviceType == .ios {
+                    /*if deviceType == .ios {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) IOS does not support ne port operator", line: linenum)
                         return nil
-                    }
+                    }*/
                     tempSourcePortOperator = .ne
                     linePosition = .sourcePortOperator
                 case .lt:
@@ -806,11 +806,11 @@ struct AccessControlEntry {
                     tempEstablished = true
                     linePosition = .end
                 case .ne:
-                    if deviceType == .ios {
+                    /*if deviceType == .ios {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum)
                         errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) IOS does not support ne port operator", line: linenum)
                         return nil
-                    }
+                    }*/
                     tempDestPortOperator = .ne
                     linePosition = .destPortOperator
                 case .eq:

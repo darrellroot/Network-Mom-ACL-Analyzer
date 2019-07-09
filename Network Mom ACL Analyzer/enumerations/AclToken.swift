@@ -75,8 +75,20 @@ enum AclToken: Equatable {
             self = .range
         case "gt":
             self = .gt
+        case "neq":
+            switch deviceType {
+            case .ios:
+                self = .ne
+            case .asa:
+                return nil
+            }
         case "ne":
-            self = .ne
+            switch deviceType {
+            case .ios:
+                return nil
+            case .asa:
+                self = .ne
+            }
         case "established":
             self = .established
         case "remark":

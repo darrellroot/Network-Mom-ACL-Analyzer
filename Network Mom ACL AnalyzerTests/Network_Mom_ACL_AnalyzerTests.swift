@@ -231,6 +231,24 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
         XCTAssert(result12 == .neither)
     }
 
+    func testIosNe1() {
+        let line = "access-list 101 permit tcp host 1.1.1.1 any neq ssh"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 1)
+        
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 40, established: false)!
+        XCTAssert(ace != nil)
+        let result1 = ace?.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result2 = ace?.analyze(socket: socket2)
+        XCTAssert(result2 == .neither)
+    }
+    
+    func testIosNeInvalid1() {
+        let line = "access-list 101 permit tcp host 1.1.1.1 any ne ssh"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 1)
+        XCTAssert(ace == nil)
+    }
 
     func testDummies1() {
         let sample = """
