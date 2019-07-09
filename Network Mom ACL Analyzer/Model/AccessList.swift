@@ -148,10 +148,12 @@ class AccessList {
                 case .objectGroupNetwork:
                     if let currentObjectName = objectName, let currentObjectGroup = objectGroupNetworks[currentObjectName], let nestedObjectName = words[safe: 1], let nestedObjectGroup = objectGroupNetworks[nestedObjectName] {
                         currentObjectGroup.ipRanges.append(contentsOf: nestedObjectGroup.ipRanges)
+                        continue lineLoop
                     }
                 case .objectGroupProtocol:
                     if let currentObjectName = objectName, let currentObjectGroup = objectGroupProtocols[currentObjectName], let nestedObjectName = words[safe: 1], let nestedObjectGroup = objectGroupProtocols[nestedObjectName] {
                         currentObjectGroup.ipProtocols.append(contentsOf: nestedObjectGroup.ipProtocols)
+                        continue lineLoop
                     }
                 case .objectGroupService:
                     if let currentObjectName = objectName, let currentObjectGroup = objectGroupServices[currentObjectName], let nestedObjectName = words[safe: 1], let nestedObjectGroup = objectGroupServices[nestedObjectName] {
@@ -162,6 +164,7 @@ class AccessList {
                             delegate?.report(severity: .error, message: "nested service object-groups must be the same type", line: linenum)
                             continue lineLoop
                         }
+                        continue lineLoop
                     }
                 case .accessListExtended, .accessControlEntry:
                     delegate?.report(severity: .linetext, message: line, line: linenum)
