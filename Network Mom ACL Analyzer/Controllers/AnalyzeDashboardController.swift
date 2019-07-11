@@ -127,18 +127,15 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         }
     }
     
-    @IBAction func analyzeButton(_ sender: NSButton) {
-        self.validateAcl(self)
-        ingressAclAnalysis.string = ""
-        egressAclAnalysis.string = ""
+    private func validateSocket() -> Socket? {
         let ipProtocol = UInt(protocolButton.selectedTag())
         guard ipProtocol < 256 else {
             self.report(severity: .error, message: "Socket: Invalid IP Protocol", delegateWindow: .ingressAnalyze)
-            return
+            return nil
         }
         guard let sourceIp = sourceIpOutlet.stringValue.ipv4address else {
             self.report(severity: .error, message: "Socket: Invalid source IPv4 address", delegateWindow: .ingressAnalyze)
-            return
+            return nil
         }
         if sourcePortOutlet.stringValue.isEmpty {
             let number = UInt.random(in: 1024 ... 65535)
@@ -146,92 +143,122 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         }
         guard let sourcePort16 = UInt16(sourcePortOutlet.stringValue) else {
             self.report(severity: .error, message: "Socket: Invalid source port", delegateWindow: .ingressAnalyze)
-            return
+            return nil
         }
         let sourcePort = UInt(sourcePort16)
         guard let destinationIp = destinationIpOutlet.stringValue.ipv4address else {
             self.report(severity: .error, message: "Socket: Invalid destination IPv4 address", delegateWindow: .ingressAnalyze)
-            return
+            return nil
         }
         guard let destinationPort16 = UInt16(destinationPortOutlet.stringValue) else {
             self.report(severity: .error, message: "Socket: Invalid destination port", delegateWindow: .ingressAnalyze)
-            return
+            return nil
         }
         let destinationPort = UInt(destinationPort16)
-
         guard let socket = Socket(ipProtocol: ipProtocol, sourceIp: sourceIp, destinationIp: destinationIp, sourcePort: sourcePort, destinationPort: destinationPort, established: false) else {
             self.report(severity: .error, message: "Unable to specify socket with current configuration", delegateWindow: .ingressAnalyze)
-            return
+            return nil
         }
         self.report(severity: .notification, message: "Socket configured: \(socket)", delegateWindow: .ingressAnalyze)
-        
-        DispatchQueue.global(qos: .background).async {
-            _ = self.ingressAccessList?.analyze(socket: socket, errorDelegate: self, delegateWindow: .ingressAnalyze)
-        }
-        
-        guard let reverseSocket = socket.reverse() else {
-            self.report(severity: .error, message: "Unable to generate reverse socket", delegateWindow: .egressAnalyze)
-            return
-        }
-        self.report(severity: .notification, message: "Socket configured: \(reverseSocket)", delegateWindow: .egressAnalyze)
-        DispatchQueue.global(qos: .background).async {
-            _ = self.egressAccessList?.analyze(socket: reverseSocket, errorDelegate: self, delegateWindow: .egressAnalyze)
-        }
-
+        return socket
     }
-    @IBAction func validateAcl(_ sender: Any) {
-        
+    private func readyToValidate() -> Bool {
         ingressAclValidation.string.removeAll()
         egressAclValidation.string.removeAll()
-
+        
         guard let ingressDeviceTypeString = ingressDeviceTypeOutlet.titleOfSelectedItem else {
             self.report(severity: .error, message: "Unable to identify ingress device type", delegateWindow: .ingressValidation)
-            return
+            return false
         }
         guard let egressDeviceTypeString = egressDeviceTypeOutlet.titleOfSelectedItem else {
             self.report(severity: .error, message: "Unable to identify egress device type", delegateWindow: .ingressValidation)
-            return
+            return false
         }
         switch ingressDeviceTypeString {
         case "IOS":
-            ingressDeviceType = .ios
+            self.ingressDeviceType = .ios
         case "ASA":
-            ingressDeviceType = .asa
+            self.ingressDeviceType = .asa
         default:
             self.report(severity: .error, message: "Unable to identify ingress device type", delegateWindow: .ingressValidation)
-            return
+            return false
         }
         switch egressDeviceTypeString {
         case "IOS":
-            egressDeviceType = .ios
+            self.egressDeviceType = .ios
         default:
             self.report(severity: .error, message: "Unable to identify egress device type", delegateWindow: .egressValidation)
+            return false
+        }
+        return true
+    }
+    @IBAction func validateAcl(_ sender: Any) {
+        
+        guard readyToValidate() else {
             return
         }
-
         let ingressString = ingressAclTextView.string
         let egressString = egressAclTextView.string
         
-        ingressAccessList = AccessList(sourceText: ingressString, deviceType: ingressDeviceType, delegate: self, delegateWindow: .ingressValidation)
-        egressAccessList = AccessList(sourceText: egressString, deviceType: egressDeviceType, delegate: self, delegateWindow: .egressValidation)
-        if egressAccessList?.count == 0 {
-            egressAccessList = nil
-        }
-        if ingressAccessList?.count == 0 {
-            ingressAccessList = nil
-        }
-        if let ingressAccessList = ingressAccessList {
-            ingressAclValidation.string.append("Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)")
-        } else {
-            ingressAclValidation.string.append("Ingress Access List Not Analyzed")
-        }
-        if let egressAccessList = egressAccessList {
-            egressAclValidation.string.append("Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)")
-        } else {
-            egressAclValidation.string.append("Egress Access List Not Analyzed")
+        DispatchQueue.global(qos: .background).async {
+            self.ingressAccessList = AccessList(sourceText: ingressString, deviceType: self.ingressDeviceType, delegate: self, delegateWindow: .ingressValidation)
+            self.egressAccessList = AccessList(sourceText: egressString, deviceType: self.egressDeviceType, delegate: self, delegateWindow: .egressValidation)
+            if self.ingressAccessList?.count == 0 {
+                self.ingressAccessList = nil
+            }
+            if self.egressAccessList?.count == 0 {
+                self.egressAccessList = nil
+            }
+            DispatchQueue.main.async {
+                if let ingressAccessList = self.ingressAccessList {
+                    self.ingressAclValidation.string.append("Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)")
+                } else {
+                    self.ingressAclValidation.string.append("Ingress Access List Not Analyzed")
+                }
+                if let egressAccessList = self.egressAccessList {
+                    self.egressAclValidation.string.append("Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)")
+                } else {
+                    self.egressAclValidation.string.append("Egress Access List Not Analyzed")
+                }
+            }
         }
     }
-    
+    @IBAction func analyzeButton(_ sender: NSButton) {
+        guard readyToValidate() else {
+            return
+        }
+        guard let ingressSocket = validateSocket() else {
+            return
+        }
+        
+        ingressAclAnalysis.string = ""
+        egressAclAnalysis.string = ""
+        let ingressString = self.ingressAclTextView.string
+
+        DispatchQueue.global(qos: .background).async {
+
+            self.ingressAccessList = AccessList(sourceText: ingressString, deviceType: self.ingressDeviceType, delegate: self, delegateWindow: .ingressValidation)
+            if self.ingressAccessList?.count == 0 {
+                self.ingressAccessList = nil
+            }
+            _ = self.ingressAccessList?.analyze(socket: ingressSocket, errorDelegate: self, delegateWindow: .ingressAnalyze)
+        }
+        
+        guard let egressSocket = ingressSocket.reverse() else {
+            self.report(severity: .error, message: "Unable to generate egress socket", delegateWindow: .egressAnalyze)
+            return
+        }
+        self.report(severity: .notification, message: "Socket configured: \(egressSocket)", delegateWindow: .egressAnalyze)
+        let egressString = self.egressAclTextView.string
+        DispatchQueue.global(qos: .background).async {
+            self.egressAccessList = AccessList(sourceText: egressString, deviceType: self.egressDeviceType, delegate: self, delegateWindow: .egressValidation)
+            if self.egressAccessList?.count == 0 {
+                self.egressAccessList = nil
+            }
+            _ = self.egressAccessList?.analyze(socket: egressSocket, errorDelegate: self, delegateWindow: .egressAnalyze)
+        }
+    }
+
     func report(severity: Severity, message: String, line: Int, delegateWindow: DelegateWindow?) {
         self.report(severity: severity, message: "line \(line): \(message)", delegateWindow: delegateWindow)
     }

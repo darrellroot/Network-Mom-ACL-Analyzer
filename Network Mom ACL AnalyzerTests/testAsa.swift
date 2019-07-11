@@ -22,7 +22,7 @@ class testAsa: XCTestCase {
         access-list OUT1 extended permit ip host 209.168.200.3 any
         access-list OUT2 extended permit ip host 209.168.200.4 any
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.names.count == 2)
     }
 
@@ -31,7 +31,7 @@ class testAsa: XCTestCase {
         access-list ACL_IN extended permit ip any any
         access-list ACL_IN extended permit object service-obj-http any any
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.count == 1)
         XCTAssert(acl.accessControlEntries[0].sourceIp[0].minIp == 0)
     }
@@ -43,7 +43,7 @@ class testAsa: XCTestCase {
         access-list OUT remark - this is the hr admin address
         access-list OUT extended permit ip host 209.168.200.4 any
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.count == 2)
         XCTAssert(acl.accessControlEntries[0].destIp[0].minIp == 0)
         XCTAssert(acl.accessControlEntries[1].sourceIp[0].maxIp == "209.168.200.4".ipv4address!)
@@ -55,18 +55,18 @@ class testAsa: XCTestCase {
         access-list OUT extended permit ip host 209.168.200.4 any
         access-list OUT remark - this is the inside admin address
         """
-        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.count == 0)
     }
 
     func testAsaReject() {
         let line = "access-list 110 deny tcp 172.16.40.0 0.0.0.255 172.16.50.0 0.0.0.255 eq 21"
-        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace == nil)
     }
     func testAsaPortMatch() {
         let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 eq www"
-        guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8) else {
+        guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8, errorDelegate: nil, delegateWindow: nil) else {
             XCTAssert(false)
             return
         }
@@ -76,12 +76,12 @@ class testAsa: XCTestCase {
     }
     func testAsaIosReject2() {
         let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 eq www"
-        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 8)
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 8, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace == nil)
     }
     func testAsaAce1() {
         let line = "access-list outside_in extended permit ip any host 172.16.1.2"
-        guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8) else {
+        guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8, errorDelegate: nil, delegateWindow: nil) else {
             XCTAssert(false)
             return
         }
@@ -95,20 +95,20 @@ class testAsa: XCTestCase {
     }
     func testAsaIcmp() {
         let line = "access-list abc extended permit icmp any any echo"
-        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace!.ipProtocols.first == 1)
         XCTAssert(ace!.sourceIp[0].minIp == 0)
     }
     func testAsaIosIcmpReject() {
         let line = "access-list abc extended permit icmp any any echo"
-        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 8)
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 8, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace == nil)
     }
     
     func testAsaSlash1() {
         let line1 = "access-list 1 extended permit ip 0.0.0.0 128.0.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "127.1.1.1".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "128.1.1.1".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -118,7 +118,7 @@ class testAsa: XCTestCase {
     func testAsaSlash2() {
         let line1 = "access-list 1 extended permit ip 0.0.0.0 192.0.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "63.255.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "64.0.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -128,7 +128,7 @@ class testAsa: XCTestCase {
     func testAsaSlash3() {
         let line1 = "access-list 1 extended permit ip 0.0.0.0 224.0.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "31.255.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "32.0.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -138,7 +138,7 @@ class testAsa: XCTestCase {
     func testAsaSlash4() {
         let line1 = "access-list 1 extended permit ip 0.0.0.0 240.0.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "15.255.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "16.0.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -148,7 +148,7 @@ class testAsa: XCTestCase {
     func testAsaSlash5() {
         let line1 = "access-list 1 extended permit ip 0.0.0.0 248.0.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "7.255.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "8.0.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -158,7 +158,7 @@ class testAsa: XCTestCase {
     func testAsaSlash6() {
         let line1 = "access-list 1 extended permit ip 0.0.0.0 252.0.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "3.255.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "4.0.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -169,7 +169,7 @@ class testAsa: XCTestCase {
     func testAsaSlash7() {
         let line1 = "access-list 1 extended permit ip 0.0.0.0 254.0.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "1.255.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "2.0.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -180,7 +180,7 @@ class testAsa: XCTestCase {
     func testAsaSlash8() {
         let line1 = "access-list 1 extended permit ip 0.0.0.0 255.0.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "0.255.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "1.0.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -191,7 +191,7 @@ class testAsa: XCTestCase {
     func testAsaSlash9() {
         let line1 = "access-list 1 extended permit ip 3.0.0.0 255.128.0.0 host 1.1.1.1"
         let socket11 = Socket(ipProtocol: 6, sourceIp: "3.127.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
-        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
         let result11 = ace1.analyze(socket: socket11)
         XCTAssert(result11 == .permit)
         let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
@@ -201,7 +201,7 @@ class testAsa: XCTestCase {
     
     func testAsaLog1() {
         let line = "access-list bob extended permit tcp 3.0.0.0 255.0.0.0 2.0.0.0 255.128.0.0 range 3 7 log"
-        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 1)
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace != nil)
         let socket = Socket(ipProtocol: 6, sourceIp: "3.128.0.0".ipv4address!, destinationIp: "2.127.3.3".ipv4address!, sourcePort: 33, destinationPort: 6, established: false)!
         let result = ace?.analyze(socket: socket)
@@ -210,7 +210,7 @@ class testAsa: XCTestCase {
     
     func testAsaLog2() {
         let line = "access-list bob extended permit tcp 3.0.0.0 255.0.0.0 2.0.0.0 255.128.0.0 range 3 7 log 3"
-        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 1)
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace != nil)
         let socket = Socket(ipProtocol: 6, sourceIp: "3.128.0.0".ipv4address!, destinationIp: "2.127.3.3".ipv4address!, sourcePort: 33, destinationPort: 6, established: false)!
         let result = ace?.analyze(socket: socket)
@@ -220,7 +220,7 @@ class testAsa: XCTestCase {
 
     func testAsaPortNe() {
         let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 ne www"
-        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8)
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace != nil)
 
         guard let socket = Socket(ipProtocol: 6, sourceIp: "209.165.201.28".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 44, established: false) else {
@@ -263,7 +263,7 @@ class testAsa: XCTestCase {
             network-object host 10.1.1.89
         access-list ACL_IN extended deny tcp object-group denied any eq www
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupNetworks.count == 1)
         XCTAssert(acl.objectGroupNetworks["denied"]!.count == 3)
         XCTAssert(acl.accessControlEntries.count == 1)
@@ -288,9 +288,9 @@ class testAsa: XCTestCase {
             port-object eq ldap
         access-list ACL_IN extended permit tcp any object-group services1 any
         """
-        let iosacl = AccessList(sourceText: sample, deviceType: .ios)
+        let iosacl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
         XCTAssert(iosacl.objectGroupServices.count == 0)
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupServices.count == 3)
         let socket = Socket(ipProtocol: 6, sourceIp: "131.252.209.11".ipv4address!, destinationIp: "198.133.212.39".ipv4address!, sourcePort: 53, destinationPort: 44, established: false)!
         let result = acl.analyze(socket: socket)
@@ -310,9 +310,9 @@ class testAsa: XCTestCase {
             port-object eq ldap
         access-list ACL_IN extended permit tcp any object-group services2 any
         """
-        let iosacl = AccessList(sourceText: sample, deviceType: .ios)
+        let iosacl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
         XCTAssert(iosacl.objectGroupServices.count == 0)
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupServices.count == 3)
         let socket = Socket(ipProtocol: 6, sourceIp: "131.252.209.11".ipv4address!, destinationIp: "198.133.212.39".ipv4address!, sourcePort: 53, destinationPort: 44, established: false)!
         let result = acl.analyze(socket: socket)
@@ -325,7 +325,7 @@ class testAsa: XCTestCase {
             description LDAP Group
             port-object eq ldap
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupServices["services3"]!.portRanges.count == 1)
     }
     
@@ -343,9 +343,9 @@ class testAsa: XCTestCase {
             port-object eq ldap
         access-list ACL_IN extended permit tcp any object-group services1 any object-group services3
         """
-        let iosacl = AccessList(sourceText: sample, deviceType: .ios)
+        let iosacl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
         XCTAssert(iosacl.objectGroupServices.count == 0)
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupServices.count == 3)
         XCTAssert(acl.objectGroupServices["services3"] != nil)
         XCTAssert(acl.getObjectGroupService("services3") != nil)
@@ -365,13 +365,13 @@ class testAsa: XCTestCase {
         object-group network eng
             network-object 2.1.1.0 255.255.255.0
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupNetworks.count == 1)
         XCTAssert(acl.objectGroupNetworks["eng"]!.ipRanges.count == 1)
     }
     func testAsaAny4() {
         let line = "access-list 101 extended permit tcp any4 host 2.2.2.2 eq 80 log 3 interval 10"
-        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 2)!
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 2, errorDelegate: nil, delegateWindow: nil)!
         let socket1 = Socket(ipProtocol: 6, sourceIp: "3.3.3.3".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 40, destinationPort: 80, established: false)!
         let socket2 = Socket(ipProtocol: 6, sourceIp: "3.3.3.3".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 40, destinationPort: 81, established: false)!
         let result1 = ace.analyze(socket: socket1)
@@ -391,7 +391,7 @@ class testAsa: XCTestCase {
             network-object 2.1.1.0 255.255.255.0
         access-list ACL extended permit tcp 3.2.0.0 255.255.0.0 object-group eng object-group services1
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "3.2.3.3".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -415,7 +415,7 @@ class testAsa: XCTestCase {
             network-object 2.1.0.0 255.255.128.0
         access-list ACL extended permit tcp object-group eng 3.2.0.0 255.255.0.0 object-group services1 established
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.accessControlEntries.count == 0)
     }
     
@@ -428,7 +428,7 @@ class testAsa: XCTestCase {
         object-group network services1
             network-object host 1.1.1.1
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupNetworks.count == 0)
         XCTAssert(acl.objectGroupServices.count == 1)
 
@@ -442,7 +442,7 @@ class testAsa: XCTestCase {
             protocol-object udp
         access-list 101 extended permit object-group tcp_udp_icmp 1.1.63.0 255.255.192.0 2.2.4.0 255.255.254.0
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.0.3".ipv4address!, destinationIp: "2.2.4.31".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -463,7 +463,7 @@ class testAsa: XCTestCase {
             protocol-object icmp
             access-list zoom extended permit object-group blork 10.1.4.0 255.255.252.0 20.1.8.0 255.248.0.0
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 8, sourceIp: "10.1.7.8".ipv4address!, destinationIp: "20.1.15.3".ipv4address!, sourcePort: nil, destinationPort: nil, established: nil)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -485,7 +485,7 @@ class testAsa: XCTestCase {
             group-object beta
         access-list zoom extended permit object-group nest 10.1.4.0 255.255.252.0 20.1.8.0 255.248.0.0
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 8, sourceIp: "10.1.7.8".ipv4address!, destinationIp: "20.1.15.3".ipv4address!, sourcePort: nil, destinationPort: nil, established: nil)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -507,7 +507,7 @@ class testAsa: XCTestCase {
             group-object beta
         access-list crazy extended permit tcp 10.1.16.0 255.255.240.0 20.1.32.0 255.255.224.0 object-group gamma
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.31.33".ipv4address!, destinationIp: "20.1.63.3".ipv4address!, sourcePort: 80, destinationPort: 5, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -528,7 +528,7 @@ class testAsa: XCTestCase {
             group-object beta
         access-list crazy extended permit tcp 10.1.16.0 255.255.240.0 20.1.32.0 255.255.224.0 object-group gamma
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.31.33".ipv4address!, destinationIp: "20.1.63.3".ipv4address!, sourcePort: 80, destinationPort: 5, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -549,7 +549,7 @@ class testAsa: XCTestCase {
             port-object eq 2
         access-list 101 extended permit object-group bob 1.1.1.0 255.255.255.0 2.2.2.0 255.255.255.0 object-group alpha
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -570,7 +570,7 @@ class testAsa: XCTestCase {
             port-object eq 2
         access-list 101 extended permit object-group bob 1.1.1.0 255.255.255.0 2.2.2.0 255.255.255.0 object-group beta
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -599,7 +599,7 @@ class testAsa: XCTestCase {
             group-object finance
         access-list ACL_IN extended permit ip object-group admin host 209.165.201.29
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.1.9".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -623,7 +623,7 @@ class testAsa: XCTestCase {
             network-object 2.1.0.0 255.255.128.0
         access-list ACL extended permit tcp object-group eng 3.2.0.0 255.255.0.0 object-group services1
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "2.1.33.3".ipv4address!, destinationIp: "3.2.3.3".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -644,7 +644,7 @@ class testAsa: XCTestCase {
         access-list ACL_IN extended deny tcp object-group denied object-group web eq www
         access-list ACL_IN extended permit ip any any
         """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupNetworks.count == 2)
         XCTAssert(acl.objectGroupNetworks["denied"]!.count == 3)
         XCTAssert(acl.objectGroupNetworks["web"]!.count == 4)
@@ -673,7 +673,7 @@ class testAsa: XCTestCase {
     }
     
     func testAsaPermitAny() {
-        let ace = AccessControlEntry(line: "access-list ACL_IN extended permit ip any any", deviceType: .asa, linenum: 3)
+        let ace = AccessControlEntry(line: "access-list ACL_IN extended permit ip any any", deviceType: .asa, linenum: 3, errorDelegate: nil, delegateWindow: nil)
         guard let socket3 = Socket(ipProtocol: 6, sourceIp: "10.1.1.5".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
             XCTAssert(false)
             return
@@ -698,13 +698,13 @@ access-list outside_in remark Section 4 - Specific rules
 access-list outside_in remark mail relay - #10456 - 2015-07-29 - KD
 access-list outside_in extended permit tcp object-group MailRelay object-group MailServer object-group MailProtocols
 """
-        let acl = AccessList(sourceText: sample, deviceType: .asa)
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.count == 0)
     }
     
     func testAsaObjectGroupAceInvalid() {
         let line = "access-list outside_in extended permit tcp object-group MailRelay object-group MailServer object-group MailProtocols"
-        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 9)
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 9, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace == nil)
     }
 
@@ -717,7 +717,7 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
         access-list 102 permit icmp any any echo
         access-list 102 permit icmp any any echo-reply
         """
-        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.accessControlEntries.count == 6)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "2.2.2.2".ipv4address!, destinationIp: "10.88.3.3".ipv4address!, sourcePort: 33, destinationPort: 22, established: true)!
         let result1 = acl.analyze(socket: socket1)
@@ -748,7 +748,7 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
         let sample = """
         access-list 101 permit tcp host 10.1.1.1 host 10.1.1.2 log UserDefinedValue
         """
-        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.accessControlEntries.count == 1)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.1.1.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
         let result1 = acl.analyze(socket: socket1)
@@ -763,7 +763,7 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
         let sample = """
         access-list 101 permit tcp host 10.1.1.1 host 10.1.1.2 log-input UserDefinedValue
         """
-        let acl = AccessList(sourceText: sample, deviceType: .ios)
+        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.accessControlEntries.count == 1)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.1.1.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
         let result1 = acl.analyze(socket: socket1)
