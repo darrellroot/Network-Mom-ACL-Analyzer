@@ -12,13 +12,6 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
     
     let appDelegate = NSApplication.shared.delegate as! AppDelegate
 
-    enum ActiveWarningWindow {
-        case ingressValidation
-        case egressValidation
-        case ingressAnalyze
-        case egressAnalyze
-    }
-
     @IBOutlet var ingressAclTextView: NSTextView!
     @IBOutlet var egressAclTextView: NSTextView!
     @IBOutlet var ingressAclValidation: NSTextView!
@@ -38,7 +31,6 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
     
     var ingressAccessList: AccessList?
     var egressAccessList: AccessList?
-    var activeWarningWindow: ActiveWarningWindow?
     var ingressDeviceType: DeviceType = .ios
     var egressDeviceType: DeviceType = .ios
     var fontManager: NSFontManager!
@@ -141,11 +133,11 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         egressAclAnalysis.string = ""
         let ipProtocol = UInt(protocolButton.selectedTag())
         guard ipProtocol < 256 else {
-            self.report(severity: .error, message: "Socket: Invalid IP Protocol", window: .ingressAnalyze)
+            self.report(severity: .error, message: "Socket: Invalid IP Protocol", delegateWindow: .ingressAnalyze)
             return
         }
         guard let sourceIp = sourceIpOutlet.stringValue.ipv4address else {
-            self.report(severity: .error, message: "Socket: Invalid source IPv4 address", window: .ingressAnalyze)
+            self.report(severity: .error, message: "Socket: Invalid source IPv4 address", delegateWindow: .ingressAnalyze)
             return
         }
         if sourcePortOutlet.stringValue.isEmpty {
@@ -153,36 +145,38 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             sourcePortOutlet.stringValue = "\(number)"
         }
         guard let sourcePort16 = UInt16(sourcePortOutlet.stringValue) else {
-            self.report(severity: .error, message: "Socket: Invalid source port", window: .ingressAnalyze)
+            self.report(severity: .error, message: "Socket: Invalid source port", delegateWindow: .ingressAnalyze)
             return
         }
         let sourcePort = UInt(sourcePort16)
         guard let destinationIp = destinationIpOutlet.stringValue.ipv4address else {
-            self.report(severity: .error, message: "Socket: Invalid destination IPv4 address", window: .ingressAnalyze)
+            self.report(severity: .error, message: "Socket: Invalid destination IPv4 address", delegateWindow: .ingressAnalyze)
             return
         }
         guard let destinationPort16 = UInt16(destinationPortOutlet.stringValue) else {
-            self.report(severity: .error, message: "Socket: Invalid destination port", window: .ingressAnalyze)
+            self.report(severity: .error, message: "Socket: Invalid destination port", delegateWindow: .ingressAnalyze)
             return
         }
         let destinationPort = UInt(destinationPort16)
 
         guard let socket = Socket(ipProtocol: ipProtocol, sourceIp: sourceIp, destinationIp: destinationIp, sourcePort: sourcePort, destinationPort: destinationPort, established: false) else {
-            self.report(severity: .error, message: "Unable to specify socket with current configuration", window: .ingressAnalyze)
+            self.report(severity: .error, message: "Unable to specify socket with current configuration", delegateWindow: .ingressAnalyze)
             return
         }
-        self.report(severity: .notification, message: "Socket configured: \(socket)", window: .ingressAnalyze)
+        self.report(severity: .notification, message: "Socket configured: \(socket)", delegateWindow: .ingressAnalyze)
         
-        activeWarningWindow = .ingressAnalyze
-        _ = ingressAccessList?.analyze(socket: socket, errorDelegate: self)
+        DispatchQueue.global(qos: .background).async {
+            _ = self.ingressAccessList?.analyze(socket: socket, errorDelegate: self, delegateWindow: .ingressAnalyze)
+        }
         
         guard let reverseSocket = socket.reverse() else {
-            self.report(severity: .error, message: "Unable to generate reverse socket", window: .egressAnalyze)
+            self.report(severity: .error, message: "Unable to generate reverse socket", delegateWindow: .egressAnalyze)
             return
         }
-        self.report(severity: .notification, message: "Socket configured: \(reverseSocket)", window: .egressAnalyze)
-        activeWarningWindow = .egressAnalyze
-        _ = egressAccessList?.analyze(socket: reverseSocket, errorDelegate: self)
+        self.report(severity: .notification, message: "Socket configured: \(reverseSocket)", delegateWindow: .egressAnalyze)
+        DispatchQueue.global(qos: .background).async {
+            _ = self.egressAccessList?.analyze(socket: reverseSocket, errorDelegate: self, delegateWindow: .egressAnalyze)
+        }
 
     }
     @IBAction func validateAcl(_ sender: Any) {
@@ -191,11 +185,11 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         egressAclValidation.string.removeAll()
 
         guard let ingressDeviceTypeString = ingressDeviceTypeOutlet.titleOfSelectedItem else {
-            self.report(severity: .error, message: "Unable to identify ingress device type", window: .ingressValidation)
+            self.report(severity: .error, message: "Unable to identify ingress device type", delegateWindow: .ingressValidation)
             return
         }
         guard let egressDeviceTypeString = egressDeviceTypeOutlet.titleOfSelectedItem else {
-            self.report(severity: .error, message: "Unable to identify egress device type", window: .ingressValidation)
+            self.report(severity: .error, message: "Unable to identify egress device type", delegateWindow: .ingressValidation)
             return
         }
         switch ingressDeviceTypeString {
@@ -204,24 +198,22 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         case "ASA":
             ingressDeviceType = .asa
         default:
-            self.report(severity: .error, message: "Unable to identify ingress device type", window: .ingressValidation)
+            self.report(severity: .error, message: "Unable to identify ingress device type", delegateWindow: .ingressValidation)
             return
         }
         switch egressDeviceTypeString {
         case "IOS":
             egressDeviceType = .ios
         default:
-            self.report(severity: .error, message: "Unable to identify egress device type", window: .egressValidation)
+            self.report(severity: .error, message: "Unable to identify egress device type", delegateWindow: .egressValidation)
             return
         }
 
         let ingressString = ingressAclTextView.string
         let egressString = egressAclTextView.string
-        activeWarningWindow = .ingressValidation
-        ingressAccessList = AccessList(sourceText: ingressString, deviceType: ingressDeviceType, delegate: self)
-        activeWarningWindow = .egressValidation
-        egressAccessList = AccessList(sourceText: egressString, deviceType: egressDeviceType, delegate: self)
-        activeWarningWindow = nil
+        
+        ingressAccessList = AccessList(sourceText: ingressString, deviceType: ingressDeviceType, delegate: self, delegateWindow: .ingressValidation)
+        egressAccessList = AccessList(sourceText: egressString, deviceType: egressDeviceType, delegate: self, delegateWindow: .egressValidation)
         if egressAccessList?.count == 0 {
             egressAccessList = nil
         }
@@ -240,39 +232,29 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         }
     }
     
-    func report(severity: Severity, message: String, line: Int, window: ActiveWarningWindow) {
-        self.report(severity: severity, message: "line \(line): \(message)", window: window)
+    func report(severity: Severity, message: String, line: Int, delegateWindow: DelegateWindow?) {
+        self.report(severity: severity, message: "line \(line): \(message)", delegateWindow: delegateWindow)
     }
     
-    func report(severity: Severity, message: String, line: Int) {
-        guard let activeWarningWindow = activeWarningWindow else {
-            debugPrint("No active warning window for message \(severity) \(message) \(line)")
+    func report(severity: Severity, message: String, delegateWindow: DelegateWindow?) {
+        guard let delegateWindow = delegateWindow else {
             return
         }
-        self.report(severity: severity, message: message, line: line, window: activeWarningWindow)
-    }
-    func report(severity: Severity, message: String, window: ActiveWarningWindow) {
         var severityText = "\(severity) "
         if severity == .linetext {
             severityText = ""
         }
-        switch window {
-        case .ingressValidation:
-            ingressAclValidation.string.append(contentsOf: "\(severityText)\(message)\n")
-        case .egressValidation:
-            egressAclValidation.string.append(contentsOf: "\(severityText)\(message)\n")
-        case .ingressAnalyze:
-            ingressAclAnalysis.string.append(contentsOf: "\(severityText)\(message)\n")
-        case .egressAnalyze:
-            egressAclAnalysis.string.append(contentsOf: "\(severityText)\(message)\n")
-
+        DispatchQueue.main.async {
+            switch delegateWindow {
+            case .ingressValidation:
+                self.ingressAclValidation.string.append(contentsOf: "\(severityText)\(message)\n")
+            case .egressValidation:
+                self.egressAclValidation.string.append(contentsOf: "\(severityText)\(message)\n")
+            case .ingressAnalyze:
+                self.ingressAclAnalysis.string.append(contentsOf: "\(severityText)\(message)\n")
+            case .egressAnalyze:
+                self.egressAclAnalysis.string.append(contentsOf: "\(severityText)\(message)\n")
+            }
         }
-    }
-    func report(severity: Severity, message: String) {
-        guard let activeWarningWindow = activeWarningWindow else {
-            debugPrint("No active warning window for message \(severity) \(message)")
-            return
-        }
-        self.report(severity: severity, message: message, window: activeWarningWindow)
     }
 }

@@ -9,6 +9,6 @@
 import Foundation
 
 protocol ErrorDelegate {
-    func report(severity: Severity, message: String, line: Int)
-    func report(severity: Severity, message: String)
+    func report(severity: Severity, message: String, line: Int, delegateWindow: DelegateWindow?)
+    func report(severity: Severity, message: String, delegateWindow: DelegateWindow?)
 }

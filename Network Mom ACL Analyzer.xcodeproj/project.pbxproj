@@ -48,6 +48,8 @@
 		2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F7D69AF22C9576D0024348B /* AclDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7D69AE22C9576D0024348B /* AclDelegate.swift */; };
 		2F7D69B022C9576D0024348B /* AclDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7D69AE22C9576D0024348B /* AclDelegate.swift */; };
+		2F92967422D7A97500F5A731 /* DelegateWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F92967322D7A97500F5A731 /* DelegateWindow.swift */; };
+		2F92967522D7A97500F5A731 /* DelegateWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F92967322D7A97500F5A731 /* DelegateWindow.swift */; };
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
 		2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D0679228A0702002C09EE /* Assets.xcassets */; };
 		2F9D067D228A0702002C09EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D067B228A0702002C09EE /* Main.storyboard */; };
@@ -100,6 +102,7 @@
 		2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedFeatureTests.swift; sourceTree = "<group>"; };
 		2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcmpMessage.swift; sourceTree = "<group>"; };
 		2F7D69AE22C9576D0024348B /* AclDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AclDelegate.swift; sourceTree = "<group>"; };
+		2F92967322D7A97500F5A731 /* DelegateWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegateWindow.swift; sourceTree = "<group>"; };
 		2F9D0672228A0700002C09EE /* Network Mom ACL Analyzer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Network Mom ACL Analyzer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F9D0675228A0700002C09EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2F9D0679228A0702002C09EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -243,6 +246,7 @@
 				2F1FD8AE22B9DBB3008ADBC7 /* AceType.swift */,
 				2FBAA07C228A392B00B53113 /* AclAction.swift */,
 				2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */,
+				2F92967322D7A97500F5A731 /* DelegateWindow.swift */,
 				2FBAA07E228A399300B53113 /* IpVersion.swift */,
 				2FBAA084228F5EAB00B53113 /* LinePosition.swift */,
 				2FBAA086228F613700B53113 /* MaskType.swift */,
@@ -364,6 +368,7 @@
 			files = (
 				2F0E24EC22C81A460032962D /* ObjectGroupNetwork.swift in Sources */,
 				2F2698AE22A7798D00517AC9 /* AclAction.swift in Sources */,
+				2F92967522D7A97500F5A731 /* DelegateWindow.swift in Sources */,
 				2F1FD8B022B9DBB3008ADBC7 /* AceType.swift in Sources */,
 				2F4B851D22B2EC2A00927DD2 /* ErrorDelegate.swift in Sources */,
 				2F2698B322A779A100517AC9 /* String+extensions.swift in Sources */,
@@ -415,6 +420,7 @@
 				2FCE6AAA22ACAF5100E0B4D7 /* AclToken.swift in Sources */,
 				2FBAA07A228A38AE00B53113 /* AccessControlEntry.swift in Sources */,
 				2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
+				2F92967422D7A97500F5A731 /* DelegateWindow.swift in Sources */,
 				2F49B71422C6AC86001F0DB5 /* IpRange.swift in Sources */,
 				2F32058422CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */,
 				2FBAA083228F5B9D00B53113 /* String+extensions.swift in Sources */,

@@ -32,7 +32,7 @@ class AccessList {
         case accessControlEntry  // default
     }
     
-    init(sourceText: String, deviceType: DeviceType, delegate: ErrorDelegate? = nil) {
+    init(sourceText: String, deviceType: DeviceType, delegate: ErrorDelegate?, delegateWindow: DelegateWindow?) {
         self.sourceText = sourceText
         self.delegate = delegate
         self.deviceType = deviceType
@@ -53,8 +53,8 @@ class AccessList {
             }
             if line.starts(with: "object-group network") {
                 if deviceType == .ios {
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
@@ -64,7 +64,7 @@ class AccessList {
                         configurationMode = .objectGroupNetwork
                         objectName = objectNameTemp
                     } else {
-                        delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum)
+                        delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
                         configurationMode = .accessControlEntry
                         objectName = nil
                     }
@@ -74,14 +74,14 @@ class AccessList {
             
             if line.starts(with: "object-group service") {
                 if deviceType == .ios {
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 if let objectNameTemp = words[safe: 2], let type = words[safe: 3] {
                     guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
-                        delegate?.report(severity: .error, message: "Duplicate object-group service \(objectNameTemp)", line: linenum)
+                        delegate?.report(severity: .error, message: "Duplicate object-group service \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
                         configurationMode = .accessControlEntry
                         objectName = nil
                         continue lineLoop
@@ -106,7 +106,7 @@ class AccessList {
                         objectName = objectNameTemp
                         continue lineLoop
                     default:
-                        delegate?.report(severity: .error, message: "Invalid object-group type \(type)", line: linenum)
+                        delegate?.report(severity: .error, message: "Invalid object-group type \(type)", line: linenum, delegateWindow: delegateWindow)
                         configurationMode = .accessControlEntry
                         objectName = nil
                         continue lineLoop
@@ -117,8 +117,8 @@ class AccessList {
             
             if line.starts(with: "object-group protocol") {
                 if deviceType == .ios {
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
@@ -128,7 +128,7 @@ class AccessList {
                         configurationMode = .objectGroupProtocol
                         objectName = objectNameTemp
                     } else {
-                        delegate?.report(severity: .error, message: "Duplicate object-group protocol \(objectNameTemp)", line: linenum)
+                        delegate?.report(severity: .error, message: "Duplicate object-group protocol \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
                         configurationMode = .accessControlEntry
                         objectName = nil
                     }
@@ -138,8 +138,8 @@ class AccessList {
             
             if line.starts(with: "group-object") {
                 if deviceType != .asa {
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
@@ -160,27 +160,27 @@ class AccessList {
                         if currentObjectGroup.type == nestedObjectGroup.type {
                             currentObjectGroup.portRanges.append(contentsOf: nestedObjectGroup.portRanges)
                         } else {
-                            delegate?.report(severity: .linetext, message: line, line: linenum)
-                            delegate?.report(severity: .error, message: "nested service object-groups must be the same type", line: linenum)
+                            delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "nested service object-groups must be the same type", line: linenum, delegateWindow: delegateWindow)
                             continue lineLoop
                         }
                         continue lineLoop
                     }
                 case .accessListExtended, .accessControlEntry:
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "unexpected group-object", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "unexpected group-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
             }
             if line.starts(with: "protocol-object") {
                 if deviceType == .ios {
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 if configurationMode != .objectGroupProtocol {
-                    delegate?.report(severity: .error, message: "Unexpected protocol-object", line: linenum)
+                    delegate?.report(severity: .error, message: "Unexpected protocol-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 if let term1 = words[safe: 1], let objectName = objectName {
@@ -190,14 +190,14 @@ class AccessList {
                         if protocolNumber < 256 {
                             ipProtocol = protocolNumber
                         } else {
-                            delegate?.report(severity: .error, message: "IP protocol must be between 0 and 255 inclusive", line: linenum)
+                            delegate?.report(severity: .error, message: "IP protocol must be between 0 and 255 inclusive", line: linenum, delegateWindow: delegateWindow)
                             continue lineLoop
                         }
                     } else {
                         if let protocolNumber = term1.ipProtocol {
                             ipProtocol = protocolNumber
                         } else {
-                            delegate?.report(severity: .error, message: "Unable to identify IP protocol", line: linenum)
+                            delegate?.report(severity: .error, message: "Unable to identify IP protocol", line: linenum, delegateWindow: delegateWindow)
                             continue lineLoop
                         }
                     }
@@ -205,20 +205,20 @@ class AccessList {
                         objectGroupProtocol.append(ipProtocol: ipProtocol)
                     }
                 } else {
-                    delegate?.report(severity: .error, message: "Unable to identify IP protocol", line: linenum)
+                    delegate?.report(severity: .error, message: "Unable to identify IP protocol", line: linenum, delegateWindow: delegateWindow)
                 }
                 continue lineLoop
             }
             
             if line.starts(with: "network-object") {
                 if deviceType == .ios {
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 if configurationMode != .objectGroupNetwork {
-                    delegate?.report(severity: .error, message: "Unexpected network-object", line: linenum)
+                    delegate?.report(severity: .error, message: "Unexpected network-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 if let term1 = words[safe: 1], let term2 = words[safe: 2], let objectName = objectName, let ipRange = IpRange(ip: term1, mask: term2, type: .asa) {
@@ -231,8 +231,8 @@ class AccessList {
             
             if line.starts(with: "ip access-list extended") {
                 if deviceType == .asa {
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "invalid syntax for device type \(deviceType)", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "invalid syntax for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 objectName = nil
@@ -241,7 +241,7 @@ class AccessList {
                 if let aclName = words[safe: 3] {
                     names.insert(aclName)
                     if names.count > 1 {
-                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found")
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found", delegateWindow: delegateWindow)
                     }
                 }
                 continue lineLoop
@@ -251,15 +251,15 @@ class AccessList {
                 if configurationMode == .objectGroupNetwork || configurationMode == .objectGroupService || configurationMode == .objectGroupProtocol {
                     continue lineLoop
                 } else {
-                    delegate?.report(severity: .linetext, message: "\(line)", line: linenum)
-                    delegate?.report(severity: .warning, message: "Unexpected description", line: linenum)
+                    delegate?.report(severity: .linetext, message: "\(line)", line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .warning, message: "Unexpected description", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
             }
             if line.starts(with: "port-object") {
                 if deviceType == .ios {
-                    delegate?.report(severity: .linetext, message: line, line: linenum)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum)
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 let words = line.components(separatedBy: NSCharacterSet.whitespaces)
@@ -287,7 +287,7 @@ class AccessList {
                 }
             }
             
-            if let accessControlEntry = AccessControlEntry(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: self, errorDelegate: delegate) {
+            if let accessControlEntry = AccessControlEntry(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: self, errorDelegate: delegate, delegateWindow: delegateWindow) {
                 objectName = nil
                 configurationMode = .accessControlEntry
                 accessControlEntries.append(accessControlEntry)
@@ -295,7 +295,7 @@ class AccessList {
         }
     }
     
-    public func analyze(socket: Socket, errorDelegate: ErrorDelegate? = nil) -> AclAction {
+    public func analyze(socket: Socket, errorDelegate: ErrorDelegate? = nil, delegateWindow: DelegateWindow? = nil) -> AclAction {
         var aclAction: AclAction? = nil
         for accessControlEntry in accessControlEntries {
             let aceAction = accessControlEntry.analyze(socket: socket)
@@ -306,16 +306,16 @@ class AccessList {
                 if aclAction == nil {
                     // first match in acl
                     aclAction = aceAction
-                    errorDelegate?.report(severity: .result, message: "FIRST MATCH \(accessControlEntry.line)", line: accessControlEntry.linenum)
+                    errorDelegate?.report(severity: .result, message: "FIRST MATCH \(accessControlEntry.line)", line: accessControlEntry.linenum, delegateWindow: delegateWindow)
                 } else {
                     // later match in acl
-                    errorDelegate?.report(severity: .result, message: "ALSO MATCH \(accessControlEntry.line)", line: accessControlEntry.linenum)
+                    errorDelegate?.report(severity: .result, message: "ALSO MATCH \(accessControlEntry.line)", line: accessControlEntry.linenum, delegateWindow: delegateWindow)
                 }
             }
         }
         guard let finalAclAction = aclAction else {
             // no match found, implicit deny
-            delegate?.report(severity: .result, message: "No Match Found, implicit \(AclAction.deny)")
+            delegate?.report(severity: .result, message: "No Match Found, implicit \(AclAction.deny)", delegateWindow: delegateWindow)
             return .deny
         }
         return finalAclAction
@@ -344,10 +344,10 @@ extension AccessList: AclDelegate {
         }
     }
 
-    func foundName(_ name: String) {
+    func foundName(_ name: String, delegateWindow: DelegateWindow? = nil) {
         names.insert(name)
         if names.count > 1 {
-            self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found")
+            self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found", delegateWindow: delegateWindow)
         }
     }
 }
