@@ -19,7 +19,7 @@ class AccessList {
     var objectGroupNetworks = [String:ObjectGroupNetwork]()
     var objectGroupProtocols = [String:ObjectGroupProtocol]()
     var objectGroupServices = [String:ObjectGroupService]()
-
+    
     var count: Int {
         return accessControlEntries.count
     }
@@ -286,12 +286,20 @@ class AccessList {
                     continue lineLoop
                 }
             }
+            //debugPrint("starting timer")
+            let timer = Timer(timeInterval: 1.0, repeats: false) { timer in
+                //debugPrint("timer fired")
+                self.delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                self.delegate?.report(severity: .error, message: "line took more than 1 second to parse, please email this line to feedback@networkmom.net", line: linenum, delegateWindow: delegateWindow)
+            }
+            RunLoop.main.add(timer, forMode: .common)
             
             if let accessControlEntry = AccessControlEntry(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: self, errorDelegate: delegate, delegateWindow: delegateWindow) {
                 objectName = nil
                 configurationMode = .accessControlEntry
                 accessControlEntries.append(accessControlEntry)
             }
+            timer.invalidate()
         }
     }
     

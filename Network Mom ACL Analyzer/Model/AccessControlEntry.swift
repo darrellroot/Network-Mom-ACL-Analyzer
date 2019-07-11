@@ -68,6 +68,7 @@ struct AccessControlEntry {
         var linePosition: LinePosition = .beginning
         //var candidate = AccessControlEntryCandidate()
         
+        
         let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         if line.hasPrefix("ipv4 access-list") {
             let words = line.components(separatedBy: CharacterSet.whitespaces)
@@ -86,6 +87,23 @@ struct AccessControlEntry {
                 errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                 errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
                 return nil
+            }
+            
+            if _isDebugAssertConfiguration() {
+                switch token {
+                case .name(let name):
+                    // manually trigger infinite loop for troubleshooting
+                    if name == "infiniteLoop" {
+                        var counter = 0
+                        errorDelegate?.report(severity: .error, message: "infinite loop manually triggered", line: linenum, delegateWindow: delegateWindow)
+                        while counter < Int.max {
+                            counter = counter + 1
+                        }
+                        errorDelegate?.report(severity: .error, message: "infinite loop complete", line: linenum, delegateWindow: delegateWindow)
+                    }
+                default:
+                    break
+                }
             }
             switch linePosition {
             
