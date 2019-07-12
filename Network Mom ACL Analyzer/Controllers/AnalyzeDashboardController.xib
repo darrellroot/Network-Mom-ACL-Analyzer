@@ -7,12 +7,15 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AnalyzeDashboardController" customModule="Network_Mom_ACL_Analyzer" customModuleProvider="target">
             <connections>
+                <outlet property="analyzeButton" destination="gBf-Qu-GOY" id="Nxh-L6-dRs"/>
                 <outlet property="destinationIpOutlet" destination="caD-yT-NPl" id="hhT-QE-yxh"/>
                 <outlet property="destinationPortOutlet" destination="97O-Wj-yHt" id="RMZ-o5-2hH"/>
                 <outlet property="egressAclAnalysis" destination="1JM-OC-Bbe" id="TkE-gM-cU9"/>
                 <outlet property="egressAclTextView" destination="f6y-fx-VLP" id="oX6-jR-P6K"/>
                 <outlet property="egressAclValidation" destination="NRW-2n-cmB" id="uFn-H3-Lb0"/>
                 <outlet property="egressDeviceTypeOutlet" destination="cis-8y-h4o" id="8Nh-id-eAL"/>
+                <outlet property="importEgressButton" destination="XqJ-9R-cls" id="t8z-r8-oiw"/>
+                <outlet property="importIngressButton" destination="AkQ-Vm-nPB" id="Ocx-aZ-fY2"/>
                 <outlet property="ingressAclAnalysis" destination="8SF-Zg-E35" id="67P-PE-6Qm"/>
                 <outlet property="ingressAclTextView" destination="oxa-LT-8k6" id="Zc9-ma-Hwa"/>
                 <outlet property="ingressAclValidation" destination="YaA-tn-p3E" id="zQ7-Le-jcz"/>
@@ -20,6 +23,7 @@
                 <outlet property="protocolButton" destination="tVc-eB-Tf7" id="AiN-8v-8Do"/>
                 <outlet property="sourceIpOutlet" destination="geL-Qf-Xky" id="jEW-xz-k7v"/>
                 <outlet property="sourcePortOutlet" destination="Q14-Xh-kUd" id="zJM-o2-ncq"/>
+                <outlet property="validateButton" destination="vPO-bT-uUS" id="ptN-53-5ca"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -31,7 +35,7 @@
             <rect key="contentRect" x="50" y="200" width="1244" height="574"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" misplaced="YES" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="1358" height="574"/>
+                <rect key="frame" x="0.0" y="0.0" width="1244" height="574"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <stackView distribution="fillEqually" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HDt-aD-yac" userLabel="Overall Stack View">
@@ -82,7 +86,7 @@
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
                                                         <connections>
-                                                            <action selector="importIngressButton:" target="-2" id="vfq-kR-rdm"/>
+                                                            <action selector="importIngressButton:" target="-2" id="I4a-3C-u7x"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -184,7 +188,7 @@
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
                                                         <connections>
-                                                            <action selector="importEgressButton:" target="-2" id="A6R-r7-6Qi"/>
+                                                            <action selector="importEgressButton:" target="-2" id="Beh-iG-WgW"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -610,7 +614,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
-            <point key="canvasLocation" x="-3161" y="205"/>
+            <point key="canvasLocation" x="-3172" y="197"/>
         </window>
     </objects>
 </document>

@@ -53,6 +53,7 @@
 		2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9D0675228A0700002C09EE /* AppDelegate.swift */; };
 		2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D0679228A0702002C09EE /* Assets.xcassets */; };
 		2F9D067D228A0702002C09EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2F9D067B228A0702002C09EE /* Main.storyboard */; };
+		2FB804F822D8F3E700F5E2A9 /* PerformanceTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB804F722D8F3E700F5E2A9 /* PerformanceTest.swift */; };
 		2FBAA074228A0DF200B53113 /* Array+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA073228A0DF200B53113 /* Array+extensions.swift */; };
 		2FBAA078228A12D500B53113 /* AccessList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA077228A12D500B53113 /* AccessList.swift */; };
 		2FBAA07A228A38AE00B53113 /* AccessControlEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */; };
@@ -109,6 +110,7 @@
 		2F9D067C228A0702002C09EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2F9D067E228A0702002C09EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2F9D067F228A0702002C09EE /* Network_Mom_ACL_Analyzer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Network_Mom_ACL_Analyzer.entitlements; sourceTree = "<group>"; };
+		2FB804F722D8F3E700F5E2A9 /* PerformanceTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceTest.swift; sourceTree = "<group>"; };
 		2FBAA073228A0DF200B53113 /* Array+extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+extensions.swift"; sourceTree = "<group>"; };
 		2FBAA077228A12D500B53113 /* AccessList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessList.swift; sourceTree = "<group>"; };
 		2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessControlEntry.swift; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				2F0E24E822C726720032962D /* testAsa.swift */,
 				2F2698A222A7784300517AC9 /* Network_Mom_ACL_AnalyzerTests.swift */,
 				2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */,
+				2FB804F722D8F3E700F5E2A9 /* PerformanceTest.swift */,
 				2F2698A422A7784300517AC9 /* Info.plist */,
 			);
 			path = "Network Mom ACL AnalyzerTests";
@@ -379,6 +382,7 @@
 				2FCE6AA822AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2F2698B122A7799B00517AC9 /* AccessList.swift in Sources */,
 				2F2698AA22A7795800517AC9 /* AccessControlEntry.swift in Sources */,
+				2FB804F822D8F3E700F5E2A9 /* PerformanceTest.swift in Sources */,
 				2F32058822CE89E60013A3E8 /* ObjectGroupService.swift in Sources */,
 				2FCE6AAB22ACAF5100E0B4D7 /* AclToken.swift in Sources */,
 				2F32058522CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */,

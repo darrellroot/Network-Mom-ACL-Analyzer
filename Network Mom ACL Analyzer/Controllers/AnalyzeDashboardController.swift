@@ -17,6 +17,17 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
     @IBOutlet var ingressAclValidation: NSTextView!
     @IBOutlet var egressAclValidation: NSTextView!
     
+    @IBOutlet weak var importIngressButton: NSButton!
+    @IBOutlet weak var importEgressButton: NSButton!
+    @IBOutlet weak var validateButton: NSButton!
+    @IBOutlet weak var analyzeButton: NSButton!
+    
+    var ingressValidationString: String = ""
+    var egressValidationString: String = ""
+    var ingressAnalyzeString: String = ""
+    var egressAnalyzeString: String = ""
+    var outputTimerActive = false
+    
     @IBOutlet var ingressAclAnalysis: NSTextView!
     @IBOutlet var egressAclAnalysis: NSTextView!
     
@@ -193,10 +204,21 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         return true
     }
     @IBAction func validateAcl(_ sender: Any) {
-        
+        self.ingressValidationString = ""
+        self.egressValidationString = ""
+        self.ingressAnalyzeString = ""
+        self.egressAnalyzeString = ""
+        self.ingressAclValidation.string = self.ingressValidationString
+        self.egressAclValidation.string = self.egressValidationString
+        self.ingressAclAnalysis.string = self.ingressAnalyzeString
+        self.egressAclAnalysis.string = self.egressAnalyzeString
+
         guard readyToValidate() else {
             return
         }
+        
+        self.disableButtons()
+
         let ingressString = ingressAclTextView.string
         let egressString = egressAclTextView.string
         
@@ -211,19 +233,53 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             }
             DispatchQueue.main.async {
                 if let ingressAccessList = self.ingressAccessList {
-                    self.ingressAclValidation.string.append("Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)")
+                    self.report(severity: .warning, message: "Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)", delegateWindow: .ingressValidation)
+                    //self.ingressAclValidation.string.append("Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)")
                 } else {
-                    self.ingressAclValidation.string.append("Ingress Access List Not Analyzed")
+                    self.report(severity: .warning, message: "Ingress Access List Not Analyzed", delegateWindow: .ingressValidation)
+
+                    //self.ingressAclValidation.string.append("Ingress Access List Not Analyzed")
                 }
                 if let egressAccessList = self.egressAccessList {
-                    self.egressAclValidation.string.append("Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)")
+                    self.report(severity: .warning, message: "Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)", delegateWindow: .egressValidation)
+                    //self.egressAclValidation.string.append("Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)")
                 } else {
-                    self.egressAclValidation.string.append("Egress Access List Not Analyzed")
+                    self.report(severity: .warning, message: "Egress Access List Not Analyzed", delegateWindow: .egressValidation)
+
+                    //self.egressAclValidation.string.append("Egress Access List Not Analyzed")
                 }
+                self.enableButtons()
             }
         }
     }
+    private func disableButtons() {
+        DispatchQueue.main.async {
+            self.importIngressButton.isEnabled = false
+            self.importEgressButton.isEnabled = false
+            self.validateButton.isEnabled = false
+            self.analyzeButton.isEnabled = false
+        }
+    }
+    private func enableButtons() {
+        DispatchQueue.main.async {
+            self.importIngressButton.isEnabled = true
+            self.importEgressButton.isEnabled = true
+            self.validateButton.isEnabled = true
+            self.analyzeButton.isEnabled = true
+        }
+    }
+    
     @IBAction func analyzeButton(_ sender: NSButton) {
+        
+        self.ingressValidationString = ""
+        self.egressValidationString = ""
+        self.ingressAnalyzeString = ""
+        self.egressAnalyzeString = ""
+        self.ingressAclValidation.string = self.ingressValidationString
+        self.egressAclValidation.string = self.egressValidationString
+        self.ingressAclAnalysis.string = self.ingressAnalyzeString
+        self.egressAclAnalysis.string = self.egressAnalyzeString
+
         guard readyToValidate() else {
             return
         }
@@ -231,6 +287,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             return
         }
         
+        self.disableButtons()
+
         ingressAclAnalysis.string = ""
         egressAclAnalysis.string = ""
         let ingressString = self.ingressAclTextView.string
@@ -242,6 +300,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
                 self.ingressAccessList = nil
             }
             _ = self.ingressAccessList?.analyze(socket: ingressSocket, errorDelegate: self, delegateWindow: .ingressAnalyze)
+            self.enableButtons()
         }
         
         guard let egressSocket = ingressSocket.reverse() else {
@@ -271,17 +330,25 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         if severity == .linetext {
             severityText = ""
         }
-        DispatchQueue.main.async {
-            switch delegateWindow {
-            case .ingressValidation:
-                self.ingressAclValidation.string.append(contentsOf: "\(severityText)\(message)\n")
-            case .egressValidation:
-                self.egressAclValidation.string.append(contentsOf: "\(severityText)\(message)\n")
-            case .ingressAnalyze:
-                self.ingressAclAnalysis.string.append(contentsOf: "\(severityText)\(message)\n")
-            case .egressAnalyze:
-                self.egressAclAnalysis.string.append(contentsOf: "\(severityText)\(message)\n")
+        switch delegateWindow {
+        case .ingressValidation:
+            ingressValidationString.append(contentsOf: "\(severityText)\(message)\n")
+        case .egressValidation:
+            egressValidationString.append(contentsOf: "\(severityText)\(message)\n")
+        case .ingressAnalyze:
+            ingressAnalyzeString.append(contentsOf: "\(severityText)\(message)\n")
+        case .egressAnalyze:
+            egressAnalyzeString.append(contentsOf: "\(severityText)\(message)\n")
+        }
+        if !outputTimerActive {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.ingressAclValidation.string = self.ingressValidationString
+                self.egressAclValidation.string = self.egressValidationString
+                self.ingressAclAnalysis.string = self.ingressAnalyzeString
+                self.egressAclAnalysis.string = self.egressAnalyzeString
+                self.outputTimerActive = false
             }
+            outputTimerActive = true
         }
     }
 }
