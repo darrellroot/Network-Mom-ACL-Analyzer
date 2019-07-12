@@ -11,4 +11,5 @@ import Foundation
 enum DeviceType: String, CaseIterable, Hashable {
     case ios
     case asa
+    case nxos
 }
