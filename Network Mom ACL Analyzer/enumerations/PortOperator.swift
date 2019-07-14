@@ -14,4 +14,21 @@ enum PortOperator: String {
     case lt
     case ne
     case range
+    
+    init?(_ string: String) {
+        switch string {
+        case "eq":
+            self = .eq
+        case "gt":
+            self = .gt
+        case "lt":
+            self = .lt
+        case "ne","neq":
+            self = .ne
+        case "range":
+            self = .range
+        default:
+            return nil
+        }
+    }
 }

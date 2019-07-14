@@ -67,7 +67,7 @@ struct IcmpMessage {
             default:
                 return nil
             }
-        case .ios:
+        case .ios, .nxos:
             switch message {
             case "administratively-prohibited":
                 self.type = 3

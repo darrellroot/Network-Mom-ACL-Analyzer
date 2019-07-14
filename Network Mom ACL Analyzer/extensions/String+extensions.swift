@@ -19,6 +19,138 @@ extension String {
         let answer: UInt = UInt(octet1) * 256 * 256 * 256 + UInt(octet2) * 256 * 256 + UInt(octet3) * 256 + UInt(octet4)
         return answer
     }
+    var nxosTcpPort: UInt? {
+        switch self {
+        case "bgp":
+            return 179
+        case "chargen":
+            return 19
+        case "cmd":
+            return 514
+        case "daytime":
+            return 13
+        case "discard":
+            return 9
+        case "domain":
+            return 53
+        case "drip":
+            return 3949
+        case "echo":
+            return 7
+        case "exec":
+            return 512
+        case "finger":
+            return 79
+        case "ftp":
+            return 21
+        case "ftp-data":
+            return 20
+        case "gopher":
+            return 7
+        case "hostname":
+            return 11
+        case "ident":
+            return 113
+        case "irc":
+            return 194
+        case "klogin":
+            return 543
+        case "kshell":
+            return 544
+        case "login":
+            return 513
+        case "lpd":
+            return 515
+        case "nntp":
+            return 119
+        case "pim-auto-rp":
+            return 496
+        case "pop2":
+            return 19
+        case "pop3":
+            return 11
+        case "smtp":
+            return 25
+        case "sunrpc":
+            return 111
+        case "tacacs":
+            return 49
+        case "talk":
+            return 517
+        case "telnet":
+            return 23
+        case "time":
+            return 37
+        case "uucp":
+            return 54
+        case "whois":
+            return 43
+        case "www":
+            return 80
+        default:
+            return nil
+        }
+    }
+    var nxosUdpPort: UInt? {
+        switch self {
+        case "biff":
+            return 512
+        case "bootpc":
+            return 68
+        case "bootps":
+            return 67
+        case "discard":
+            return 9
+        case "dnsix":
+            return 195
+        case "domain":
+            return 53
+        case "echo":
+            return 7
+        case "isakmp":
+            return 5
+        case "mobile-ip":
+            return 434
+        case "nameserver":
+            return 42
+        case "netbios-dgm":
+            return 138
+        case "netbios-ns":
+            return 137
+        case "netbios-ss":
+            return 139
+        case "non500-isakmp":
+            return 45
+        case "ntp":
+            return 123
+        case "pim-auto-rp":
+            return 496
+        case "rip":
+            return 52
+        case "snmp":
+            return 161
+        case "snmptrap":
+            return 162
+        case "sunrpc":
+            return 111
+        case "syslog":
+            return 514
+        case "tacacs":
+            return 49
+        case "talk":
+            return 517
+        case "tftp":
+            return 69
+        case "time":
+            return 37
+        case "who":
+            return 513
+        case "xdmcp":
+            return 177
+        default:
+            return nil
+        }
+    }
     var tcpPort: UInt? {
         switch self {
         case "bgp":
@@ -125,6 +257,38 @@ extension String {
             return 69
         case "wccp":
             return 2048
+        default:
+            return nil
+        }
+    }
+    var nxosIpProtocol: UInt? {
+        switch self {
+        case "ahp":
+            return 51
+        case "eigrp":
+            return 88
+        case "esp":
+            return 50
+        case "gre":
+            return 47
+        case "icmp":
+            return 1
+        case "igmp":
+            return 2
+        case "ip":
+            return 0
+        case "nos":
+            return 94
+        case "ospf":
+            return 89
+        case "pcp":
+            return 108
+        case "pim":
+            return 103
+        case "tcp":
+            return 6
+        case "udp":
+            return 17
         default:
             return nil
         }
