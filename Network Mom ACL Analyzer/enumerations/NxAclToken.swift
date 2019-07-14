@@ -15,6 +15,7 @@ enum NxAclToken: Equatable {
     case host
     case portOperator(PortOperator)
     case comment
+    case log
     case established
     case fourOctet(UInt)
     case cidr(IpRange)
@@ -27,6 +28,8 @@ enum NxAclToken: Equatable {
             self = .action(.permit)
         case "deny":
             self = .action(.deny)
+        case "log":
+            self = .log
         case "ahp","eigrp","esp","gre","icmp","igmp","ip","nos","ospf","pcp","pim","tcp","udp":
             if let ipProtocol = string.nxosIpProtocol {
                 self = .ipProtocol(ipProtocol)

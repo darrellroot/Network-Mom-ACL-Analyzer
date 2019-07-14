@@ -55,6 +55,8 @@ struct AccessControlEntry {
         case end  // includes capture session 3
     }
     
+    //MARK: GLOBAL INIT
+    
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?) {
         
         switch deviceType {
@@ -64,6 +66,8 @@ struct AccessControlEntry {
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, nxos: true)
         }
     }
+    
+    //MARK: NXOS IPV4 INIT
     
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, nxos: Bool) {
         
@@ -178,9 +182,8 @@ struct AccessControlEntry {
                     linePosition = .action
                 case .number(let sequence):  //TODO make sure numbers are unique
                     linePosition = .sequence
-                case .ipProtocol,.any, .host, .portOperator, .fourOctet,.established, .cidr, .name:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+                case .ipProtocol,.any, .host, .portOperator, .fourOctet,.established, .log, .cidr, .name:
+                    reportError()
                     return nil
                 case .comment:
                     return nil
@@ -190,9 +193,8 @@ struct AccessControlEntry {
                 case .action(let action):
                     self.aclAction = action
                     linePosition = .action
-                case .ipProtocol,.any, .host, .portOperator, .established, .cidr, .name, .number, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+                case .ipProtocol,.any, .host, .portOperator, .established, .cidr, .name, .log, .number, .fourOctet:
+                    reportError()
                     return nil
                 case .comment:
                     return nil
@@ -200,9 +202,8 @@ struct AccessControlEntry {
             case .action:
                 switch token {
                     
-                case .action(_), .any, .host, .portOperator, .comment, .established, .cidr, .name, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+                case .action(_), .any, .host, .portOperator, .comment, .established, .cidr, .name, .log, .fourOctet:
+                    reportError()
                     return nil
                 case .ipProtocol(let ipProtocol), .number(let ipProtocol):
                     self.ipProtocols = [ipProtocol]
@@ -211,9 +212,8 @@ struct AccessControlEntry {
             case .ipProtocol:
                 switch token {
                     
-                case .action(_),.ipProtocol,.portOperator,.comment,.established,.number,.name, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+                case .action(_),.ipProtocol,.portOperator,.comment,.established,.number,.log, .name, .fourOctet:
+                    reportError()
                     return nil
                 case .any:
                     self.sourceIp = [IpRange(minIp: 0, maxIp: MAXIP)]
@@ -227,9 +227,8 @@ struct AccessControlEntry {
             case .sourceIp:
                 switch token {
                     
-                case .action(_),.ipProtocol,.comment,.established,.number,.name, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+                case .action(_),.ipProtocol,.comment,.established,.number,.name, .log, .fourOctet:
+                    reportError()
                     return nil
                 case .any:  //destination any
                     self.destIp = [IpRange(minIp: 0, maxIp: MAXIP)]
@@ -246,9 +245,8 @@ struct AccessControlEntry {
             case .sourceIpHost:
                 switch token {
                     
-                case .action(_),.ipProtocol,.any,.host,.portOperator,.comment,.established,.cidr,.number,.name:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+                case .action(_),.ipProtocol,.any,.host,.portOperator,.comment,.established,.log, .cidr,.number,.name:
+                    reportError()
                     return nil
                 case .fourOctet(let ipAddress):
                     let ipRange = IpRange(minIp: ipAddress, maxIp: ipAddress)
@@ -259,7 +257,7 @@ struct AccessControlEntry {
                 
                 switch token {
                     
-                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, . established, . fourOctet, .cidr:
+                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .log, . established, . fourOctet, .cidr:
                     reportError()
                     return nil
                     
@@ -292,7 +290,7 @@ struct AccessControlEntry {
             case .firstSourcePort:
                 switch token {
                     
-                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .established, .fourOctet, .cidr:
+                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .log, .established, .fourOctet, .cidr:
                     reportError()
                     return nil
                 case .number(let secondSourcePort):
@@ -335,7 +333,7 @@ struct AccessControlEntry {
             case .lastSourcePort:
                 switch token {
                     
-                case .action(_), .ipProtocol, .portOperator, .comment, .established, .fourOctet,.number, .name:
+                case .action(_), .ipProtocol, .portOperator, .comment, .established, .fourOctet,.log, .number, .name:
                     reportError()
                     return nil
                 case .any:
@@ -357,16 +355,20 @@ struct AccessControlEntry {
                 case .portOperator(let destPortOperator):
                     tempDestPortOperator = destPortOperator
                     linePosition = .destPortOperator
-                case .comment:
+                case .comment, .log:
                     linePosition = .end
                 case .established:
+                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
+                        reportError()
+                        return nil
+                    }
                     self.established = true
                     linePosition = .end
                 }
             case .destIpHost:
                 switch token {
                     
-                case .action(_),.ipProtocol, .any, .host, .portOperator,.comment, .established,.cidr, .number, .name:
+                case .action(_),.ipProtocol, .any, .host, .portOperator,.comment, .log, .established,.cidr, .number, .name:
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
@@ -377,7 +379,7 @@ struct AccessControlEntry {
             case .destPortOperator:
                 switch token {
                     
-                case .action(_), .ipProtocol, .any, .host, .portOperator, .established, .fourOctet, .cidr, .comment:
+                case .action(_), .ipProtocol, .any, .host, .portOperator, .established, .log, .fourOctet, .cidr, .comment:
                     reportError()
                     return nil
                 case .number(let firstPortNumber):
@@ -387,43 +389,6 @@ struct AccessControlEntry {
                         return nil
                     }
 
-
-                    /*                    guard let destPortOperator = tempDestPortOperator, firstPortNumber >= 0, firstPortNumber <= MAXPORT else {
-                        reportError()
-                        return nil
-                    }
-                    switch destPortOperator {
-                        
-                    case .eq:
-                        guard let portRange = PortRange(minPort: firstPortNumber, maxPort: firstPortNumber) else {
-                            reportError()
-                            return nil
-                        }
-                        self.destPort = [portRange]
-                        linePosition = .lastDestPort
-                    case .gt:
-                        guard let portRange = PortRange(minPort: firstPortNumber + 1, maxPort: firstPortNumber) else {
-                            reportError()
-                            return nil
-                        }
-                        self.destPort = [portRange]
-                        linePosition = .lastDestPort
-                    case .lt:
-                        guard let portRange = PortRange(minPort: 0, maxPort: firstPortNumber - 1) else {
-                            reportError()
-                            return nil
-                        }
-                        self.destPort = [portRange]
-                        linePosition = .lastDestPort
-                    case .ne:
-                        let portRange1 = PortRange(minPort: 0, maxPort: firstPortNumber - 1)
-                        let portRange2 = PortRange(minPort: firstPortNumber + 1, maxPort: MAXPORT)
-                        self.destPort = [portRange1, portRange2].compactMap({ $0 })
-                        linePosition = .lastDestPort
-                    case .range:
-                        tempFirstDestPort = firstPortNumber
-                        linePosition = .firstDestPort
-                    }*/
                 case .name(let firstStringPort):
                     guard let ipProtocol = self.ipProtocols.first else {
                         reportError()
@@ -447,7 +412,7 @@ struct AccessControlEntry {
                 }
             case .firstDestPort:
                 switch token {
-                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .established, .fourOctet, .cidr:
+                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .log, .established, .fourOctet, .cidr:
                     reportError()
                     return nil
                 case .number(let lastDestPort):
@@ -498,9 +463,13 @@ struct AccessControlEntry {
                 case .action(_),.ipProtocol,.any, .host, .portOperator, .fourOctet, .cidr, .number, .name:
                     reportError()
                     return nil
-                case .comment:
+                case .comment, .log:
                     linePosition = .end
                 case .established:
+                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
+                        reportError()
+                        return nil
+                    }
                     self.established = true
                     linePosition = .end
                 }
@@ -519,7 +488,13 @@ struct AccessControlEntry {
                     break
                 case .comment:
                     break
+                case .log:
+                    break
                 case .established:
+                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
+                        reportError()
+                        return nil
+                    }
                     self.established = true
                 case .fourOctet(_):
                     break

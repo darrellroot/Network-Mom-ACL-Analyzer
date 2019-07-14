@@ -11,6 +11,9 @@ import Network
 
 class AccessList {
     
+    let MAXIP = UInt(UInt32.max)
+    let MAXPORT = UInt(UInt16.max)
+
     let sourceText: String
     var accessControlEntries: [AccessControlEntry] = []
     var deviceType: DeviceType
@@ -26,6 +29,8 @@ class AccessList {
     
     enum ConfigurationMode {
         case objectGroupNetwork
+        case nxosObjectGroupAddress
+        case nxosObjectGroupPort
         case objectGroupProtocol
         case objectGroupService
         case accessListExtended
@@ -48,9 +53,6 @@ class AccessList {
             }
             let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             
-            if line.starts(with: "object network") {
-                
-            }
             if line.starts(with: "object-group network") {
                 if deviceType == .ios || deviceType == .nxos {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
@@ -70,6 +72,157 @@ class AccessList {
                     }
                 }
                 continue lineLoop
+            }
+            
+            if line.starts(with: "object-group ip address") {
+                guard deviceType == .nxos else {
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group ip address not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
+                    configurationMode = .accessControlEntry
+                    objectName = nil
+                    continue lineLoop
+                }
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                guard let objectNameTemp = words[safe: 3] else {
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "invalid object-group configuraiton for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
+                    configurationMode = .accessControlEntry
+                    objectName = nil
+                    continue lineLoop
+                }
+                guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
+                        delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
+                        configurationMode = .accessControlEntry
+                        objectName = nil
+                        continue lineLoop
+                }
+                self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
+                configurationMode = .nxosObjectGroupAddress
+                objectName = objectNameTemp
+                continue lineLoop
+            }
+            
+            if line.starts(with: "object-group ip port") {
+                guard deviceType == .nxos else {
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group ip port not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
+                    configurationMode = .accessControlEntry
+                    objectName = nil
+                    continue lineLoop
+                }
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                guard let objectNameTemp = words[safe: 3] else {
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "Invalid object-group configuration", line: linenum, delegateWindow: delegateWindow)
+                    configurationMode = .accessControlEntry
+                    objectName = nil
+                    continue lineLoop
+                }
+                guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "Duplicate object-group service \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
+                    configurationMode = .accessControlEntry
+                    objectName = nil
+                    continue lineLoop
+                }
+                let objectGroupService = ObjectGroupService(type: .tcpAndUdp)
+                self.objectGroupServices[objectNameTemp] = objectGroupService
+                configurationMode = .nxosObjectGroupPort
+                objectName = objectNameTemp
+                continue lineLoop
+            }
+            
+            if deviceType == .nxos && configurationMode == .nxosObjectGroupPort {
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                if let word = words.first, let token = NxAclToken(string: word), let currentObjectName = objectName, let currentObjectGroup = objectGroupServices[currentObjectName] {
+                    switch token {
+                        
+                    case .action(_), .ipProtocol, .any, .host, .comment, .log, .established, .fourOctet, .cidr, .number, .name:
+                        break
+                        //do nothing and proceed to ACE analysis
+                    case .portOperator(let portOperator):
+                        guard let firstPortString = words[safe: 1], let firstPort = UInt(firstPortString) ?? firstPortString.nxosTcpPort ?? firstPortString.nxosUdpPort, firstPort >= 0, firstPort <= MAXPORT else {
+                            delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                            continue lineLoop
+                        }
+                        switch portOperator {
+                        case .eq:
+                            if let portRange = PortRange(minPort: firstPort, maxPort: firstPort) {
+                                currentObjectGroup.append(portRange: portRange)
+                            } else {
+                                delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                                delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                                continue lineLoop
+                            }
+                        case .gt:
+                            if let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) {
+                                currentObjectGroup.append(portRange: portRange)
+                            } else {
+                                delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                                delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                                continue lineLoop
+                            }
+                        case .lt:
+                            if let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) {
+                                currentObjectGroup.append(portRange: portRange)
+                            } else {
+                                delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                                delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                                continue lineLoop
+                            }
+                        case .ne:
+                            if let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1) {
+                                currentObjectGroup.append(portRange: portRange1)
+                            }
+                            if let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) {
+                                currentObjectGroup.append(portRange: portRange2)
+                            }
+                        case .range:
+                            if let secondPortString = words[safe: 2], let secondPort = UInt(secondPortString) ?? secondPortString.nxosTcpPort ?? secondPortString.nxosUdpPort, secondPort >= 0, secondPort <= MAXPORT, let portRange = PortRange(minPort: firstPort, maxPort: secondPort) {
+                                currentObjectGroup.append(portRange: portRange)
+                            } else {
+                                delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                                delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                                continue lineLoop
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if deviceType == .nxos && configurationMode == .nxosObjectGroupAddress {
+                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                if let word = words.first, let token = NxAclToken(string: word), let currentObjectName = objectName, let currentObjectGroup = objectGroupNetworks[currentObjectName] {
+                
+                    switch token {
+                        
+                    case .action(_),.ipProtocol, .any, .portOperator, .comment, .log, .established, .number, .name:
+                        break
+                        //do nothing and continue, we might be done with object group
+                    case .host:
+                        guard let word2 = words[safe: 1], let token2 = NxAclToken(string: word2), case let .fourOctet(hostIp) = token2, hostIp >= 0, hostIp <= MAXIP else {
+                            delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                            configurationMode = .accessControlEntry
+                            objectName = nil
+                            continue lineLoop
+                        }
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
+                        currentObjectGroup.append(ipRange: ipRange)
+                    case .fourOctet(let network):
+                        guard let word2 = words[safe: 1], let token2 = NxAclToken(string: word2), case let .fourOctet(dontCare) = token2, dontCare >= 0, dontCare <= MAXIP, let ipRange = IpRange(ipv4: network, dontCare: dontCare) else {
+                            delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                            configurationMode = .accessControlEntry
+                            objectName = nil
+                            continue lineLoop
+                        }
+                        currentObjectGroup.append(ipRange: ipRange)
+                    case .cidr(let cidr):
+                        currentObjectGroup.append(ipRange: cidr)
+                    }
+                }
             }
             
             if line.starts(with: "object-group service") {
@@ -166,7 +319,7 @@ class AccessList {
                         }
                         continue lineLoop
                     }
-                case .accessListExtended, .accessControlEntry:
+                case .accessListExtended, .accessControlEntry, .nxosObjectGroupPort, .nxosObjectGroupAddress:
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "unexpected group-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop

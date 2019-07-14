@@ -65,6 +65,19 @@ struct IpRange: CustomStringConvertible, Equatable {
         debugPrint("cidr init \(cidr) \(self.minIp.ipv4) \(self.maxIp.ipv4)")
         return
     }
+    init?(ipv4: UInt, dontCare: UInt) {
+        guard ipv4 >= 0 && ipv4 <= UInt(UInt32.max) else {
+            return nil
+        }
+        guard let numHosts = dontCare.dontCareHosts else {
+            return nil
+        }
+        let remainder = ipv4 % numHosts
+        if remainder > 0 { self.bitAligned = false }
+        self.minIp = ipv4 - remainder
+        self.maxIp = self.minIp + numHosts - 1
+        return
+    }
     init?(ip: String, mask: String, type: DeviceType) {
         if ip == "host", let ipv4 = mask.ipv4address {
             self.minIp = ipv4
