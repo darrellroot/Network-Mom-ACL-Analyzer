@@ -13,6 +13,8 @@ enum NxAclToken: Equatable {
     case ipProtocol(UInt)
     case any
     case host
+    case addrgroup
+    case portgroup
     case portOperator(PortOperator)
     case comment
     case log
@@ -26,6 +28,10 @@ enum NxAclToken: Equatable {
         switch string {
         case "permit":
             self = .action(.permit)
+        case "addrgroup":
+            self = .addrgroup
+        case "portgroup":
+            self = .portgroup
         case "deny":
             self = .action(.deny)
         case "log":

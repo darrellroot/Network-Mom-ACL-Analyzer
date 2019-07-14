@@ -137,7 +137,7 @@ class AccessList {
                 if let word = words.first, let token = NxAclToken(string: word), let currentObjectName = objectName, let currentObjectGroup = objectGroupServices[currentObjectName] {
                     switch token {
                         
-                    case .action(_), .ipProtocol, .any, .host, .comment, .log, .established, .fourOctet, .cidr, .number, .name:
+                    case .action(_), .ipProtocol, .any, .host, .comment, .log, .addrgroup,.portgroup,.established, .fourOctet, .cidr, .number, .name:
                         break
                         //do nothing and proceed to ACE analysis
                     case .portOperator(let portOperator):
@@ -150,6 +150,7 @@ class AccessList {
                         case .eq:
                             if let portRange = PortRange(minPort: firstPort, maxPort: firstPort) {
                                 currentObjectGroup.append(portRange: portRange)
+                                continue lineLoop
                             } else {
                                 delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                                 delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
@@ -158,6 +159,7 @@ class AccessList {
                         case .gt:
                             if let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) {
                                 currentObjectGroup.append(portRange: portRange)
+                                continue lineLoop
                             } else {
                                 delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                                 delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
@@ -166,6 +168,7 @@ class AccessList {
                         case .lt:
                             if let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) {
                                 currentObjectGroup.append(portRange: portRange)
+                                continue lineLoop
                             } else {
                                 delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                                 delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
@@ -178,9 +181,11 @@ class AccessList {
                             if let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) {
                                 currentObjectGroup.append(portRange: portRange2)
                             }
+                            continue lineLoop
                         case .range:
                             if let secondPortString = words[safe: 2], let secondPort = UInt(secondPortString) ?? secondPortString.nxosTcpPort ?? secondPortString.nxosUdpPort, secondPort >= 0, secondPort <= MAXPORT, let portRange = PortRange(minPort: firstPort, maxPort: secondPort) {
                                 currentObjectGroup.append(portRange: portRange)
+                                continue lineLoop
                             } else {
                                 delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                                 delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
@@ -197,7 +202,7 @@ class AccessList {
                 
                     switch token {
                         
-                    case .action(_),.ipProtocol, .any, .portOperator, .comment, .log, .established, .number, .name:
+                    case .action(_),.ipProtocol, .any, .portOperator, .comment, .log, .addrgroup,.portgroup,.established, .number, .name:
                         break
                         //do nothing and continue, we might be done with object group
                     case .host:

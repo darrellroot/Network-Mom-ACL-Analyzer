@@ -135,15 +135,20 @@ class testNxos: XCTestCase {
             lt 30
             gt 65500
         ip access-list bob
-            15 permit tcp addrgroup ipv4-addr-group-13  10.0.0.0/23 portgroup NYC-datacenter-ports
+            15 permit tcp addrgroup ipv4-addr-group-13 10.0.0.0/23 portgroup NYC-datacenter-ports
             17 permit udp 192.168.10.0/24 192.168.11.0/24 portgroup LA-ports
             19 permit tcp 192.168.12.0/24 192.168.13.0/24 portgroup TOK-ports established
         """
         
         let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
         
+        XCTAssert(acl.accessControlEntries.count == 3)
         XCTAssert(acl.objectGroupNetworks.count == 1)
         XCTAssert(acl.objectGroupServices.count == 3)
+        
+        XCTAssert(acl.objectGroupNetworks.first!.value.ipRanges.count == 3)
+        
+        XCTAssert(acl.objectGroupServices["NYC-datacenter-ports"]!.portRanges.count == 2)
         
         let socket1 = Socket(ipProtocol: 6, sourceIp: "10.99.32.6".ipv4address!, destinationIp: "10.0.1.33".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
         let result1 = acl.analyze(socket: socket1)
@@ -187,7 +192,7 @@ class testNxos: XCTestCase {
 
         let socket11 = Socket(ipProtocol: 6, sourceIp: "192.168.12.33".ipv4address!, destinationIp: "192.168.13.194".ipv4address!, sourcePort: 33, destinationPort: 65500, established: true)!
         let result11 = acl.analyze(socket: socket11)
-        XCTAssert(result11 == .permit)
+        XCTAssert(result11 == .deny)
 
     }
 

@@ -44,12 +44,16 @@ struct AccessControlEntry {
         case ipProtocol
         case sourceIp
         case sourceIpHost
+        case sourceAddrgroup
         case sourcePortOperator
+        case sourcePortgroup
         case firstSourcePort
         case lastSourcePort
         case destIp
         case destIpHost
+        case destAddrgroup
         case destPortOperator
+        case destPortgroup
         case firstDestPort
         case lastDestPort
         case end  // includes capture session 3
@@ -182,7 +186,7 @@ struct AccessControlEntry {
                     linePosition = .action
                 case .number(let sequence):  //TODO make sure numbers are unique
                     linePosition = .sequence
-                case .ipProtocol,.any, .host, .portOperator, .fourOctet,.established, .log, .cidr, .name:
+                case .ipProtocol,.any, .host, .portOperator, .fourOctet,.established, .addrgroup,.portgroup,.log, .cidr, .name:
                     reportError()
                     return nil
                 case .comment:
@@ -193,7 +197,7 @@ struct AccessControlEntry {
                 case .action(let action):
                     self.aclAction = action
                     linePosition = .action
-                case .ipProtocol,.any, .host, .portOperator, .established, .cidr, .name, .log, .number, .fourOctet:
+                case .ipProtocol,.any, .host, .portOperator, .established, .addrgroup,.portgroup,.cidr, .name, .log, .number, .fourOctet:
                     reportError()
                     return nil
                 case .comment:
@@ -202,7 +206,7 @@ struct AccessControlEntry {
             case .action:
                 switch token {
                     
-                case .action(_), .any, .host, .portOperator, .comment, .established, .cidr, .name, .log, .fourOctet:
+                case .action(_), .any, .host, .portOperator, .comment, .established, .cidr, .addrgroup,.portgroup,.name, .log, .fourOctet:
                     reportError()
                     return nil
                 case .ipProtocol(let ipProtocol), .number(let ipProtocol):
@@ -212,9 +216,11 @@ struct AccessControlEntry {
             case .ipProtocol:
                 switch token {
                     
-                case .action(_),.ipProtocol,.portOperator,.comment,.established,.number,.log, .name, .fourOctet:
+                case .action(_),.ipProtocol,.portOperator,.comment,.established,.number,.log, .portgroup,.name, .fourOctet:
                     reportError()
                     return nil
+                case .addrgroup:
+                    linePosition = .sourceAddrgroup
                 case .any:
                     self.sourceIp = [IpRange(minIp: 0, maxIp: MAXIP)]
                     linePosition = .sourceIp
@@ -222,6 +228,20 @@ struct AccessControlEntry {
                     linePosition = .sourceIpHost
                 case .cidr(let ipRange):
                     self.sourceIp = [ipRange]
+                    linePosition = .sourceIp
+                }
+            case .sourceAddrgroup:
+                switch token {
+                    
+                case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
+                    reportError()
+                case .name(let objectName):
+                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.sourceIp = sourceObjectGroup.ipRanges
                     linePosition = .sourceIp
                 }
             case .sourceIp:
@@ -241,11 +261,15 @@ struct AccessControlEntry {
                 case .cidr(let ipRange):
                     self.destIp = [ipRange]
                     linePosition = .destIp
+                case .addrgroup:
+                    linePosition = .destAddrgroup
+                case .portgroup:
+                    linePosition = .sourcePortgroup
                 }
             case .sourceIpHost:
                 switch token {
                     
-                case .action(_),.ipProtocol,.any,.host,.portOperator,.comment,.established,.log, .cidr,.number,.name:
+                case .action(_),.ipProtocol,.any,.host,.portOperator,.comment,.established,.addrgroup,.portgroup,.log, .cidr,.number,.name:
                     reportError()
                     return nil
                 case .fourOctet(let ipAddress):
@@ -253,11 +277,24 @@ struct AccessControlEntry {
                     self.sourceIp = [ipRange]
                     linePosition = .sourceIp
                 }
+            case .sourcePortgroup:
+                switch token {
+                case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
+                    reportError()
+                case .name(let objectName):
+                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupService(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.sourcePort = sourceObjectGroup.portRanges
+                    linePosition = .lastSourcePort
+                }
             case .sourcePortOperator:
                 
                 switch token {
                     
-                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .log, . established, . fourOctet, .cidr:
+                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .addrgroup,.portgroup,.log, . established, . fourOctet, .cidr:
                     reportError()
                     return nil
                     
@@ -290,7 +327,7 @@ struct AccessControlEntry {
             case .firstSourcePort:
                 switch token {
                     
-                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .log, .established, .fourOctet, .cidr:
+                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .addrgroup,.portgroup,.log, .established, .fourOctet, .cidr:
                     reportError()
                     return nil
                 case .number(let secondSourcePort):
@@ -333,7 +370,7 @@ struct AccessControlEntry {
             case .lastSourcePort:
                 switch token {
                     
-                case .action(_), .ipProtocol, .portOperator, .comment, .established, .fourOctet,.log, .number, .name:
+                case .action(_), .ipProtocol, .portOperator, .comment, .established, .fourOctet,.log, .portgroup,.number, .name:
                     reportError()
                     return nil
                 case .any:
@@ -342,14 +379,30 @@ struct AccessControlEntry {
                     linePosition = .destIp
                 case .host:
                     linePosition = .destIpHost
+                case .addrgroup:
+                    linePosition = .destAddrgroup
                 case .cidr(let ipRange):
                     self.destIp = [ipRange]
+                    linePosition = .destIp
+                }
+            case .destAddrgroup:
+                switch token {
+                    
+                case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
+                    reportError()
+                case .name(let objectName):
+                    guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.destIp = destObjectGroup.ipRanges
                     linePosition = .destIp
                 }
             case .destIp:
                 switch token {
                     
-                case .action(_),.ipProtocol, .any, .host, .fourOctet, .cidr, .number, .name:
+                case .action(_),.ipProtocol, .any, .host, .fourOctet, .cidr, .number, .addrgroup,.name:
                     reportError()
                     return nil
                 case .portOperator(let destPortOperator):
@@ -357,6 +410,8 @@ struct AccessControlEntry {
                     linePosition = .destPortOperator
                 case .comment, .log:
                     linePosition = .end
+                case .portgroup:
+                    linePosition = .destPortgroup
                 case .established:
                     guard self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
                         reportError()
@@ -367,8 +422,7 @@ struct AccessControlEntry {
                 }
             case .destIpHost:
                 switch token {
-                    
-                case .action(_),.ipProtocol, .any, .host, .portOperator,.comment, .log, .established,.cidr, .number, .name:
+                case .action(_),.ipProtocol, .any, .host, .portOperator,.comment, .log, .established,.cidr, .number, .addrgroup,.portgroup,.name:
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
@@ -378,8 +432,7 @@ struct AccessControlEntry {
                 }
             case .destPortOperator:
                 switch token {
-                    
-                case .action(_), .ipProtocol, .any, .host, .portOperator, .established, .log, .fourOctet, .cidr, .comment:
+                case .action(_), .ipProtocol, .any, .host, .portOperator, .addrgroup,.portgroup,.established, .log, .fourOctet, .cidr, .comment:
                     reportError()
                     return nil
                 case .number(let firstPortNumber):
@@ -410,9 +463,22 @@ struct AccessControlEntry {
                         return nil
                     }
                 }
+            case .destPortgroup:
+                switch token {
+                case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
+                    reportError()
+                case .name(let objectName):
+                    guard let destObjectGroup = aclDelegate?.getObjectGroupService(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.destPort = destObjectGroup.portRanges
+                    linePosition = .lastDestPort
+                }
             case .firstDestPort:
                 switch token {
-                case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .log, .established, .fourOctet, .cidr:
+                case .action(_), .ipProtocol, .any, .host, .portOperator, .addrgroup,.portgroup,.comment, .log, .established, .fourOctet, .cidr:
                     reportError()
                     return nil
                 case .number(let lastDestPort):
@@ -460,7 +526,7 @@ struct AccessControlEntry {
             case .lastDestPort:
                 switch token {
                     
-                case .action(_),.ipProtocol,.any, .host, .portOperator, .fourOctet, .cidr, .number, .name:
+                case .action(_),.ipProtocol,.any, .host, .portOperator, .fourOctet, .addrgroup,.portgroup,.cidr, .number, .name:
                     reportError()
                     return nil
                 case .comment, .log:
@@ -475,7 +541,11 @@ struct AccessControlEntry {
                 }
             case .end:
                 switch token {
-                    
+                //TODO many of these should be errors
+                case .addrgroup:
+                    break
+                case .portgroup:
+                    break
                 case .action(_):
                     break
                 case .ipProtocol(_):
