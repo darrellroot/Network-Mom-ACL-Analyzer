@@ -117,6 +117,46 @@ class testNxos: XCTestCase {
         let socket8 = Socket(ipProtocol: 6, sourceIp: "192.168.2.3".ipv4address!, destinationIp: "4.4.4.4".ipv4address!, sourcePort: 52, destinationPort: 50, established: true)!
         let result8 = acl.analyze(socket: socket8)
         XCTAssert(result8 == .deny)
+    }
+    
+    func testNxosCcierants1() {
+        let sample = """
+            1 remark 200,000 hits! Yay!
+            10 permit tcp any any eq 22
+            17 deny ip any any
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 2)
+
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.99.32.6".ipv4address!, destinationIp: "10.0.1.33".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.99.32.6".ipv4address!, destinationIp: "10.0.1.33".ipv4address!, sourcePort: 33, destinationPort: 23, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+    
+    func testNxosCcierants2() {
+        let sample = """
+            statistics per-entry
+            1 remark 200,000 hits! Yay!
+            2 deny icmp 10.0.0.132/32 10.0.0.3/32 log
+            3 deny icmp 10.0.0.132/32 any log
+            10 permit tcp any any eq 22
+            17 deny ip any any
+            20 deny ip any any
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 5)
+
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.0.0.132".ipv4address!, destinationIp: "10.0.0.3".ipv4address!, sourcePort: 22, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+
+        let socket2 = Socket(ipProtocol: 17, sourceIp: "10.0.0.132".ipv4address!, destinationIp: "10.0.0.3".ipv4address!, sourcePort: 22, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
 
     }
     

@@ -664,8 +664,6 @@ struct AccessControlEntry {
                     continue wordLoop
                 case .remark:
                     linePosition = .remark
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .notification, message: "line has remark after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
                     return nil
                 case .comment:
                     // comment at beginning
@@ -718,8 +716,6 @@ struct AccessControlEntry {
                     tempAclAction = .deny
                     linePosition = .action
                 case .remark:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .notification, message: "line has remark after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
                     return nil
                 }
             case .action:

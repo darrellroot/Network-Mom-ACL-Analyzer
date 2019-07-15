@@ -26,6 +26,8 @@ enum NxAclToken: Equatable {
     
     init?(string: String) {
         switch string {
+        case "remark":
+            self = .comment
         case "permit":
             self = .action(.permit)
         case "addrgroup":

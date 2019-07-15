@@ -423,7 +423,7 @@ class AccessList {
                 }
                 continue lineLoop
             }
-            if line.starts(with: "statistics per entry") {
+            if line.starts(with: "statistics per-entry") {
                 guard deviceType == .nxos else {
                     delegate?.report(severity: .linetext, message: "\(line)", line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .warning, message: "statistics per entry not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
