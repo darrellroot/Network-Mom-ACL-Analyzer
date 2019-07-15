@@ -22,6 +22,7 @@ struct AccessControlEntry {
     var line: String
     var linenum: Int
     var icmpMessages: [IcmpMessage] = []
+    var sequence: UInt?  // If a sequence number exists in the line
     
     let MAXIP = UInt(UInt32.max)
     let MAXPORT = UInt(UInt16.max)
@@ -80,7 +81,7 @@ struct AccessControlEntry {
         var tempDestPortOperator: PortOperator?
         var tempFirstDestPort: UInt?
         var linePosition: NxLinePosition = .beginning
-
+        
         self.line = line
         self.linenum = linenum
         
@@ -88,6 +89,32 @@ struct AccessControlEntry {
         func reportError() {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
             errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+        }
+        
+        func validateNxos() -> Bool { // true -> ACE validated
+            if self.aclAction == .neither { return false }
+            
+            self.ipVersion = .IPv4
+            
+            if self.sourceIp.count == 0 { return false }
+            if self.destIp.count == 0 { return false }
+            if self.ipProtocols.count != 1 { return false }
+            guard let ipProtocol = self.ipProtocols.first else { return false }
+            
+            switch ipProtocol {
+            case 6:
+                break
+            case 17:
+                if self.established == true { return false }
+            case 0...255:
+                if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
+                    return false
+                }
+            default:
+                // should not get here
+                return false
+            }
+            return true
         }
         
         func analyzeFirstSourcePort(firstPort: UInt) -> Bool { // true = success
@@ -177,14 +204,17 @@ struct AccessControlEntry {
                 return nil
             }
             switch linePosition {
-                
             case .beginning:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(let action):
                     self.aclAction = action
                     linePosition = .action
                 case .number(let sequence):  //TODO make sure numbers are unique
+                    self.sequence = sequence
                     linePosition = .sequence
                 case .ipProtocol,.any, .host, .portOperator, .fourOctet,.established, .addrgroup,.portgroup,.log, .cidr, .name:
                     reportError()
@@ -194,6 +224,10 @@ struct AccessControlEntry {
                 }
             case .sequence:
                 switch token {
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(let action):
                     self.aclAction = action
                     linePosition = .action
@@ -205,7 +239,10 @@ struct AccessControlEntry {
                 }
             case .action:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .any, .host, .portOperator, .comment, .established, .cidr, .addrgroup,.portgroup,.name, .log, .fourOctet:
                     reportError()
                     return nil
@@ -215,7 +252,10 @@ struct AccessControlEntry {
                 }
             case .ipProtocol:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_),.ipProtocol,.portOperator,.comment,.established,.number,.log, .portgroup,.name, .fourOctet:
                     reportError()
                     return nil
@@ -232,7 +272,10 @@ struct AccessControlEntry {
                 }
             case .sourceAddrgroup:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
                     reportError()
                 case .name(let objectName):
@@ -246,7 +289,10 @@ struct AccessControlEntry {
                 }
             case .sourceIp:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_),.ipProtocol,.comment,.established,.number,.name, .log, .fourOctet:
                     reportError()
                     return nil
@@ -268,7 +314,10 @@ struct AccessControlEntry {
                 }
             case .sourceIpHost:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_),.ipProtocol,.any,.host,.portOperator,.comment,.established,.addrgroup,.portgroup,.log, .cidr,.number,.name:
                     reportError()
                     return nil
@@ -279,6 +328,10 @@ struct AccessControlEntry {
                 }
             case .sourcePortgroup:
                 switch token {
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
                     reportError()
                 case .name(let objectName):
@@ -293,7 +346,10 @@ struct AccessControlEntry {
             case .sourcePortOperator:
                 
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .addrgroup,.portgroup,.log, . established, . fourOctet, .cidr:
                     reportError()
                     return nil
@@ -326,7 +382,10 @@ struct AccessControlEntry {
                 }
             case .firstSourcePort:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .addrgroup,.portgroup,.log, .established, .fourOctet, .cidr:
                     reportError()
                     return nil
@@ -369,7 +428,10 @@ struct AccessControlEntry {
                 }
             case .lastSourcePort:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .portOperator, .comment, .established, .fourOctet,.log, .portgroup,.number, .name:
                     reportError()
                     return nil
@@ -387,7 +449,10 @@ struct AccessControlEntry {
                 }
             case .destAddrgroup:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
                     reportError()
                 case .name(let objectName):
@@ -401,7 +466,10 @@ struct AccessControlEntry {
                 }
             case .destIp:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_),.ipProtocol, .any, .host, .fourOctet, .cidr, .number, .addrgroup,.name:
                     reportError()
                     return nil
@@ -422,6 +490,10 @@ struct AccessControlEntry {
                 }
             case .destIpHost:
                 switch token {
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_),.ipProtocol, .any, .host, .portOperator,.comment, .log, .established,.cidr, .number, .addrgroup,.portgroup,.name:
                     reportError()
                     return nil
@@ -432,6 +504,10 @@ struct AccessControlEntry {
                 }
             case .destPortOperator:
                 switch token {
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .any, .host, .portOperator, .addrgroup,.portgroup,.established, .log, .fourOctet, .cidr, .comment:
                     reportError()
                     return nil
@@ -465,6 +541,10 @@ struct AccessControlEntry {
                 }
             case .destPortgroup:
                 switch token {
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
                     reportError()
                 case .name(let objectName):
@@ -478,6 +558,10 @@ struct AccessControlEntry {
                 }
             case .firstDestPort:
                 switch token {
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_), .ipProtocol, .any, .host, .portOperator, .addrgroup,.portgroup,.comment, .log, .established, .fourOctet, .cidr:
                     reportError()
                     return nil
@@ -525,7 +609,10 @@ struct AccessControlEntry {
                 }
             case .lastDestPort:
                 switch token {
-                    
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .action(_),.ipProtocol,.any, .host, .portOperator, .fourOctet, .addrgroup,.portgroup,.cidr, .number, .name:
                     reportError()
                     return nil
@@ -541,7 +628,10 @@ struct AccessControlEntry {
                 }
             case .end:
                 switch token {
-                //TODO many of these should be errors
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
                 case .addrgroup:
                     break
                 case .portgroup:
@@ -576,6 +666,11 @@ struct AccessControlEntry {
                     break
                 }
             }
+        }
+        if validateNxos() == false {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
+            return nil
         }
     }
         
@@ -1767,10 +1862,6 @@ struct AccessControlEntry {
             return .neither
         }
 
-        /*if self.ipProtocol == 0 { // no need to check ports for any ip protocol once ips match
-            return self.aclAction
-        }*/
-        // check ports if protocol udp or tcp
         if socket.ipProtocol == 17 || socket.ipProtocol == 6, let socketSourcePort = socket.sourcePort, let socketDestPort = socket.destinationPort {
             var sourcePortMatch = false
             if self.sourcePort.count == 0 {

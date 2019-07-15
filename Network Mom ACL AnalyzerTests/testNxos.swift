@@ -209,6 +209,60 @@ class testNxos: XCTestCase {
 
     }
     
+    func testNxosSiemhermans() {
+        let sample = """
+IP access list ACL_NAME
+  10 remark FIRST_REMARK
+  20 permit ospf any any
+  30 permit udp 10.0.0.0/22 range 5000 10000 host 1.1.1.1 range 1023 1025
+  40 permit tcp host 11.0.0.1 range 5000 10000 14.0.0.0/22 gt 1023 established
+  50 permit tcp 12.0.0.0/22 gt 1023 10.0.0.0/8 range 6620 6629 established
+  60 remark SECOND_REMARK
+  70 permit tcp 160.0.0.0/22 gt 1023 10.254.128.0/24 eq 9389
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 5)
+        
+        let socket1 = Socket(ipProtocol: 17, sourceIp: "10.0.3.33".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 10000, destinationPort: 1023, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.0.3.33".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 10000, destinationPort: 1023, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+
+        let socket3 = Socket(ipProtocol: 6, sourceIp: "11.0.0.1".ipv4address!, destinationIp: "14.0.3.255".ipv4address!, sourcePort: 10000, destinationPort: 1024, established: true)!
+        let result3 = acl.analyze(socket: socket3)
+        XCTAssert(result3 == .permit)
+
+        let socket4 = Socket(ipProtocol: 6, sourceIp: "11.0.0.1".ipv4address!, destinationIp: "14.0.3.255".ipv4address!, sourcePort: 10000, destinationPort: 1023, established: true)!
+        let result4 = acl.analyze(socket: socket4)
+        XCTAssert(result4 == .deny)
+
+        let socket5 = Socket(ipProtocol: 6, sourceIp: "12.0.1.37".ipv4address!, destinationIp: "10.255.255.255".ipv4address!, sourcePort: 1024, destinationPort: 6629, established: true)!
+        let result5 = acl.analyze(socket: socket5)
+        XCTAssert(result5 == .permit)
+
+        let socket6 = Socket(ipProtocol: 6, sourceIp: "12.0.1.37".ipv4address!, destinationIp: "11.0.0.0".ipv4address!, sourcePort: 1024, destinationPort: 6629, established: true)!
+        let result6 = acl.analyze(socket: socket6)
+        XCTAssert(result6 == .deny)
+
+        let socket7 = Socket(ipProtocol: 6, sourceIp: "160.0.2.191".ipv4address!, destinationIp: "10.254.128.255".ipv4address!, sourcePort: 1024, destinationPort: 9389, established: false)!
+        let result7 = acl.analyze(socket: socket7)
+        XCTAssert(result7 == .permit)
+
+        let socket8 = Socket(ipProtocol: 6, sourceIp: "160.0.2.191".ipv4address!, destinationIp: "10.254.128.255".ipv4address!, sourcePort: 1024, destinationPort: 9389, established: true)!
+        let result8 = acl.analyze(socket: socket8)
+        XCTAssert(result8 == .permit)
+
+    }
+    
+    func testNxosInvalid1() {
+        let line1 = "40 permit tcp host 11.0.0.1 range 5000 10000"
+        let ace = AccessControlEntry(line: line1, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace == nil)
+    }
+    
     func testNxosObjects1() {
         let sample = """
         object-group ip address ipv4-addr-group-13

@@ -9,6 +9,7 @@
 import Foundation
 
 enum NxAclToken: Equatable {
+    case unsupported(String)
     case action(AclAction)
     case ipProtocol(UInt)
     case any
@@ -26,6 +27,8 @@ enum NxAclToken: Equatable {
     
     init?(string: String) {
         switch string {
+        case "dscp","packet-length","precedence","time-range", "ack","fin","psh","rst","syn","urg", "dvmrp","host-query","host-report","trace","precedence","packet-length":
+            self = .unsupported(string)
         case "remark":
             self = .comment
         case "permit":
