@@ -212,19 +212,17 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             if self.egressAccessList?.count == 0 {
                 self.egressAccessList = nil
             }
+            if let ingressAccessList = self.ingressAccessList {
+                self.report(severity: .warning, message: "Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)", delegateWindow: .ingressValidation)
+            } else {
+                self.report(severity: .warning, message: "Ingress Access List Not Analyzed", delegateWindow: .ingressValidation)
+            }
+            if let egressAccessList = self.egressAccessList {
+                self.report(severity: .warning, message: "Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)", delegateWindow: .egressValidation)
+            } else {
+                self.report(severity: .warning, message: "Egress Access List Not Analyzed", delegateWindow: .egressValidation)
+            }
             DispatchQueue.main.async {
-                if let ingressAccessList = self.ingressAccessList {
-                    self.report(severity: .warning, message: "Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)", delegateWindow: .ingressValidation)
-                } else {
-                    self.report(severity: .warning, message: "Ingress Access List Not Analyzed", delegateWindow: .ingressValidation)
-
-                }
-                if let egressAccessList = self.egressAccessList {
-                    self.report(severity: .warning, message: "Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)", delegateWindow: .egressValidation)
-                } else {
-                    self.report(severity: .warning, message: "Egress Access List Not Analyzed", delegateWindow: .egressValidation)
-
-                }
                 self.enableButtons()
             }
         }
@@ -253,43 +251,26 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             if self.egressAccessList?.count == 0 {
                 self.egressAccessList = nil
             }
+            if let ingressAccessList = self.ingressAccessList {
+                self.report(severity: .warning, message: "Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)", delegateWindow: .ingressValidation)
+                _ = self.ingressAccessList?.analyze(socket: ingressSocket, errorDelegate: self, delegateWindow: .ingressAnalyze)
+            } else {
+                self.report(severity: .warning, message: "Ingress Access List Not Analyzed", delegateWindow: .ingressValidation)
+            }
+            if let egressAccessList = self.egressAccessList {
+                self.report(severity: .warning, message: "Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)", delegateWindow: .egressValidation)
+                if let egressSocket = ingressSocket.reverse() {
+                    self.report(severity: .notification, message: "Socket configured: \(egressSocket)", delegateWindow: .egressAnalyze)
+                    _ = self.egressAccessList?.analyze(socket: egressSocket, errorDelegate: self, delegateWindow: .egressAnalyze)
+                } else {
+                    self.report(severity: .error, message: "Unable to generate egress socket", delegateWindow: .egressAnalyze)
+                }
+            } else {
+                self.report(severity: .warning, message: "Egress Access List Not Analyzed", delegateWindow: .egressValidation)
+            }
             DispatchQueue.main.async {
-                if let ingressAccessList = self.ingressAccessList {
-                    self.report(severity: .warning, message: "Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.names)", delegateWindow: .ingressValidation)
-                } else {
-                    self.report(severity: .warning, message: "Ingress Access List Not Analyzed", delegateWindow: .ingressValidation)
-                    
-                }
-                if let egressAccessList = self.egressAccessList {
-                    self.report(severity: .warning, message: "Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.names)", delegateWindow: .egressValidation)
-                } else {
-                    self.report(severity: .warning, message: "Egress Access List Not Analyzed", delegateWindow: .egressValidation)
-                    
-                }
                 self.enableButtons()
             }
-        }
-
-        DispatchQueue.global(qos: .background).async {
-            self.ingressAccessList = AccessList(sourceText: ingressString, deviceType: self.ingressDeviceType, delegate: self, delegateWindow: .ingressValidation)
-            if self.ingressAccessList?.count == 0 {
-                self.ingressAccessList = nil
-            }
-            _ = self.ingressAccessList?.analyze(socket: ingressSocket, errorDelegate: self, delegateWindow: .ingressAnalyze)
-            self.enableButtons()
-        }
-        
-        guard let egressSocket = ingressSocket.reverse() else {
-            self.report(severity: .error, message: "Unable to generate egress socket", delegateWindow: .egressAnalyze)
-            return
-        }
-        self.report(severity: .notification, message: "Socket configured: \(egressSocket)", delegateWindow: .egressAnalyze)
-        DispatchQueue.global(qos: .background).async {
-            self.egressAccessList = AccessList(sourceText: egressString, deviceType: self.egressDeviceType, delegate: self, delegateWindow: .egressValidation)
-            if self.egressAccessList?.count == 0 {
-                self.egressAccessList = nil
-            }
-            _ = self.egressAccessList?.analyze(socket: egressSocket, errorDelegate: self, delegateWindow: .egressAnalyze)
         }
     }
 
