@@ -53,6 +53,8 @@ class AccessList {
             }
             let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             
+            let words = line.components(separatedBy: CharacterSet.whitespaces)
+
             if line.starts(with: "object-group network") {
                 guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
