@@ -54,7 +54,7 @@ class AccessList {
             let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             
             if line.starts(with: "object-group network") {
-                if deviceType == .ios || deviceType == .nxos {
+                guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -215,6 +215,7 @@ class AccessList {
                         }
                         let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
                         currentObjectGroup.append(ipRange: ipRange)
+                        continue lineLoop
                     case .fourOctet(let network):
                         guard let word2 = words[safe: 1], let token2 = NxAclToken(string: word2), case let .fourOctet(dontCare) = token2, dontCare >= 0, dontCare <= MAXIP, let ipRange = IpRange(ipv4: network, dontCare: dontCare) else {
                             delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
@@ -224,14 +225,16 @@ class AccessList {
                             continue lineLoop
                         }
                         currentObjectGroup.append(ipRange: ipRange)
+                        continue lineLoop
                     case .cidr(let cidr):
                         currentObjectGroup.append(ipRange: cidr)
+                        continue lineLoop
                     }
                 }
             }
             
             if line.starts(with: "object-group service") {
-                if deviceType == .ios || deviceType == .nxos {
+                guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -274,7 +277,7 @@ class AccessList {
             }
             
             if line.starts(with: "object-group protocol") {
-                if deviceType == .ios || deviceType == .nxos {
+                guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -295,7 +298,7 @@ class AccessList {
             }
             
             if line.starts(with: "group-object") {
-                if deviceType != .asa {
+                guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -331,7 +334,7 @@ class AccessList {
                 }
             }
             if line.starts(with: "protocol-object") {
-                if deviceType == .ios || deviceType == .nxos {
+                guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -369,7 +372,7 @@ class AccessList {
             }
             
             if line.starts(with: "network-object") {
-                if deviceType == .ios || deviceType == .nxos {
+                guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -387,7 +390,7 @@ class AccessList {
                 }
             }
             if line.starts(with: "ip access-list extended") {
-                if deviceType == .asa || deviceType == .nxos {
+                guard deviceType == .ios else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "invalid syntax for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -403,8 +406,8 @@ class AccessList {
                 }
                 continue lineLoop
             }
-            if line.starts(with: "ip access-list") {
-                if deviceType != .nxos {
+            if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
+                guard deviceType == .nxos else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "invalid syntax for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -418,11 +421,13 @@ class AccessList {
                         self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found", delegateWindow: delegateWindow)
                     }
                 }
+                continue lineLoop
             }
             if line.starts(with: "statistics per entry") {
-                if deviceType != .nxos {
+                guard deviceType == .nxos else {
                     delegate?.report(severity: .linetext, message: "\(line)", line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .warning, message: "statistics per entry not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
+                    continue lineLoop
                 }
                 continue lineLoop
             }
@@ -436,7 +441,7 @@ class AccessList {
                 }
             }
             if line.starts(with: "port-object") {
-                if deviceType == .ios || deviceType == .nxos {
+                guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop

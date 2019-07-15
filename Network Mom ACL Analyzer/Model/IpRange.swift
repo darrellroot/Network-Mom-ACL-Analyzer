@@ -61,8 +61,6 @@ struct IpRange: CustomStringConvertible, Equatable {
         }
         self.minIp = baseAddress
         self.maxIp = baseAddress + numHosts - 1
-        
-        debugPrint("cidr init \(cidr) \(self.minIp.ipv4) \(self.maxIp.ipv4)")
         return
     }
     init?(ipv4: UInt, dontCare: UInt) {
