@@ -63,6 +63,7 @@ struct IpRange: CustomStringConvertible, Equatable {
         self.maxIp = baseAddress + numHosts - 1
         return
     }
+    
     init?(ipv4: UInt, dontCare: UInt) {
         guard ipv4 >= 0 && ipv4 <= UInt(UInt32.max) else {
             return nil

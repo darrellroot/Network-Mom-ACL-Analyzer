@@ -177,21 +177,50 @@ class testNxos: XCTestCase {
         let socket2 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "11.0.0.3".ipv4address!, sourcePort: 22, destinationPort: 22, established: true)!
         let result2 = acl.analyze(socket: socket2)
         XCTAssert(result2 == .permit)
-
     }
+    
+    func testNxos5() {
+        let sample = """
+IPV4 ACL TACACS
+statistics per-entry
+10 permit tcp any any eq tacacs
+20 permit tcp any eq tacacs any
+30 permit udp any any eq 1812
+40 permit udp any any eq 1813
+50 permit udp any any eq 1645
+60 permit udp any any eq 1646
+70 permit udp any eq 1812 any
+80 permit udp any eq 1813 any
+90 permit udp any eq 1645 any
+100 permit udp any eq 1646 any
+110 permit icmp any any
+120 deny ip any any
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 12)
+
+        let socket1 = Socket(ipProtocol: 17, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "11.0.0.2".ipv4address!, sourcePort: 1812, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+
+        let socket2 = Socket(ipProtocol: 17, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "11.0.0.2".ipv4address!, sourcePort: 1811, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+    
     
     func testNxosCcieMcgee1() {
         let sample = """
-        object-group ip address SERVERS
-        10 host 1.1.1.101
-        20 10.0.0.0/24
-        object-group ip port WEB
-        10 eq 80
-        20 eq 443
-        30 range 8000 8999
-        ip access-list L3Port
-        10 permit tcp addrgroup SERVERS portgroup WEB any
-        """
+object-group ip address SERVERS
+    10 host 1.1.1.101
+    20 10.0.0.0/24
+object-group ip port WEB
+    10 eq 80
+    20 eq 443
+    30 range 8000 8999
+ip access-list L3Port
+    10 permit tcp addrgroup SERVERS portgroup WEB any
+"""
         let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.accessControlEntries.count == 1)
         
@@ -262,6 +291,42 @@ IP access list ACL_NAME
         let ace = AccessControlEntry(line: line1, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace == nil)
     }
+    
+    func testNxosInvalid2() {
+        let line1 = "40 permit tcp host 11.0.0.1 host 2.2.2.2"
+        let ace1 = AccessControlEntry(line: line1, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace1 != nil)
+        
+        let line2 = "40 permit tcp host 11.0.0.1 host 2.2.2.2 dscp af11"
+        let ace2 = AccessControlEntry(line: line2, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace2 == nil)
+
+        let line3 = "40 permit tcp host 11.0.0.1 host 2.2.2.2 precedence critical"
+        let ace3 = AccessControlEntry(line: line3, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace3 == nil)
+
+        let line4 = "40 permit tcp host 11.0.0.1 host 2.2.2.2 log"
+        let ace4 = AccessControlEntry(line: line4, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace4 != nil)
+
+        let line5 = "40 permit tcp host 11.0.0.1 host 2.2.2.2 time-range bob"
+        let ace5 = AccessControlEntry(line: line5, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace5 == nil)
+
+        let line6 = "40 permit igmp host 11.0.0.1 host 2.2.2.2 dvmrp"
+        let ace6 = AccessControlEntry(line: line6, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace6 == nil)
+
+        let line7 = "40 permit tcp host 11.0.0.1 host 2.2.2.2 fin"
+        let ace7 = AccessControlEntry(line: line7, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace7 == nil)
+
+        let line8 = "40 permit tcp host 11.0.0.1 host 2.2.2.2 packet-length eq 40"
+        let ace8 = AccessControlEntry(line: line8, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace8 == nil)
+
+    }
+
     
     func testNxosObjects1() {
         let sample = """

@@ -8,13 +8,13 @@
 
 import Foundation
 
-enum NxAclToken: Equatable {
+enum IosXrToken: Equatable {
     case unsupported(String)
     case action(AclAction)
     case ipProtocol(UInt)
     case any
     case host
-    case addrgroup
+    case netgroup
     case portgroup
     case portOperator(PortOperator)
     case comment
@@ -27,26 +27,16 @@ enum NxAclToken: Equatable {
     
     init?(string: String) {
         switch string {
-        case "dscp","packet-length","precedence","time-range", "ack","fin","psh","rst","syn","urg", "dvmrp","host-query","host-report","trace":
+        case "nexthop","vrf","fragments","authen","destopts","dscp","precedence":
             self = .unsupported(string)
         case "remark":
             self = .comment
         case "permit":
             self = .action(.permit)
-        case "addrgroup":
-            self = .addrgroup
-        case "portgroup":
-            self = .portgroup
         case "deny":
             self = .action(.deny)
         case "log":
             self = .log
-        case "ahp","eigrp","esp","gre","icmp","igmp","ip","nos","ospf","pcp","pim","tcp","udp":
-            if let ipProtocol = string.nxosIpProtocol {
-                self = .ipProtocol(ipProtocol)
-            } else {
-                return nil
-            }
         case "any":
             self = .any
         case "host":
@@ -59,6 +49,17 @@ enum NxAclToken: Equatable {
             }
         case "established","est":
             self = .established
+        case "net-group":
+            self = .netgroup
+        case "port-group":
+            self = .portgroup
+        case "ahp","eigrp","esp","gre","icmp","igmp","igrp","ip","ipinip","nos","ospf","pcp","pim","tcp","udp":
+            if let ipProtocol = string.iosXrIpProtocol {
+                self = .ipProtocol(ipProtocol)
+            } else {
+                return nil
+            }
+            
         default:
             if let number = UInt(string) {
                 self = .number(number)

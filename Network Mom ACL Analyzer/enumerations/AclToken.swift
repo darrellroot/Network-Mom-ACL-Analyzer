@@ -55,7 +55,7 @@ enum AclToken: Equatable {
             self = .any
         case "any4":
             switch deviceType {
-            case .ios, .nxos:
+            case .ios, .nxos, .iosxr:
                 return nil
             case .asa:
                 self = .any
@@ -66,7 +66,7 @@ enum AclToken: Equatable {
             self = .extended
         case "object", "object-group":
             switch deviceType {
-            case .ios, .nxos:
+            case .ios, .nxos, .iosxr:
                 return nil
             case .asa:
                 self = .objectGroup
@@ -79,12 +79,12 @@ enum AclToken: Equatable {
             switch deviceType {
             case .ios, .nxos:
                 self = .ne
-            case .asa:
+            case .asa, .iosxr:
                 return nil
             }
         case "ne":
             switch deviceType {
-            case .ios, .nxos:
+            case .ios, .nxos, .iosxr:
                 return nil
             case .asa:
                 self = .ne
@@ -99,7 +99,7 @@ enum AclToken: Equatable {
             switch deviceType {
             case .ios:
                 self = .log
-            case .asa, .nxos:
+            case .asa, .nxos, .iosxr:
                 return nil
             }
         default:

@@ -26,6 +26,8 @@ struct IcmpMessage {
     }
     init?(deviceType: DeviceType, message: String) {
         switch deviceType {
+        case .iosxr:
+            fatalError("not implemented")
         case .asa:
             switch message {
             case "echo-reply":
