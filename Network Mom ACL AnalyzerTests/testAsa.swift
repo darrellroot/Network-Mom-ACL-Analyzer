@@ -74,6 +74,18 @@ class testAsa: XCTestCase {
         XCTAssert(ace.destPort[0].minPort == 80)
         XCTAssert(ace.destPort[0].maxPort == 80)
     }
+    
+    func testAsaMultipleSpaces() {
+        let line = "access-list  ACL_IN  extended deny  tcp  any  host  209.165.201.29  eq  www"
+        guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8, errorDelegate: nil, delegateWindow: nil) else {
+            XCTAssert(false)
+            return
+        }
+        XCTAssert(ace.destIp[0].minIp == "209.165.201.29".ipv4address)
+        XCTAssert(ace.destPort[0].minPort == 80)
+        XCTAssert(ace.destPort[0].maxPort == 80)
+    }
+
     func testAsaIosReject2() {
         let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 eq www"
         let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 8, errorDelegate: nil, delegateWindow: nil)
@@ -569,6 +581,28 @@ class testAsa: XCTestCase {
             port-object eq 1
             port-object eq 2
         access-list 101 extended permit object-group bob 1.1.1.0 255.255.255.0 2.2.2.0 255.255.255.0 object-group beta
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 17, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .permit)
+    }
+
+    func testComplexObjectWithMultipleSpaces() {
+        let sample = """
+        object-group  protocol  bob
+            protocol-object tcp
+            protocol-object  udp
+        object-group  service  alpha  tcp
+            port-object eq  1
+            port-object  eq 2
+        object-group  service  beta  tcp-udp
+            port-object eq  1
+            port-object  eq 2
+        access-list 101 extended  permit object-group bob 1.1.1.0  255.255.255.0 2.2.2.0 255.255.255.0  object-group  beta
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.3".ipv4address!, destinationIp: "2.2.2.3".ipv4address!, sourcePort: 80, destinationPort: 1, established: false)!

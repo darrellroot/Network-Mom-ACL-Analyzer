@@ -229,7 +229,7 @@ struct AccessControlEntry {
 
 
         let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        let words = line.components(separatedBy: CharacterSet.whitespaces)
+        let words = line.split{ $0.isWhitespace }.map{ String($0)}
         if words.count < 1 {
             return nil
         }
@@ -732,7 +732,8 @@ struct AccessControlEntry {
         }
         
         let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        let words = line.components(separatedBy: CharacterSet.whitespaces)
+        let words = line.split{ $0.isWhitespace }.map{ String($0)}
+        //let words = line.components(separatedBy: CharacterSet.whitespaces).filter { !$0.isEmpty }
         if words.count < 1 {
             return nil
         }
@@ -808,6 +809,34 @@ struct AccessControlEntry {
             }
             return true
         }
+        
+        func validateIosXr() -> Bool { // true -> ACE validated
+            if self.aclAction == .neither { return false }
+            
+            self.ipVersion = .IPv4
+            
+            if self.sourceIp.count == 0 { return false }
+            if self.destIp.count == 0 { return false }
+            if self.ipProtocols.count != 1 { return false }
+            guard let ipProtocol = self.ipProtocols.first else { return false }
+            
+            switch ipProtocol {
+            case 6:
+                break
+            case 17:
+                if self.established == true { return false }
+            case 0...255:
+                if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
+                    return false
+                }
+                if self.established == true { return false }
+            default:
+                // should not get here
+                return false
+            }
+            return true
+        }
+
 
         wordLoop: for word in words {
             guard let token = IosXrToken(string: word) else {
@@ -1450,6 +1479,11 @@ struct AccessControlEntry {
                 }
             }
         }
+        if validateIosXr() == false {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
+            return nil
+        }
     }
 
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosOrAsa: Bool) {
@@ -1474,15 +1508,17 @@ struct AccessControlEntry {
         var linePosition: LinePosition = .beginning
         
         let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        if line.hasPrefix("ipv4 access-list") {
-            let words = line.components(separatedBy: CharacterSet.whitespaces)
+        
+        //let words = line.components(separatedBy: CharacterSet.whitespaces).filter { !$0.isEmpty }
+        let words = line.split{ $0.isWhitespace }.map{ String($0)}
+        if words.count < 1 {
+            return nil
+        }
+
+        if words[safe: 0] == "ipv4" && words[safe: 1] == "access-list" {
             if let name = words[safe: 2] {
                 aclDelegate?.foundName(name, delegateWindow: delegateWindow)
             }
-            return nil
-        }
-        let words = line.components(separatedBy: CharacterSet.whitespaces)
-        if words.count < 1 {
             return nil
         }
 

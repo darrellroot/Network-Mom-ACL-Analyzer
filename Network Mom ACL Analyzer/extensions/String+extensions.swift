@@ -285,6 +285,8 @@ extension String {
         switch self {
         case "bgp":
             return 179
+        case "cmd":
+            return 514
         case "domain":
             return 53
         case "exec":

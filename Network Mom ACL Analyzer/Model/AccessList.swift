@@ -45,7 +45,7 @@ class AccessList {
         var lastSequenceSeen: UInt = 0  // used for making sure sequence numbers increase in the acl, each time we change configuration mode we reset this
         var configurationMode: ConfigurationMode = .accessControlEntry
         var objectName: String? = nil  //non-nil if we are in object-group mode
-        
+       
         lineLoop: for line in sourceText.components(separatedBy: NSCharacterSet.newlines) {
             linenum = linenum + 1
             if line.isEmpty {
@@ -54,7 +54,8 @@ class AccessList {
             }
             let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             
-            let words = line.components(separatedBy: CharacterSet.whitespaces)
+            let words = line.split{ $0.isWhitespace }.map{ String($0)}
+            //let words = line.components(separatedBy: CharacterSet.whitespaces).filter { !$0.isEmpty }
 
             if words[safe: 0] == "object-group" && words[safe: 1] == "network" {
             //if line.starts(with: "object-group network") {
@@ -225,7 +226,6 @@ class AccessList {
             }
             
             if deviceType == .nxos && configurationMode == .nxosObjectGroupAddress {
-                //let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 // first word could be sequence number, drop it and process the rest
                 var localwords = words
                 if let firstword = localwords[safe: 0], let thisSequence = UInt(firstword) {
@@ -273,13 +273,15 @@ class AccessList {
                 }
             }
             
-            if line.starts(with: "object-group service") {
+            //if line.starts(with: "object-group service") {
+            if words[safe: 0] == "object-group" && words[safe: 1] == "service" {
                 guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
-                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                //let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
                 if let objectNameTemp = words[safe: 2], let type = words[safe: 3] {
                     guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
                         delegate?.report(severity: .error, message: "Duplicate object-group service \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
@@ -321,13 +323,15 @@ class AccessList {
                 continue lineLoop //should not get here but just in case
             }
             
-            if line.starts(with: "object-group protocol") {
+            if words[safe: 0] == "object-group" && words[safe: 1] == "protocol" {
+            //if line.starts(with: "object-group protocol") {
                 guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
-                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                //let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
                 if let objectNameTemp = words[safe: 2] {
                     if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
                         self.objectGroupProtocols[objectNameTemp] = ObjectGroupProtocol()
@@ -350,7 +354,8 @@ class AccessList {
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
-                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
                 switch configurationMode {
                     
                 case .objectGroupNetwork:
@@ -380,13 +385,15 @@ class AccessList {
                     continue lineLoop
                 }
             }
-            if line.starts(with: "protocol-object") {
+            if words[safe: 0] == "protocol-object" {
+            //if line.starts(with: "protocol-object") {
                 guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
-                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
                 if configurationMode != .objectGroupProtocol {
                     delegate?.report(severity: .error, message: "Unexpected protocol-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -417,14 +424,15 @@ class AccessList {
                 }
                 continue lineLoop
             }
-            
-            if line.starts(with: "network-object") {
+            if words[safe: 0] == "network-object" {
+            //if line.starts(with: "network-object") {
                 guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
-                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
                 if configurationMode != .objectGroupNetwork {
                     delegate?.report(severity: .error, message: "Unexpected network-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -436,7 +444,8 @@ class AccessList {
                 continue lineLoop
                 }
             }
-            if line.starts(with: "ip access-list extended") {
+            if words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
+            //if line.starts(with: "ip access-list extended") {
                 guard deviceType == .ios else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "invalid syntax for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
@@ -445,7 +454,8 @@ class AccessList {
                 objectName = nil
                 configurationMode = .accessListExtended
                 lastSequenceSeen = 0
-                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
                 if let aclName = words[safe: 3] {
                     names.insert(aclName)
                     if names.count > 1 {
@@ -454,7 +464,8 @@ class AccessList {
                 }
                 continue lineLoop
             }
-            if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
+            if words[safe: 0] == "ip" && words[safe: 1] == "access-list" {
+            //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
                 guard deviceType == .nxos else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "invalid syntax for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
@@ -463,7 +474,7 @@ class AccessList {
                 objectName = nil
                 configurationMode = .accessListExtended
                 lastSequenceSeen = 0
-                let words = line.split(separator: " ")
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
                 if let aclName = words[safe: 2] {
                     names.insert(String(aclName))
                     if names.count > 1 {
@@ -472,7 +483,8 @@ class AccessList {
                 }
                 continue lineLoop
             }
-            if line.starts(with: "statistics per-entry") {
+            if words[safe: 0] == "statistics" && words[safe: 1] == "per-entry" {
+            //if line.starts(with: "statistics per-entry") {
                 guard deviceType == .nxos else {
                     delegate?.report(severity: .linetext, message: "\(line)", line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .warning, message: "statistics per entry not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
@@ -480,7 +492,8 @@ class AccessList {
                 }
                 continue lineLoop
             }
-            if line.starts(with: "fragments permit-all") || line.starts(with: "fragments deny-all") {
+            if words[safe: 0] == "fragments" && (words[safe: 1] == "permit-all" || words[safe: 1] == "deny-all") {
+            //if line.starts(with: "fragments permit-all") || line.starts(with: "fragments deny-all") {
                 guard deviceType == .nxos else {
                     delegate?.report(severity: .linetext, message: "\(line)", line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .warning, message: "statistics per entry not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
@@ -491,7 +504,8 @@ class AccessList {
                 continue lineLoop
             }
 
-            if line.starts(with: "description") {
+            if words[safe: 0] == "description" {
+            //if line.starts(with: "description") {
                 if configurationMode == .objectGroupNetwork || configurationMode == .objectGroupService || configurationMode == .objectGroupProtocol {
                     continue lineLoop
                 } else {
@@ -500,13 +514,15 @@ class AccessList {
                     continue lineLoop
                 }
             }
-            if line.starts(with: "port-object") {
+            if words[safe: 0] == "port-object" {
+            //if line.starts(with: "port-object") {
                 guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
-                let words = line.components(separatedBy: NSCharacterSet.whitespaces)
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
                 if let portOperator = words[safe: 1] {
                     switch portOperator {
                     case "eq":

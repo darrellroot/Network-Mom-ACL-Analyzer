@@ -81,6 +81,18 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
         let ace = AccessControlEntry(line: "permit udp any any established", deviceType: .ios, linenum: 4, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace == nil)
     }
+    func testCmdForMatt() {
+        let line1 = "access-list 101 permit tcp 1.2.3.192 0.0.0.63 eq cmd 10.0.0.0 0.255.255.255"
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace1 != nil)
+    }
+    
+    func testMultipleSpacesForMatt() {
+        let line1 = "access-list 101  permit  tcp  1.2.3.192 0.0.0.63 eq cmd 10.0.0.0 0.255.255.255"
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace1 != nil)
+    }
+
     
     func testIosLog() {
         let line1 = "access-list 1 permit ip 0.0.0.0 255.255.255.255 host 1.1.1.1 log"

@@ -238,6 +238,34 @@ ip access-list L3Port
 
     }
     
+    func testNxosCcieMcgeeWithSpaces() {
+        let sample = """
+object-group  ip  address  SERVERS
+    10 host  1.1.1.101
+    20  10.0.0.0/24
+object-group  ip port  WEB
+    10 eq  80
+    20  eq 443
+    30 range 8000  8999
+ip access-list  L3Port
+    10 permit  tcp  addrgroup SERVERS  portgroup  WEB  any
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.0.0.37".ipv4address!, destinationIp: "11.0.0.2".ipv4address!, sourcePort: 80, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.0.0.37".ipv4address!, destinationIp: "11.0.0.2".ipv4address!, sourcePort: 7999, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+        
+        let socket3 = Socket(ipProtocol: 6, sourceIp: "10.0.0.37".ipv4address!, destinationIp: "11.0.0.2".ipv4address!, sourcePort: 8000, destinationPort: 22, established: false)!
+        let result3 = acl.analyze(socket: socket3)
+        XCTAssert(result3 == .permit)
+    }
+
     func testNxosSiemhermans() {
         let sample = """
 IP access list ACL_NAME
