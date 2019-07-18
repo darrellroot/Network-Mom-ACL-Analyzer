@@ -883,7 +883,7 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
                     return nil
-                case .action, .portgroup, .portOperator, .comment, .log,.counter, .established, .cidr, .name, .netgroup:
+                case .action, .portgroup, .portOperator, .comment, .log,.counter, .established, .name, .netgroup:
                     reportError()
                     return nil
                 case .ipProtocol(let ipProtocol), .number(let ipProtocol):
@@ -897,6 +897,10 @@ struct AccessControlEntry {
                     //this means this is the short "source address only" mode
                     tempSourceIp = sourceIp
                     linePosition = .sourceIpOnly
+                case .cidr(let sourceIpRange):
+                    //this means this is the short "source address only" mode
+                    self.sourceIp = [sourceIpRange]
+                    linePosition = .end
                 case .host:
                     //this means this is the short "source address only" mode
                     linePosition = .sourceIpHostOnly
@@ -974,10 +978,9 @@ struct AccessControlEntry {
                 case .fourOctet(let sourceIp):
                     tempSourceIp = sourceIp
                     linePosition = .sourceIp
-                case .cidr(_):
-                    //TODO documentation unclear whether this is valid for IOS-XR
-                    reportError()
-                    return nil
+                case .cidr(let sourceIpRange):
+                    self.sourceIp = [sourceIpRange]
+                    linePosition = .sourceMask
                 }
             case .sourceIp:
                 switch token {
@@ -1039,7 +1042,7 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
                     return nil
-                case .action,.ipProtocol,.comment,.log,.counter, .established,.cidr,.number,.name:
+                case .action,.ipProtocol,.comment,.log,.counter, .established,.number,.name:
                     reportError()
                     return nil
                 case .any:
@@ -1057,6 +1060,9 @@ struct AccessControlEntry {
                 case .fourOctet(let destIp):
                     tempDestIp = destIp
                     linePosition = .destIp
+                case .cidr(let destIpRange):
+                    self.destIp = [destIpRange]
+                    linePosition = .destMask
                 }
             case .sourcePortOperator:
                 switch token {
@@ -1529,7 +1535,7 @@ struct AccessControlEntry {
                 return nil
             }
             
-            if _isDebugAssertConfiguration() {
+/*            if _isDebugAssertConfiguration() {
                 switch token {
                 case .name(let name):
                     // manually trigger infinite loop for troubleshooting
@@ -1544,7 +1550,7 @@ struct AccessControlEntry {
                 default:
                     break
                 }
-            }
+            }*/
             switch linePosition {
             
             case .beginning:
