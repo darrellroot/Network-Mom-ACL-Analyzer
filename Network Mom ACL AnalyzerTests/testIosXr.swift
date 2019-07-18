@@ -37,18 +37,20 @@ class testIosXr: XCTestCase {
     
     func testIosXr2() {
         let sample = """
-        ipv4 access-list acl_1
 ipv4 access-list acl_1
 10 permit ip host 10.3.3.3 host 172.16.5.34
 20 permit icmp any any
 30 permit tcp any host 10.3.3.3
 40 permit ip host 10.4.4.4 any
 60 permit ip host 172.16.2.2 host 10.3.3.12
-70 permit ip host 10.3.3.3 any log
+70 permit ip host 10.3.3.3 host 1.1.1.1 log
 80 permit tcp host 10.3.3.3 host 10.1.2.2
-100 permit ip any any
 """
+
         let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
+        
+        XCTAssert(acl.accessControlEntries.count == 7)
+        
         let socket1 = Socket(ipProtocol: 6, sourceIp: "10.3.3.3".ipv4address!, destinationIp: "172.16.5.34".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
@@ -146,7 +148,7 @@ ipv4 access-list acl1
 
         let socket5 = Socket(ipProtocol: 6, sourceIp: "10.20.20.40".ipv4address!, destinationIp: "10.10.10.1".ipv4address!, sourcePort: 33, destinationPort: 2200, established: false)!
         let result5 = acl.analyze(socket: socket5)
-        XCTAssert(result4 == .permit)
+        XCTAssert(result5 == .permit)
 
     }
     

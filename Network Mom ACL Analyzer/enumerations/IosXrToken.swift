@@ -15,6 +15,7 @@ enum IosXrToken: Equatable {
     case any
     case host
     case netgroup
+    case counter
     case portgroup
     case portOperator(PortOperator)
     case comment
@@ -35,8 +36,10 @@ enum IosXrToken: Equatable {
             self = .action(.permit)
         case "deny":
             self = .action(.deny)
-        case "log":
+        case "log", "log-input":
             self = .log
+        case "counter":
+            self = .counter
         case "any":
             self = .any
         case "host":
