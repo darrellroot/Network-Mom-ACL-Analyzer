@@ -26,8 +26,6 @@ struct IcmpMessage {
     }
     init?(deviceType: DeviceType, message: String) {
         switch deviceType {
-        case .iosxr:
-            fatalError("not implemented")
         case .asa:
             switch message {
             case "echo-reply":
@@ -69,7 +67,7 @@ struct IcmpMessage {
             default:
                 return nil
             }
-        case .ios, .nxos:
+        case .ios, .nxos, .iosxr:
             switch message {
             case "administratively-prohibited":
                 self.type = 3

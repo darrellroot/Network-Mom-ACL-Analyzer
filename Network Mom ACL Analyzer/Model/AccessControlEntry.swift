@@ -89,6 +89,7 @@ struct AccessControlEntry {
         case firstDestPort
         case lastDestPort
         case flags
+        case icmpType
         case counter
         case comment // comment spotted, can ignore everything from here on
         case end // end without comment, still need to check syntax
@@ -1248,9 +1249,25 @@ struct AccessControlEntry {
                     errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
                     return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .fourOctet,.cidr,.number, .name:
+                case .action, .ipProtocol, .any, .host, .netgroup, .fourOctet,.cidr:
                     reportError()
                     return nil
+                case .name(let possibleIcmpMessage):
+                    guard self.ipProtocols.first == 1, let icmpMessage = IcmpMessage(deviceType: deviceType, message: possibleIcmpMessage) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages = [icmpMessage]
+                    linePosition = .end
+                case .number(let possibleIcmpType):
+                    guard self.ipProtocols.first == 1, possibleIcmpType < 256, let icmpMessage = IcmpMessage(type: possibleIcmpType, code: nil) else {
+                        reportError()
+                        return nil
+                    }
+                    // temporarly assume icmp code is 0 and save it.  if we get a code we will rewrite
+                    // this only works if one and only one icmp message can come in on a config line
+                    self.icmpMessages = [icmpMessage]
+                    linePosition = .icmpType
                 case .portgroup:
                     linePosition = .destPortgroup
                 case .portOperator(let portOperator):
@@ -1275,6 +1292,38 @@ struct AccessControlEntry {
                     }
                     self.established = true
                     linePosition = .flags
+                }
+            case .icmpType:
+                switch token {
+                case .unsupported(let keyword):
+                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    return nil
+                case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.established,.fourOctet,.cidr,.name:
+                    reportError()
+                    return nil
+                case .number(let possibleIcmpCode):
+                    guard possibleIcmpCode < 256, let placeholderIcmp = self.icmpMessages.first, let newIcmp = IcmpMessage(type: placeholderIcmp.type, code: possibleIcmpCode) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages = [newIcmp]  // assumes only one icmp message per line
+                case .counter:
+                    guard self.counter == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.counter = true
+                    linePosition = .counter
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    guard self.log == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.log = true
+                    linePosition = .end
                 }
             case .destPortOperator:
                 switch token {
