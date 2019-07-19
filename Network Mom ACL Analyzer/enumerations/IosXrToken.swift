@@ -56,7 +56,7 @@ enum IosXrToken: Equatable {
             self = .netgroup
         case "port-group":
             self = .portgroup
-        case "ahp","eigrp","esp","gre","icmp","igmp","igrp","ip","ipinip","nos","ospf","pcp","pim","tcp","udp":
+        case "ahp","eigrp","esp","gre","icmp","igmp","igrp","ip","ipv4","ipinip","nos","ospf","pcp","pim","tcp","udp":
             if let ipProtocol = string.iosXrIpProtocol {
                 self = .ipProtocol(ipProtocol)
             } else {

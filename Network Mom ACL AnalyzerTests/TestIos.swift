@@ -8,7 +8,7 @@
 
 import XCTest
 
-class Network_Mom_ACL_AnalyzerTests: XCTestCase {
+class TestIos: XCTestCase {
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -93,7 +93,24 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
         XCTAssert(ace1 != nil)
     }
 
-    
+    func testIosProtocol3() {
+        let sample = """
+ip access-list 101 extended
+permit ip host 10.4.4.2 any
+permit ip host 10.0.0.44 any
+permit ip host 10.0.0.1 any
+permit ip host 10.0.0.2 any
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
+        let socket1 = Socket(ipProtocol: 3, sourceIp: "10.4.4.2".ipv4address!, destinationIp: "100.1.1.1".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        
+        let socket2 = Socket(ipProtocol: 3, sourceIp: "10.4.4.3".ipv4address!, destinationIp: "100.1.1.1".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+
     func testIosLog() {
         let line1 = "access-list 1 permit ip 0.0.0.0 255.255.255.255 host 1.1.1.1 log"
         let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)
@@ -242,6 +259,237 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
         let result12 = ace1.analyze(socket: socket12)
         XCTAssert(result12 == .neither)
     }
+    
+    func testIosSlash12() {
+        let line1 = "access-list 1 permit ip 3.128.0.0 0.15.255.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.143.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.144.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+    
+    func testIosSlash13() {
+        let line1 = "access-list 1 permit ip 3.128.0.0 0.7.255.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.135.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.136.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+    
+    func testIosSlash14() {
+        let line1 = "access-list 1 permit ip 3.128.0.0 0.3.255.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.131.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.132.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash15() {
+        let line1 = "access-list 1 permit ip 3.128.0.0 0.1.255.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.129.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.130.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash16() {
+        let line1 = "access-list 1 permit ip 3.128.0.0 0.0.255.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.255.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.129.0.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+    
+    func testIosSlash17() {
+        let line1 = "access-list 1 permit ip 3.128.0.0 0.0.127.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.127.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.128.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+    
+    func testIosSlash18() {
+        let line1 = "access-list 1 permit ip 3.128.64.0 0.0.63.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.127.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.128.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash19() {
+        let line1 = "access-list 1 permit ip 3.128.64.0 0.0.31.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.95.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.96.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash20() {
+        let line1 = "access-list 1 permit ip 3.128.64.0 0.0.15.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.79.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.80.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash21() {
+        let line1 = "access-list 1 permit ip 3.128.64.0 0.0.7.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.71.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.72.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+    
+    func testIosSlash22() {
+        let line1 = "access-list 1 permit ip 3.128.64.0 0.0.3.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.67.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.68.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash23() {
+        let line1 = "access-list 1 permit ip 3.128.64.0 0.0.1.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.65.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.66.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+    
+    func testIosSlash24() {
+        let line1 = "access-list 1 permit ip 3.128.64.0 0.0.0.255 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.64.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.65.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash25() {
+        let line1 = "access-list 1 permit ip 3.128.64.0 0.0.0.127 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.64.127".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.64.128".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash26() {
+        let line1 = "access-list 1 permit ip 3.128.64.64 0.0.0.63 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.64.127".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.64.128".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash27() {
+        let line1 = "access-list 1 permit ip 0.0.0.64 0.0.0.31 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "0.0.0.95".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "0.0.0.96".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash28() {
+        let line1 = "access-list 1 permit ip 3.128.64.64 0.0.0.15 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.64.79".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.64.80".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash29() {
+        let line1 = "access-list 1 permit ip 3.128.64.64 0.0.0.7 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.64.71".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.64.72".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+    
+    func testIosSlash30() {
+        let line1 = "access-list 1 permit ip 3.128.64.64 0.0.0.3 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.64.67".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.64.68".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+
+    func testIosSlash31() {
+        let line1 = "access-list 1 permit ip 3.128.64.64 0.0.0.1 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.64.65".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.64.66".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
+    
+    func testIosSlash32() {
+        let line1 = "access-list 1 permit ip 3.128.64.64 0.0.0.0 host 1.1.1.1"
+        let socket11 = Socket(ipProtocol: 6, sourceIp: "3.128.64.64".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let ace1 = AccessControlEntry(line: line1, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)!
+        let result11 = ace1.analyze(socket: socket11)
+        XCTAssert(result11 == .permit)
+        let socket12 = Socket(ipProtocol: 6, sourceIp: "3.128.64.65".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 44, established: false)!
+        let result12 = ace1.analyze(socket: socket12)
+        XCTAssert(result12 == .neither)
+    }
 
     func testIosNe1() {
         let line = "access-list 101 permit tcp host 1.1.1.1 any neq ssh"
@@ -379,6 +627,32 @@ class Network_Mom_ACL_AnalyzerTests: XCTestCase {
         }
         XCTAssert(ace?.sourceIp[0].minIp == sourceip)
     }
+    
+    func testSyslog() {
+        let line = "permit udp 192.168.36.0 0.0.0.255 any eq syslog"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace?.destPort[0].minPort == 514)
+    }
+    
+    func testIsakmp() {
+        let line = "permit udp 192.168.36.0 0.0.0.255 any eq isakmp"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace?.destPort[0].minPort == 500)
+    }
+
+    func testNon500isakmp() {
+        let line = "permit udp 192.168.36.0 0.0.0.255 any eq non500-isakmp"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace?.destPort[0].minPort == 4500)
+    }
+
+    func testEsp() {
+    let line = "permit esp 192.168.36.0 0.0.0.255 "
+    let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)
+    XCTAssert(ace?.ipProtocols.first == 50)
+    }
+
+
     func testIosXrIndented() {
         let line = "  10 permit tcp 192.168.36.0 0.0.0.255 any eq 80"
         let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)

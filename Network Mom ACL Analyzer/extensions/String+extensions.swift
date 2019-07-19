@@ -365,6 +365,8 @@ extension String {
             return 67
         case "domain":
             return 53
+        case "isakmp":    //TODO only on some platforms
+            return 500
         case "ldap":
             return 389
         case "mms":
@@ -375,6 +377,8 @@ extension String {
             return 137
         case "netbios-ss":
             return 139
+        case "non500-isakmp":   //TODO only on some platforms
+            return 4500
         case "nfs":
             return 2049
         case "ntp":
@@ -383,6 +387,8 @@ extension String {
             return 161
         case "snmptrap":
             return 162
+        case "syslog":
+            return 514
         case "tacacs":
             return 49
         case "tftp":
@@ -411,6 +417,8 @@ extension String {
         case "igrp":
             return 9
         case "ip":
+            return 0
+        case "ipv4":
             return 0
         case "ipinip":
             return 94
@@ -467,6 +475,8 @@ extension String {
         switch self {
         case "eigrp":
             return 88
+        case "esp":     //TODO only on some platforms
+            return 50
         case "gre":
             return 47
         case "icmp":

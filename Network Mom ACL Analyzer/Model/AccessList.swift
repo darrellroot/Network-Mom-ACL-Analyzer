@@ -78,6 +78,7 @@ class AccessList {
                     lastSequenceSeen = 0
                     objectName = nil
                 }
+                continue lineLoop
             }
             
             if self.deviceType == .iosxr && words[safe: 0] == "object-group" && words[safe: 1] == "port", let objectNameTemp = words[safe: 2]  {
@@ -471,13 +472,8 @@ class AccessList {
                 continue lineLoop
                 }
             }
-            if words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
+            if deviceType == .ios && words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
             //if line.starts(with: "ip access-list extended") {
-                guard deviceType == .ios else {
-                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    delegate?.report(severity: .error, message: "invalid syntax for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                    continue lineLoop
-                }
                 objectName = nil
                 configurationMode = .accessListExtended
                 lastSequenceSeen = 0
@@ -491,13 +487,10 @@ class AccessList {
                 }
                 continue lineLoop
             }
-            if words[safe: 0] == "ip" && words[safe: 1] == "access-list" {
+            
+            
+            if deviceType == .nxos && words[safe: 0] == "ip" && words[safe: 1] == "access-list" {
             //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
-                guard deviceType == .nxos else {
-                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    delegate?.report(severity: .error, message: "invalid syntax for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                    continue lineLoop
-                }
                 objectName = nil
                 configurationMode = .accessListExtended
                 lastSequenceSeen = 0
@@ -510,6 +503,22 @@ class AccessList {
                 }
                 continue lineLoop
             }
+            
+            if deviceType == .iosxr && words[safe: 0] == "ipv4" && words[safe: 1] == "access-list" {
+                //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
+                objectName = nil
+                configurationMode = .accessListExtended
+                lastSequenceSeen = 0
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                if let aclName = words[safe: 2] {
+                    names.insert(String(aclName))
+                    if names.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found", delegateWindow: delegateWindow)
+                    }
+                }
+                continue lineLoop
+            }
+            
             if words[safe: 0] == "statistics" && words[safe: 1] == "per-entry" {
             //if line.starts(with: "statistics per-entry") {
                 guard deviceType == .nxos else {
