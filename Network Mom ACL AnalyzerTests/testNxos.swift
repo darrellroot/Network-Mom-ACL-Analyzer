@@ -384,7 +384,7 @@ IP access list ACL_NAME
         
         XCTAssert(acl.objectGroupNetworks.first!.value.ipRanges.count == 3)
         
-        XCTAssert(acl.objectGroupServices["NYC-datacenter-ports"]!.portRanges.count == 2)
+        XCTAssert(acl.objectGroupServices["nyc-datacenter-ports"]!.portRanges.count == 2)
         
         let socket1 = Socket(ipProtocol: 6, sourceIp: "10.99.32.6".ipv4address!, destinationIp: "10.0.1.33".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
         let result1 = acl.analyze(socket: socket1)

@@ -142,7 +142,7 @@ class AccessList {
                 objectName = objectNameTemp
                 continue lineLoop
             }
-            if deviceType == .iosxr && configurationMode == .nxosObjectGroupAddress, let objectName = objectName, let objectGroup = objectGroupNetworks[objectName] {
+            if deviceType == .iosxr && configurationMode == .iosXrObjectGroupNetwork, let objectName = objectName, let objectGroup = objectGroupNetworks[objectName] {
                 if words[safe: 0] == "description" {
                     continue lineLoop
                 }
@@ -151,6 +151,7 @@ class AccessList {
                         
                         delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                         delegate?.report(severity: .error, message: "", line: linenum, delegateWindow: delegateWindow)
+                        continue lineLoop
                     }
                     let hostIpRange = IpRange(minIp: ipAddress, maxIp: ipAddress)
                     objectGroup.append(ipRange: hostIpRange)
@@ -159,6 +160,18 @@ class AccessList {
                 if words[safe: 0] == "range", let firstIpString = words[safe: 1], let firstIp = firstIpString.ipv4address, let secondIpString = words[safe: 2], let secondIp = secondIpString.ipv4address, firstIp <= secondIp {
                     let ipRange = IpRange(minIp: firstIp, maxIp: secondIp)
                     objectGroup.append(ipRange: ipRange)
+                    continue lineLoop
+                }
+                if let possibleIpString = words[safe: 0], let possibleNetmaskString = words[safe: 1], let ipRange = IpRange(ip: possibleIpString, netmask: possibleNetmaskString) {
+                    if ipRange.bitAligned == false {
+                        delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        delegate?.report(severity: .warning, message: "Not aligned on bit boundary", line: linenum, delegateWindow: delegateWindow)
+                    }
+                    objectGroup.append(ipRange: ipRange)
+                    continue lineLoop
+                }
+                if words[safe: 0] == "object-group", let possibleObjectName = words[safe: 1], let nestedObjectGroup = self.objectGroupNetworks[possibleObjectName] {
+                    objectGroup.ipRanges.append(contentsOf: nestedObjectGroup.ipRanges)
                     continue lineLoop
                 }
             }
@@ -393,7 +406,7 @@ class AccessList {
                         }
                         continue lineLoop
                     }
-                case .accessListExtended, .accessControlEntry, .nxosObjectGroupPort, .nxosObjectGroupAddress:
+                case .accessListExtended, .accessControlEntry, .nxosObjectGroupPort, .nxosObjectGroupAddress, .iosXrObjectGroupNetwork, .iosXrObjectGroupService:
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "unexpected group-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop

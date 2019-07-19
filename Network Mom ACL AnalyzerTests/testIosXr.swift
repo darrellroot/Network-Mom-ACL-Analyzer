@@ -94,7 +94,7 @@ ipv4 access-list real
 200 permit ipv4 any any
 """
         let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
-        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.3.3.3".ipv4address!, destinationIp: "172.16.5.34".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.3.3.3".ipv4address!, destinationIp: "100.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
     }
@@ -108,9 +108,9 @@ description network-object-group
 host 10.20.2.3
 10.20.20.0 255.255.255.0
 range 10.20.20.10 10.20.20.40
-object-group real1
+object-group real
 ipv4 access-list acl1
-10 permit tcp  net-group  group1  host 10.10.10.1  eq 2200
+10 permit tcp  net-group  acl1  host 10.10.10.1  eq 2200
 20 permit tcp 10.10.10.3/32  host 1.1.1.2   eq  2000
 """
         let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
