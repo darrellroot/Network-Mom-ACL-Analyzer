@@ -9,6 +9,9 @@
 import Foundation
 
 extension UInt {
+    static var MAXIPV4: UInt {
+        return UInt(UInt32.max)
+    }
     var dontCareHosts: UInt? {
         // returns number of hosts in a dont care bit range
         switch self {

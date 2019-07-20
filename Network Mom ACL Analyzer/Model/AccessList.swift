@@ -17,11 +17,12 @@ class AccessList {
     let sourceText: String
     var accessControlEntries: [AccessControlEntry] = []
     var deviceType: DeviceType
-    var names: Set<String> = []
+    var aclNames: Set<String> = []  // names of the access-lists
     var delegate: ErrorDelegate?
     var objectGroupNetworks = [String:ObjectGroupNetwork]()
     var objectGroupProtocols = [String:ObjectGroupProtocol]()
     var objectGroupServices = [String:ObjectGroupService]()
+    var hostnames = [String:UInt]() // ASA example: "name 2.2.2.203 trust18"
     
     var count: Int {
         return accessControlEntries.count
@@ -31,6 +32,7 @@ class AccessList {
         case objectGroupNetwork
         case iosXrObjectGroupNetwork
         case iosXrObjectGroupService
+        case asaObjectNetwork  // only moves into this mode for one subnet command
         case nxosObjectGroupAddress
         case nxosObjectGroupPort
         case objectGroupProtocol
@@ -47,9 +49,9 @@ class AccessList {
         var lastSequenceSeen: UInt = 0  // used for making sure sequence numbers increase in the acl, each time we change configuration mode we reset this
         var configurationMode: ConfigurationMode = .accessControlEntry
         var objectName: String? = nil  //non-nil if we are in object-group mode
-       
+        var asaNamesEnabled = false // set to true if we see names keyword
 
-        lineLoop: for line in self.sourceText.components(separatedBy: NSCharacterSet.newlines) {
+        lineLoop: for line in self.sourceText.components(separatedBy: NSCharacterSet.newlines).map({ $0.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) }) {
             
             linenum = linenum + 1
             
@@ -61,7 +63,6 @@ class AccessList {
             if line.isEmpty {
                 continue lineLoop
             }
-            let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
             
             let words = line.split{ $0.isWhitespace }.map{ String($0)}
 
@@ -94,8 +95,32 @@ class AccessList {
                     objectName = nil
                 }
             }
+            
+            if deviceType == .asa && words[safe: 0] == "object" && words[safe: 1] ==
+            "network", let tempObjectName = words[safe: 2] {
+                objectName = tempObjectName
+                configurationMode = .asaObjectNetwork
+                continue lineLoop
+            }
+            
+            if deviceType == .asa && configurationMode == .asaObjectNetwork && words[safe: 0] == "subnet", let possibleSubnet = words[safe: 1], let possibleNetmask = words[safe: 2], let objectName = objectName, let ipRange = IpRange(ip: possibleSubnet, netmask: possibleNetmask) {
+                let objectGroupNetwork = ObjectGroupNetwork()
+                objectGroupNetwork.append(ipRange: ipRange)
+                objectGroupNetworks[objectName] = objectGroupNetwork
+                configurationMode = .accessControlEntry
+                continue lineLoop
+            }
+            
+            if deviceType == .asa && configurationMode == .asaObjectNetwork && words[safe: 0] == "host", let possibleIp = words[safe: 1], let objectName = objectName, let ip = possibleIp.ipv4address {
+                let ipRange = IpRange(minIp: ip, maxIp: ip)
+                let objectGroupNetwork = ObjectGroupNetwork()
+                objectGroupNetwork.append(ipRange: ipRange)
+                objectGroupNetworks[objectName] = objectGroupNetwork
+                configurationMode = .accessControlEntry
+                continue lineLoop
+            }
 
-            if words[safe: 0] == "object-group" && words[safe: 1] == "network" && deviceType == .asa {
+            if deviceType == .asa && words[safe: 0] == "object-group" && words[safe: 1] == "network" {
                 if let objectNameTemp = words[safe: 2] {
                     if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
                         self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
@@ -302,14 +327,7 @@ class AccessList {
             }
             
             //if line.starts(with: "object-group service") {
-            if words[safe: 0] == "object-group" && words[safe: 1] == "service" {
-                guard deviceType == .asa else {
-                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                    continue lineLoop
-                }
-                //let words = line.split{ $0.isWhitespace }.map{ String($0)}
-                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
+            if words[safe: 0] == "object-group" && words[safe: 1] == "service" && deviceType == .asa  {
                 if let objectNameTemp = words[safe: 2], let type = words[safe: 3] {
                     guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
                         delegate?.report(severity: .error, message: "Duplicate object-group service \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
@@ -349,6 +367,11 @@ class AccessList {
                     }
                 }
                 continue lineLoop //should not get here but just in case
+            }
+            
+            if deviceType == .asa && words[safe: 0] == "names" {
+                asaNamesEnabled = true
+                continue lineLoop
             }
             
             if words[safe: 0] == "object-group" && words[safe: 1] == "protocol" {
@@ -407,7 +430,7 @@ class AccessList {
                         }
                         continue lineLoop
                     }
-                case .accessListExtended, .accessControlEntry, .nxosObjectGroupPort, .nxosObjectGroupAddress, .iosXrObjectGroupNetwork, .iosXrObjectGroupService:
+                case .accessListExtended, .accessControlEntry, .nxosObjectGroupPort, .nxosObjectGroupAddress, .iosXrObjectGroupNetwork, .iosXrObjectGroupService, .asaObjectNetwork:
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "unexpected group-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -452,24 +475,72 @@ class AccessList {
                 }
                 continue lineLoop
             }
-            if words[safe: 0] == "network-object" {
-            //if line.starts(with: "network-object") {
-                guard deviceType == .asa else {
+            
+            if deviceType == .asa && asaNamesEnabled == true && words[safe: 0] == "name", let ipString = words[safe: 1], let nameString = words[safe: 2], let ipAddress = ipString.ipv4address {
+                guard hostnames[nameString] == nil else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "name \(nameString) duplicates prior name", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
-                let words = line.split{ $0.isWhitespace }.map{ String($0)}
-                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
-                if configurationMode != .objectGroupNetwork {
-                    delegate?.report(severity: .error, message: "Unexpected network-object", line: linenum, delegateWindow: delegateWindow)
-                    continue lineLoop
-                }
-                if let term1 = words[safe: 1], let term2 = words[safe: 2], let objectName = objectName, let ipRange = IpRange(ip: term1, mask: term2, type: .asa) {
-                    if let objectGroupNetwork = objectGroupNetworks[objectName] {
-                        objectGroupNetwork.append(ipRange: ipRange)
-                    }
+                hostnames[nameString] = ipAddress
                 continue lineLoop
+            }
+            
+            if deviceType == .asa && asaNamesEnabled == false && words[safe: 0] == "name" && words.count >= 3 {
+                delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                delegate?.report(severity: .error, message: "ASA name command requires prior names command", line: linenum, delegateWindow: delegateWindow)
+                continue lineLoop
+            }
+            
+            // has to be after object-group network xxxxxx
+            // handling cases like this:
+            //  network-object host AZ4-vTEST
+            //  network-object host 131.252.209.18
+            //  network-object Net-CorpOne1 255.255.255.252
+            //  network-object 131.252.209.0 255.255.255.0
+            if deviceType == .asa && configurationMode == .objectGroupNetwork && words[safe: 0] == "network-object", let term1String = words[safe: 1], let term2String = words[safe: 2], let objectName = objectName, let objectGroupNetwork = objectGroupNetworks[objectName] {
+                if term1String == "host" {
+                    //network-object host 131.252.209.18
+                    if let hostIp = term2String.ipv4address {
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
+                        objectGroupNetwork.append(ipRange: ipRange)
+                        continue lineLoop
+                    } else if let hostObject = objectGroupNetworks[term2String] {
+                        // network-object host AZ4-vTEST
+                        // this should only be a host object here, so only 1 ip range allowed
+                        guard hostObject.ipRanges.count == 1, let ipRange = hostObject.ipRanges.first else {
+                            delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "unable to decode network-object", line: linenum, delegateWindow: delegateWindow)
+                            continue lineLoop
+                        }
+                        objectGroupNetwork.append(ipRange: ipRange)
+                        continue lineLoop
+                    } else {
+                        delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        delegate?.report(severity: .error, message: "unable to decode network-object", line: linenum, delegateWindow: delegateWindow)
+                        continue lineLoop
+                    }
+                } else {
+                    //  network-object Net-CorpOne1 255.255.255.252
+                    //  network-object 131.252.209.0 255.255.255.0
+                    if let subnet = term1String.ipv4address {
+                        //  network-object 131.252.209.0 255.255.255.0
+                        guard let ipRange = IpRange(ip: subnet, netmask: term2String) else {
+                            delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "unable to decode network-object", line: linenum, delegateWindow: delegateWindow)
+                            continue lineLoop
+                        }
+                        objectGroupNetwork.append(ipRange: ipRange)
+                        continue lineLoop
+                    } else {
+                        //  network-object Net-CorpOne1 255.255.255.252
+                        // our object group should have 1 element which must be /32
+                        guard let subnetObject = objectGroupNetworks[term1String], subnetObject.ipRanges.count == 1, let subnet = subnetObject.ipRanges.first?.minIp, subnet == subnetObject.ipRanges.first?.maxIp, let ipRange = IpRange(ip: subnet, netmask: term2String) else {
+                            continue lineLoop
+                        }
+                        objectGroupNetwork.append(ipRange: ipRange)
+                        continue lineLoop
+                    }
                 }
             }
             if deviceType == .ios && words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
@@ -480,9 +551,9 @@ class AccessList {
                 let words = line.split{ $0.isWhitespace }.map{ String($0)}
                 //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
                 if let aclName = words[safe: 3] {
-                    names.insert(aclName)
-                    if names.count > 1 {
-                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found", delegateWindow: delegateWindow)
+                    aclNames.insert(aclName)
+                    if aclNames.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
                     }
                 }
                 continue lineLoop
@@ -496,13 +567,14 @@ class AccessList {
                 lastSequenceSeen = 0
                 let words = line.split{ $0.isWhitespace }.map{ String($0)}
                 if let aclName = words[safe: 2] {
-                    names.insert(String(aclName))
-                    if names.count > 1 {
-                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found", delegateWindow: delegateWindow)
+                    aclNames.insert(String(aclName))
+                    if aclNames.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
                     }
                 }
                 continue lineLoop
             }
+            
             
             if deviceType == .iosxr && words[safe: 0] == "ipv4" && words[safe: 1] == "access-list" {
                 //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
@@ -511,9 +583,9 @@ class AccessList {
                 lastSequenceSeen = 0
                 let words = line.split{ $0.isWhitespace }.map{ String($0)}
                 if let aclName = words[safe: 2] {
-                    names.insert(String(aclName))
-                    if names.count > 1 {
-                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found", delegateWindow: delegateWindow)
+                    aclNames.insert(String(aclName))
+                    if aclNames.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
                     }
                 }
                 continue lineLoop
@@ -656,9 +728,9 @@ extension AccessList: AclDelegate {
     }
 
     func foundName(_ name: String, delegateWindow: DelegateWindow? = nil) {
-        names.insert(name)
-        if names.count > 1 {
-            self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(names) found", delegateWindow: delegateWindow)
+        aclNames.insert(name)
+        if aclNames.count > 1 {
+            self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
         }
     }
 }

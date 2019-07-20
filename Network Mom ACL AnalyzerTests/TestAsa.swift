@@ -23,7 +23,7 @@ class TestAsa: XCTestCase {
         access-list OUT2 extended permit ip host 209.168.200.4 any
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
-        XCTAssert(acl.names.count == 2)
+        XCTAssert(acl.aclNames.count == 2)
     }
 
     func testAsaObject1() {
@@ -228,8 +228,381 @@ class TestAsa: XCTestCase {
         let result = ace?.analyze(socket: socket)
         XCTAssert(result == .permit)
     }
+    func testAsaName() {
+        let sample = """
+        names
+        name 192.168.68.0 Net-AZ4-SERVERS
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.objectGroupNetworks.count == 1)
+        XCTAssert(acl.objectGroupNetworks["net-az4-servers"]!.count == 1)
+        XCTAssert(acl.objectGroupNetworks["net-az4-servers"]!.ipRanges.count == 1)
+    }
 
-
+    func testAsaNames() {
+        let sample = """
+names
+name 192.168.68.0 Net-AZ4-SERVERS
+name 192.168.168.64 Net-AZ4-NETWORK
+name 2.2.2.194 AZ4-vSCP
+name 9.9.9.196 SCP-DG-BP
+name 192.168.168.80 Net-CorpOne1
+name 192.168.168.84 Net-CorpOne2
+name 4.4.4.58 Net-info1
+name 4.4.4.2 Net-info2
+name 192.168.68.100 AZ4-vNS1
+name 2.2.2.198 trust03
+name 2.2.2.196 trust01
+name 2.2.2.197 trust02
+name 2.2.2.199 trust04
+name 2.2.2.200 trust15
+name 2.2.2.201 trust16
+name 2.2.2.202 trust17
+name 2.2.2.203 trust18
+name 2.2.2.204 trust19
+name 2.2.2.205 trust20
+name 2.2.2.206 trust21
+name 2.2.2.207 trust22
+name 2.2.2.208 trust23
+name 2.2.2.209 trust24
+name 2.2.2.210 trust25
+name 2.2.2.211 trust26
+name 2.2.2.212 trust27
+name 2.2.2.213 trust28
+name 2.2.2.214 trust29
+name 2.2.2.215 trust30
+name 2.2.2.216 trust31
+name 2.2.2.195 AZ4-vTEST
+name 3.3.3.34 CorpOneMD1
+name 3.3.3.50 CorpOneMD2
+name 192.168.168.82 CorpOneMD-inside1
+name 192.168.168.86 CorpOneMD-inside2
+name 192.168.68.101 AZ4-vNS2
+object network NETWORK_OBJ_192.168.0.8_29
+ subnet 192.168.0.8 255.255.255.248
+object network NETWORK_OBJ_192.168.0.0_24
+ subnet 192.168.0.0 255.255.255.0
+object network AZ4-vSCP
+ host 2.2.2.194
+object-group network SCP-Access
+ network-object host SCP-DG-BP
+object-group network CorpOne
+ network-object Net-CorpOne1 255.255.255.252
+ network-object Net-CorpOne2 255.255.255.252
+object-group network info
+ network-object Net-info1 255.255.255.255
+ network-object Net-info2 255.255.255.255
+ network-object SCP-DG-BP 255.255.255.255
+object-group service info-Common tcp
+ port-object eq ssh
+ port-object eq telnet
+object-group network TI-DNS
+ network-object host AZ4-vNS1
+ network-object host AZ4-vNS2
+object-group network all-trust-hosts
+ network-object host AZ4-vTEST
+ network-object host trust01
+ network-object host trust02
+ network-object host trust03
+ network-object host trust04
+ network-object host trust15
+ network-object host trust16
+ network-object host trust17
+ network-object host trust18
+ network-object host trust19
+ network-object host trust20
+ network-object host trust21
+ network-object host trust22
+ network-object host trust23
+ network-object host trust24
+ network-object host trust25
+ network-object host trust26
+ network-object host trust27
+ network-object host trust28
+ network-object host trust29
+ network-object host trust30
+ network-object host trust31
+ network-object host AZ4-vSCP
+object-group network DMZ-INT-DNSAccess
+ network-object host AZ4-vTEST
+ group-object all-trust-hosts
+object-group network DMZ-WEBAccess
+ network-object host AZ4-vTEST
+ group-object all-trust-hosts
+object-group service web tcp
+ port-object eq www
+ port-object eq https
+object-group network DMZ-BBTestAccess
+ network-object host AZ4-vTEST
+object-group network trust-hosts
+ network-object host AZ4-vTEST
+object-group network trust01
+ network-object host trust01
+object-group network trust02
+ network-object host trust02
+object-group network trust03
+ network-object host trust03
+object-group network trust04
+ network-object host trust04
+object-group network trust15
+ network-object host trust15
+object-group network trust16
+ network-object host trust16
+object-group network trust17
+ network-object host trust17
+object-group network trust18
+ network-object host trust18
+object-group network trust19
+ network-object host trust19
+object-group network trust20
+ network-object host trust20
+object-group network trust21
+ network-object host trust21
+object-group network trust22
+ network-object host trust22
+object-group network trust23
+ network-object host trust23
+object-group network trust24
+ network-object host trust24
+object-group network trust25
+ network-object host trust25
+object-group network trust26
+ network-object host trust26
+object-group network trust27
+ network-object host trust27
+object-group network trust28
+ network-object host trust28
+object-group network trust29
+ network-object host trust29
+object-group network trust30
+ network-object host trust30
+object-group network trust31
+ network-object host trust31
+object-group network AZ4-vTEST
+ network-object host AZ4-vTEST
+object-group service standard-trust-tcp-udp tcp-udp
+ port-object range 22 23
+ port-object range 9080 9083
+ port-object range 9090 9093
+ port-object range 12345 12349
+ port-object eq www
+ port-object eq 443
+ port-object eq 8080
+ port-object eq 9443
+object-group network CorpOne_MD_Servers
+ network-object host CorpOneMD1
+ network-object host CorpOneMD2
+object-group service trust-2-bb-tcp-udp tcp-udp
+ port-object eq 8194
+ port-object eq 8196
+object-group service tinfo-2-bb-tcp-udp tcp-udp
+ port-object eq 8194
+ port-object eq 8196
+ port-object eq 9194
+access-list dmz_access_in remark The following line is to allow access to external http/https websites from authorized DMZ hosts
+access-list dmz_access_in extended permit tcp object-group DMZ-WEBAccess any4 object-group web
+access-list dmz_access_in remark The following 4 lines are to allow ICMP for Ping and Traceroute
+access-list dmz_access_in extended permit icmp any4 any4 echo
+access-list dmz_access_in extended permit icmp any4 any4 echo-reply
+access-list dmz_access_in extended permit icmp any4 any4 time-exceeded
+access-list dmz_access_in extended permit icmp any4 any4 traceroute
+access-list dmz_access_in remark The following 2 lines are to allow DNS queries from authorized DMZ hosts
+access-list dmz_access_in extended permit tcp object-group all-trust-hosts object-group TI-DNS eq domain
+access-list dmz_access_in extended permit udp object-group all-trust-hosts object-group TI-DNS eq domain
+access-list dmz_access_in remark The following line is to allow access to BB md servers from DMZ hosts
+access-list dmz_access_in extended permit tcp object-group all-trust-hosts object-group CorpOne_MD_Servers object-group trust-2-bb-tcp-udp
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
+        //XCTAssert(acl.objectGroupNetworks.count == 1)
+        //XCTAssert(acl.objectGroupNetworks["denied"]!.count == 3)
+        XCTAssert(acl.accessControlEntries.count == 8)
+        guard let socket = Socket(ipProtocol: 6, sourceIp: "10.1.1.4".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result = acl.analyze(socket: socket)
+        XCTAssert(result == .deny)
+    }
+    
+    func testAsaNames2() {
+        let sample = """
+        names
+        name 192.168.68.0 Net-AZ4-SERVERS
+        name 192.168.168.64 Net-AZ4-NETWORK
+        name 2.2.2.194 AZ4-vSCP
+        name 9.9.9.196 SCP-DG-BP
+        name 192.168.168.80 Net-CorpOne1
+        name 192.168.168.84 Net-CorpOne2
+        name 4.4.4.58 Net-info1
+        name 4.4.4.2 Net-info2
+        name 192.168.68.100 AZ4-vNS1
+        name 2.2.2.198 trust03
+        name 2.2.2.196 trust01
+        name 2.2.2.197 trust02
+        name 2.2.2.199 trust04
+        name 2.2.2.200 trust15
+        name 2.2.2.201 trust16
+        name 2.2.2.202 trust17
+        name 2.2.2.203 trust18
+        name 2.2.2.204 trust19
+        name 2.2.2.205 trust20
+        name 2.2.2.206 trust21
+        name 2.2.2.207 trust22
+        name 2.2.2.208 trust23
+        name 2.2.2.209 trust24
+        name 2.2.2.210 trust25
+        name 2.2.2.211 trust26
+        name 2.2.2.212 trust27
+        name 2.2.2.213 trust28
+        name 2.2.2.214 trust29
+        name 2.2.2.215 trust30
+        name 2.2.2.216 trust31
+        name 2.2.2.195 AZ4-vTEST
+        name 3.3.3.34 CorpOneMD1
+        name 3.3.3.50 CorpOneMD2
+        name 192.168.168.82 CorpOneMD-inside1
+        name 192.168.168.86 CorpOneMD-inside2
+        name 192.168.68.101 AZ4-vNS2
+        object network NETWORK_OBJ_192.168.0.8_29
+        subnet 192.168.0.8 255.255.255.248
+        object network NETWORK_OBJ_192.168.0.0_24
+        subnet 192.168.0.0 255.255.255.0
+        object network AZ4-vSCP
+        host 2.2.2.194
+        object-group network SCP-Access
+        network-object host SCP-DG-BP
+        object-group network CorpOne
+        network-object Net-CorpOne1 255.255.255.252
+        network-object Net-CorpOne2 255.255.255.252
+        object-group network info
+        network-object Net-info1 255.255.255.255
+        network-object Net-info2 255.255.255.255
+        network-object SCP-DG-BP 255.255.255.255
+        object-group service info-Common tcp
+        port-object eq ssh
+        port-object eq telnet
+        object-group network TI-DNS
+        network-object host AZ4-vNS1
+        network-object host AZ4-vNS2
+        object-group network all-trust-hosts
+        network-object host AZ4-vTEST
+        network-object host trust01
+        network-object host trust02
+        network-object host trust03
+        network-object host trust04
+        network-object host trust15
+        network-object host trust16
+        network-object host trust17
+        network-object host trust18
+        network-object host trust19
+        network-object host trust20
+        network-object host trust21
+        network-object host trust22
+        network-object host trust23
+        network-object host trust24
+        network-object host trust25
+        network-object host trust26
+        network-object host trust27
+        network-object host trust28
+        network-object host trust29
+        network-object host trust30
+        network-object host trust31
+        network-object host AZ4-vSCP
+        object-group network DMZ-INT-DNSAccess
+        network-object host AZ4-vTEST
+        group-object all-trust-hosts
+        object-group network DMZ-WEBAccess
+        network-object host AZ4-vTEST
+        group-object all-trust-hosts
+        object-group service web tcp
+        port-object eq www
+        port-object eq https
+        object-group network DMZ-BBTestAccess
+        network-object host AZ4-vTEST
+        object-group network trust-hosts
+        network-object host AZ4-vTEST
+        object-group network trust01
+        network-object host trust01
+        object-group network trust02
+        network-object host trust02
+        object-group network trust03
+        network-object host trust03
+        object-group network trust04
+        network-object host trust04
+        object-group network trust15
+        network-object host trust15
+        object-group network trust16
+        network-object host trust16
+        object-group network trust17
+        network-object host trust17
+        object-group network trust18
+        network-object host trust18
+        object-group network trust19
+        network-object host trust19
+        object-group network trust20
+        network-object host trust20
+        object-group network trust21
+        network-object host trust21
+        object-group network trust22
+        network-object host trust22
+        object-group network trust23
+        network-object host trust23
+        object-group network trust24
+        network-object host trust24
+        object-group network trust25
+        network-object host trust25
+        object-group network trust26
+        network-object host trust26
+        object-group network trust27
+        network-object host trust27
+        object-group network trust28
+        network-object host trust28
+        object-group network trust29
+        network-object host trust29
+        object-group network trust30
+        network-object host trust30
+        object-group network trust31
+        network-object host trust31
+        object-group network AZ4-vTEST
+        network-object host AZ4-vTEST
+        object-group service standard-trust-tcp-udp tcp-udp
+        port-object range 22 23
+        port-object range 9080 9083
+        port-object range 9090 9093
+        port-object range 12345 12349
+        port-object eq www
+        port-object eq 443
+        port-object eq 8080
+        port-object eq 9443
+        object-group network CorpOne_MD_Servers
+        network-object host CorpOneMD1
+        network-object host CorpOneMD2
+        object-group service trust-2-bb-tcp-udp tcp-udp
+        port-object eq 8194
+        port-object eq 8196
+        object-group service tinfo-2-bb-tcp-udp tcp-udp
+        port-object eq 8194
+        port-object eq 8196
+        port-object eq 9194
+access-list outside_access_in remark The following 1 line is to allow info hosts inside to common md ports
+access-list outside_access_in extended permit tcp object-group info object-group CorpOne_MD_Servers object-group tinfo-2-bb-tcp-udp
+access-list outside_access_in remark The following 1 line is to allow DG hosts inside to common md ports for testing
+access-list outside_access_in extended permit tcp object-group SCP-Access object-group CorpOne_MD_Servers object-group tinfo-2-bb-tcp-udp
+access-list outside_access_in remark The following 1 line allow SSH access to the test server from authorized IPs
+access-list outside_access_in extended permit tcp object-group info object-group all-trust-hosts object-group standard-trust-tcp-udp
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
+        //XCTAssert(acl.objectGroupNetworks.count == 1)
+        //XCTAssert(acl.objectGroupNetworks["denied"]!.count == 3)
+        XCTAssert(acl.accessControlEntries.count == 3)
+        guard let socket = Socket(ipProtocol: 6, sourceIp: "10.1.1.4".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result = acl.analyze(socket: socket)
+        XCTAssert(result == .deny)
+    }
+    
     func testAsaPortNe() {
         let line = "access-list ACL_IN extended deny tcp any host 209.165.201.29 ne www"
         let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8, errorDelegate: nil, delegateWindow: nil)

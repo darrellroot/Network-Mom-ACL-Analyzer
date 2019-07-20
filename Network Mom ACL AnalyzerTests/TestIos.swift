@@ -705,7 +705,7 @@ ipv4 access-list acl_hw_1
         access-list 101 permit icmp host 10.1.1.1 host 172.16.1.1
         """
         let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
-        XCTAssert(acl.names.count == 2)
+        XCTAssert(acl.aclNames.count == 2)
     }
 
     
@@ -718,7 +718,7 @@ ipv4 access-list acl_hw_1
         """
         let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.count == 3)
-        XCTAssert(acl.names.contains("blockacl"))
+        XCTAssert(acl.aclNames.contains("blockacl"))
         
     }
     func testIos() {
