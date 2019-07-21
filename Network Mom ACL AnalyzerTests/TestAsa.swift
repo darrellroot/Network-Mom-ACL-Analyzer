@@ -234,9 +234,9 @@ class TestAsa: XCTestCase {
         name 192.168.68.0 Net-AZ4-SERVERS
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
-        XCTAssert(acl.objectGroupNetworks.count == 1)
-        XCTAssert(acl.objectGroupNetworks["net-az4-servers"]!.count == 1)
-        XCTAssert(acl.objectGroupNetworks["net-az4-servers"]!.ipRanges.count == 1)
+        XCTAssert(acl.hostnames.count == 1)
+        XCTAssert(acl.hostnames["net-az4-servers"] != nil)
+        XCTAssert(acl.hostnames["net-az4-servers"] == "192.168.68.0".ipv4address)
     }
 
     func testAsaNames() {

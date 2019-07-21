@@ -56,10 +56,12 @@ struct IcmpMessage {
                 self.type = 15
             case "information-reply":
                 self.type = 16
-            case "address-mask-request":
+            case "address-mask-request","mask-request":
                 self.type = 17
-            case "address-mask-reply":
+            case "address-mask-reply","mask-reply":
                 self.type = 18
+            case "traceroute":
+                self.type = 30
             case "conversion-error":
                 self.type = 31
             case "mobile-redirect":

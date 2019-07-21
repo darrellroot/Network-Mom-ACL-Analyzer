@@ -482,6 +482,12 @@ class AccessList {
                     delegate?.report(severity: .error, message: "name \(nameString) duplicates prior name", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
+                guard ipAddress <= UInt.MAXIPV4 else {
+                    //should not get here
+                    delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "unexpected host ip address value calculated \(ipAddress) please send data to feedback@networkmom.net", line: linenum, delegateWindow: delegateWindow)
+                    continue lineLoop
+                }
                 hostnames[nameString] = ipAddress
                 continue lineLoop
             }
@@ -505,14 +511,15 @@ class AccessList {
                         let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
                         objectGroupNetwork.append(ipRange: ipRange)
                         continue lineLoop
-                    } else if let hostObject = objectGroupNetworks[term2String] {
+                    } else if let hostIp = hostnames[term2String] {
                         // network-object host AZ4-vTEST
-                        // this should only be a host object here, so only 1 ip range allowed
-                        guard hostObject.ipRanges.count == 1, let ipRange = hostObject.ipRanges.first else {
+                        guard hostIp < UInt.MAXIPV4 else {
+                            // should not get here
                             delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            delegate?.report(severity: .error, message: "unable to decode network-object", line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "unexpected error decoding host ip", line: linenum, delegateWindow: delegateWindow)
                             continue lineLoop
                         }
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
                         objectGroupNetwork.append(ipRange: ipRange)
                         continue lineLoop
                     } else {
@@ -535,7 +542,7 @@ class AccessList {
                     } else {
                         //  network-object Net-CorpOne1 255.255.255.252
                         // our object group should have 1 element which must be /32
-                        guard let subnetObject = objectGroupNetworks[term1String], subnetObject.ipRanges.count == 1, let subnet = subnetObject.ipRanges.first?.minIp, subnet == subnetObject.ipRanges.first?.maxIp, let ipRange = IpRange(ip: subnet, netmask: term2String) else {
+                        guard let subnet = hostnames[term1String], let ipRange = IpRange(ip: subnet, netmask: term2String) else {
                             continue lineLoop
                         }
                         objectGroupNetwork.append(ipRange: ipRange)
@@ -705,6 +712,10 @@ class AccessList {
     }
 }
 extension AccessList: AclDelegate {
+    func getHostname(_ hostname: String) -> UInt? {
+        return self.hostnames[hostname]
+    }
+    
     func getObjectGroupNetwork(_ group: String) -> ObjectGroupNetwork? {
         if let objectGroupNetwork = self.objectGroupNetworks[group] {
             return objectGroupNetwork
