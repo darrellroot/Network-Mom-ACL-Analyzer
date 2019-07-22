@@ -344,7 +344,6 @@ ipv4 access-list CounterExample
         ipv4 access-list testing
         10 permit tcp host 1.1.1.1 port-group web 2.2.2.2 0.0.0.0 port-group web log-input
         """
-        
         let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
         let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 80, destinationPort: 443, established: false)!
         let result1 = acl.analyze(socket: socket1)
@@ -353,8 +352,33 @@ ipv4 access-list CounterExample
         let socket2 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 450, destinationPort: 451, established: false)!
         let result2 = acl.analyze(socket: socket2)
         XCTAssert(result2 == .permit)
-
     }
+    
+    func testIosXrNestedPortGroup() {
+        let sample = """
+        object-group port manage1
+        description hi
+        eq 22
+        object-group port manage2
+        description hello
+        eq www
+        object-group port management
+        description this had better work
+        object-group manage1
+        object-group manage2
+        ipv4 access-list testing
+        10 permit tcp host 1.1.1.1 2.2.2.2 0.0.0.0 port-group management log-input
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 80, destinationPort: 80, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 80, destinationPort: 444, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+    }
+
 
     func testIosXrNestedObjectGroup() {
         let sample = """

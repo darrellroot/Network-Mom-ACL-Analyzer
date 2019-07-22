@@ -352,7 +352,7 @@ class AccessList {
                         currentObjectGroup.append(ipRange: ipRange)
                         continue lineLoop
                     case .fourOctet(let network):
-                        guard let word2 = localwords[safe: 1], let token2 = NxAclToken(string: word2), case let .fourOctet(dontCare) = token2, dontCare >= 0, dontCare <= MAXIP, let ipRange = IpRange(ipv4: network, dontCare: dontCare) else {
+                        guard let word2 = localwords[safe: 1], let token2 = NxAclToken(string: word2), case let .fourOctet(netmask) = token2, netmask >= 0, netmask <= MAXIP, let ipRange = IpRange(ip: network, netmask: netmask) else {
                             delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                             delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
                             configurationMode = .accessControlEntry
@@ -679,7 +679,7 @@ class AccessList {
 
             if words[safe: 0] == "description" {
             //if line.starts(with: "description") {
-                if configurationMode == .objectGroupNetwork || configurationMode == .objectGroupService || configurationMode == .objectGroupProtocol {
+                if configurationMode == .objectGroupNetwork || configurationMode == .objectGroupService || configurationMode == .objectGroupProtocol || configurationMode == .iosXrObjectGroupNetwork || configurationMode == .iosXrObjectGroupService {
                     continue lineLoop
                 } else {
                     delegate?.report(severity: .linetext, message: "\(line)", line: linenum, delegateWindow: delegateWindow)
