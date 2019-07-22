@@ -15,7 +15,6 @@ enum IosToken: Equatable {
     case ipProtocol(UInt)
     case any
     case host
-    case objectGroup
     case portOperator(PortOperator)
     case comment
     case log
@@ -50,8 +49,6 @@ enum IosToken: Equatable {
             }
         case "established","est":
             self = .established
-        case "object-group":
-            self = .objectGroup
         case "ahp","eigrp","esp","gre","icmp","igmp","igrp","ip","ipv4","ipinip","nos","ospf","pcp","pim","tcp","udp":
             if let ipProtocol = string.iosIpProtocol {
                 self = .ipProtocol(ipProtocol)

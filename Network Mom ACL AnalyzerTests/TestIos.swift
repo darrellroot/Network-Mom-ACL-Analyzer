@@ -651,14 +651,21 @@ permit ip host 10.0.0.2 any
         let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace?.destPort[0].minPort == 514)
     }
-    
+    func testRandom1() {
+        let line = "permit 17 2.203.38.192 0.0.0.63 lt 9453 242.96.9.128 0.0.0.127 eq 847  log"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)
+        let socket1 = Socket(ipProtocol: 17, sourceIp: "2.203.38.192".ipv4address!, destinationIp: "242.96.9.128".ipv4address!, sourcePort: 9452, destinationPort: 847, established: false)!
+        let result = ace?.analyze(socket: socket1)
+        XCTAssert(result == .permit)
+    }
+
     func testDestRange() {
         let line = "permit tcp 157.240.0.0 0.0.31.255 lt 13410 64.0.0.0 15.255.255.255 range 8461 33918  log"
         let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace != nil)
     }
 
-    func testIosObject1() {
+/*    func testIosObject1() {
         let sample = """
 object-group network my_network_object_group
 host 209.165.200.237
@@ -681,7 +688,7 @@ permit tcp object-group my_network_object_group host 1.1.1.1 eq 80
         let result3 = acl.analyze(socket: socket3)
         XCTAssert(result3 == .deny)
 
-    }
+    }*/
     
     func testIosLog2() {
         let sample = """
