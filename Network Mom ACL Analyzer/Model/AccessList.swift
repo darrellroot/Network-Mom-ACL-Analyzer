@@ -23,6 +23,7 @@ class AccessList {
     var objectGroupProtocols = [String:ObjectGroupProtocol]()
     var objectGroupServices = [String:ObjectGroupService]()
     var hostnames = [String:UInt]() // ASA example: "name 2.2.2.203 trust18"
+    var warnings: Set<String> = [] // summary warnings each to be printed out once at end of processing
     
     var count: Int {
         return accessControlEntries.count
@@ -127,7 +128,7 @@ class AccessList {
                         configurationMode = .objectGroupNetwork
                         lastSequenceSeen = 0
                         objectName = objectNameTemp
-                    } else {
+                   } else {
                         delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
                         configurationMode = .accessControlEntry
                         lastSequenceSeen = 0
@@ -137,7 +138,8 @@ class AccessList {
                 continue lineLoop
             }
             
-            if words[safe: 0] == "object-group" && words[safe: 1] == "ip" && words[safe: 2] == "address" && deviceType == .nxos, let objectNameTemp = words[safe: 3] {
+            
+            if deviceType == .nxos && words[safe: 0] == "object-group" && words[safe: 1] == "ip" && words[safe: 2] == "address" , let objectNameTemp = words[safe: 3] {
                 guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
                         delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
                         configurationMode = .accessControlEntry

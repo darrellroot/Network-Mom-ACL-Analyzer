@@ -218,11 +218,17 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             }
             if let ingressAccessList = self.ingressAccessList {
                 self.report(severity: .warning, message: "Analyzed \(ingressAccessList.count) Access Control Entries.  ACL Name \(ingressAccessList.aclNames)", delegateWindow: .ingressValidation)
+                for warning in ingressAccessList.warnings {
+                    self.report(severity: .warning, message: warning, delegateWindow: .ingressValidation)
+                }
             } else {
                 self.report(severity: .warning, message: "Ingress Access List Not Analyzed", delegateWindow: .ingressValidation)
             }
             if let egressAccessList = self.egressAccessList {
                 self.report(severity: .warning, message: "Analyzed \(egressAccessList.count) Access Control Entries.  ACL Name \(egressAccessList.aclNames)", delegateWindow: .egressValidation)
+                for warning in egressAccessList.warnings {
+                    self.report(severity: .warning, message: warning, delegateWindow: .egressValidation)
+                }
             } else {
                 self.report(severity: .warning, message: "Egress Access List Not Analyzed", delegateWindow: .egressValidation)
             }

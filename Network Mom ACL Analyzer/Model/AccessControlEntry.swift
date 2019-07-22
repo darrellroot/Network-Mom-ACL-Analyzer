@@ -2853,7 +2853,12 @@ struct AccessControlEntry {
                 self.sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .ne:
-                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                let portRange1: PortRange?
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                } else {
+                    portRange1 = nil
+                }
                 let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
                 self.sourcePort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastSourcePort
@@ -2890,7 +2895,12 @@ struct AccessControlEntry {
                 self.destPort = [portRange]
                 linePosition = .lastDestPort
             case .ne:
-                let portRange1 = PortRange(minPort: 0, maxPort: firstDestPort - 1)
+                let portRange1: PortRange?
+                if firstDestPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstDestPort - 1)
+                } else {
+                    portRange1 = nil
+                }
                 let portRange2 = PortRange(minPort: firstDestPort + 1, maxPort: MAXPORT)
                 self.destPort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastDestPort
@@ -2975,7 +2985,7 @@ struct AccessControlEntry {
                 case .objectGroup:
                     protocolObjectGroup = true
                     linePosition = .protocolObjectGroup
-                case .accessList,.action,.any,.host,.portOperator,.comment,.log,.established,.fourOctet,.number,.name:
+                case .accessList,.action,.any,.host,.portOperator,.comment,.log,.established,.fourOctet,.name:
                     reportError()
                     return nil
                 }
@@ -3371,6 +3381,7 @@ struct AccessControlEntry {
                         return nil
                     }
                     self.destPort.append(destPort)
+                    linePosition = .lastDestPort
                 case .name(let secondDestPortString):
                     var possibleDestPort: UInt?
                     if self.ipProtocols.count > 1 {

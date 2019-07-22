@@ -652,6 +652,37 @@ permit ip host 10.0.0.2 any
         XCTAssert(ace?.destPort[0].minPort == 514)
     }
     
+    func testDestRange() {
+        let line = "permit tcp 157.240.0.0 0.0.31.255 lt 13410 64.0.0.0 15.255.255.255 range 8461 33918  log"
+        let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 7, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace != nil)
+    }
+
+    func testIosObject1() {
+        let sample = """
+object-group network my_network_object_group
+host 209.165.200.237
+host 209.165.200.238
+range 209.165.200.239 209.165.200.240
+209.165.200.241 255.255.255.224
+permit tcp object-group my_network_object_group host 1.1.1.1 eq 80
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.objectGroupNetworks.count == 1)
+        XCTAssert(acl.objectGroupNetworks.first!.value.ipRanges.count == 4)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "209.165.200.237".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "209.165.200.200".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+        let socket3 = Socket(ipProtocol: 6, sourceIp: "209.165.201.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
+        let result3 = acl.analyze(socket: socket3)
+        XCTAssert(result3 == .deny)
+
+    }
+    
     func testIosLog2() {
         let sample = """
         access-list 101 permit tcp host 10.1.1.1 host 10.1.1.2 log
