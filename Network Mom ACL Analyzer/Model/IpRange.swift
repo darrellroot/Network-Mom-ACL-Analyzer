@@ -91,6 +91,19 @@ struct IpRange: CustomStringConvertible, Equatable {
         self.maxIp = self.minIp + numHosts - 1
         return
     }
+    init?(ip: UInt, netmask: UInt) {
+        guard let numHosts = netmask.netmaskHosts else {
+            return nil
+        }
+        let remainder = ip % numHosts
+        if remainder > 0 {
+            bitAligned = false
+            //aclDelegate?.report(severity: .warning, message: "\(ip) \(mask) Destination IP not on netmask or bit boundary", delegateWindow: delegateWindow)
+        }
+        self.minIp = ip - remainder
+        self.maxIp = self.minIp + numHosts - 1
+        return
+    }
     init?(ip: String, netmask: String) {
         guard let ip = ip.ipv4address, let maskIp = netmask.ipv4address, let numHosts = maskIp.netmaskHosts else {
             return nil

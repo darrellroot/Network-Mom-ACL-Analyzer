@@ -679,7 +679,7 @@ extension String {
             return nil
         }
     }
-/*    var port: UInt? {
+    var asaPort: UInt? {
         if let portNumber = UInt(self) {
             if portNumber >= 0 && portNumber <= 65535 {
                 return portNumber
@@ -687,13 +687,13 @@ extension String {
                 return nil
             }
         } else {
-            if let portNumber = self.tcpPort {
+            if let portNumber = self.asaTcpPort {
                 return portNumber
-            } else if let portNumber = self.udpPort {
+            } else if let portNumber = self.asaUdpPort {
                 return portNumber
             } else {
                 return nil
             }
         }
-    }*/
+    }
 }

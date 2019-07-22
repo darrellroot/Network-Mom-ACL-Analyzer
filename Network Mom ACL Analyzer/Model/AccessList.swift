@@ -460,7 +460,7 @@ class AccessList {
                             continue lineLoop
                         }
                     } else {
-                        if let protocolNumber = term1.ipProtocol {
+                        if let protocolNumber = term1.asaIpProtocol {
                             ipProtocol = protocolNumber
                         } else {
                             delegate?.report(severity: .error, message: "Unable to identify IP protocol", line: linenum, delegateWindow: delegateWindow)
@@ -641,14 +641,14 @@ class AccessList {
                 if let portOperator = words[safe: 1] {
                     switch portOperator {
                     case "eq":
-                        if let portNumber = words[safe: 2]?.port, let portRange = PortRange(minPort: portNumber, maxPort: portNumber), let objectName = objectName, let objectGroup = objectGroupServices[objectName] {
+                        if let portNumber = words[safe: 2]?.asaPort, let portRange = PortRange(minPort: portNumber, maxPort: portNumber), let objectName = objectName, let objectGroup = objectGroupServices[objectName] {
                             objectGroup.append(portRange: portRange)
                             continue lineLoop
                         } else {
                             continue lineLoop
                         }
                     case "range":
-                        if let lowPort = words[safe: 2]?.port, let highPort = words[safe: 3]?.port, let portRange = PortRange(minPort: lowPort, maxPort: highPort), let objectName = objectName, let objectGroup = objectGroupServices[objectName] {
+                        if let lowPort = words[safe: 2]?.asaPort, let highPort = words[safe: 3]?.asaPort, let portRange = PortRange(minPort: lowPort, maxPort: highPort), let objectName = objectName, let objectGroup = objectGroupServices[objectName] {
                             objectGroup.append(portRange: portRange)
                             continue lineLoop
                         } else {
