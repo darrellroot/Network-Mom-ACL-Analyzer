@@ -75,6 +75,13 @@ class TestAsa: XCTestCase {
         XCTAssert(ace.destPort[0].maxPort == 80)
     }
     
+    func testAsaProtocolNumbered1() {
+        let line1 = "access-list 101 extended permit 6 131.252.209.18 255.255.255.254 host 2.2.2.2"
+        let ace1 = AccessControlEntry(line: line1, deviceType: .asa, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace1 != nil)
+    }
+
+    
     func testAsaMultipleSpaces() {
         let line = "access-list  ACL_IN  extended deny  tcp  any  host  209.165.201.29  eq  www"
         guard let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 8, errorDelegate: nil, delegateWindow: nil) else {
@@ -1148,45 +1155,5 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
         let socket6 = Socket(ipProtocol: 17, sourceIp: "2.2.2.2".ipv4address!, destinationIp: "10.88.1.2".ipv4address!, sourcePort: 33, destinationPort: 54, established: false)!
         let result6 = acl.analyze(socket: socket6)
         XCTAssert(result6 == .deny)
-
     }
-
-    func testIosLog() {
-        let sample = """
-        access-list 101 permit tcp host 10.1.1.1 host 10.1.1.2 log UserDefinedValue
-        """
-        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
-        XCTAssert(acl.accessControlEntries.count == 1)
-        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.1.1.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
-        let result1 = acl.analyze(socket: socket1)
-        XCTAssert(result1 == .permit)
-        
-        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
-        let result2 = acl.analyze(socket: socket2)
-        XCTAssert(result2 == .deny)
-    }
-    
-    func testIosLogInput() {
-        let sample = """
-        access-list 101 permit tcp host 10.1.1.1 host 10.1.1.2 log-input UserDefinedValue
-        """
-        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
-        XCTAssert(acl.accessControlEntries.count == 1)
-        let socket1 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.1.1.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
-        let result1 = acl.analyze(socket: socket1)
-        XCTAssert(result1 == .permit)
-        
-        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.1.1".ipv4address!, destinationIp: "10.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
-        let result2 = acl.analyze(socket: socket2)
-        XCTAssert(result2 == .deny)
-
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
 }

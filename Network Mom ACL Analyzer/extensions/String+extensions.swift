@@ -281,7 +281,7 @@ extension String {
         }
     }
 
-    var tcpPort: UInt? {
+    var asaTcpPort: UInt? {   //TODO check list
         switch self {
         case "bgp":
             return 179
@@ -357,7 +357,7 @@ extension String {
             return nil
         }
     }
-    var udpPort: UInt? {
+    var asaUdpPort: UInt? {  //TODO check list
         switch self {
         case "bootpc":
             return 68
@@ -471,7 +471,187 @@ extension String {
             return nil
         }
     }
-    var ipProtocol: UInt? {
+    
+    
+    //TODO UPDATE COPIED FROM IOSXR
+    var iosIpProtocol: UInt? {
+        switch self {
+        case "ahp":
+            return 51
+        case "eigrp":
+            return 88
+        case "esp":   //TODO may not be supported all platforms
+            return 50
+        case "gre":
+            return 47
+        case "icmp":
+            return 1
+        case "igmp":
+            return 2
+        case "igrp":
+            return 9
+        case "ip":
+            return 0
+        case "ipv4":
+            return 0
+        case "ipinip":
+            return 94
+        case "nos": // not a typo both ipinip and nos report 94
+            return 94
+        case "ospf":
+            return 89
+        case "pcp":
+            return 108
+        case "pim":
+            return 103
+        case "tcp":
+            return 6
+        case "udp":
+            return 17
+        default:
+            return nil
+        }
+    }
+
+    //TODO UPDATE COPIED FROM IOSXR
+    var iosTcpPort: UInt? {
+        switch self {
+        case "bgp":
+            return 179
+        case "chargen":
+            return 19
+        case "cmd":
+            return 514
+        case "daytime":
+            return 13
+        case "discard":
+            return 9
+        case "domain":
+            return 53
+        case "echo":
+            return 7
+        case "exec":
+            return 512
+        case "finger":
+            return 79
+        case "ftp":
+            return 21
+        case "ftp-data":
+            return 20
+        case "gopher":
+            return 7
+        case "hostname":
+            return 11
+        case "ident":
+            return 113
+        case "irc":
+            return 194
+        case "klogin":
+            return 543
+        case "kshell":
+            return 544
+        case "login":
+            return 513
+        case "lpd":
+            return 515
+        case "nfs":
+            return 2049     //TODO checkthis
+        case "nntp":
+            return 119
+        case "pim-auto-rp":
+            return 496
+        case "pop2":
+            return 19
+        case "pop3":
+            return 11
+        case "smtp":
+            return 25
+        case "ssh":    // TODO check this one
+            return 22
+        case "sunrpc":
+            return 111
+        case "tacacs":
+            return 49
+        case "talk":
+            return 517
+        case "telnet":
+            return 23
+        case "time":
+            return 37
+        case "uucp":
+            return 54
+        case "whois":
+            return 43
+        case "www":
+            return 80
+        default:
+            return nil
+        }
+    }
+    
+    //TODO UPDATE COPIED FROM IOSXR
+    var iosUdpPort: UInt? {
+        switch self {
+        case "biff":
+            return 512
+        case "bootpc":
+            return 68
+        case "bootps":
+            return 67
+        case "discard":
+            return 9
+        case "dnsix":
+            return 195
+        case "domain":
+            return 53
+        case "echo":
+            return 7
+        case "isakmp":  //TODO warn not supported all ios
+            return 500
+        case "mobile-ip":
+            return 434
+        case "nameserver":
+            return 42
+        case "netbios-dgm":
+            return 138
+        case "netbios-ns":
+            return 137
+        case "netbios-ss":
+            return 139
+        case "non500-isakmp":  //TODO warn not supported all ios
+            return 4500
+        case "ntp":
+            return 123
+        case "pim-auto-rp":
+            return 496
+        case "rip":
+            return 52
+        case "snmp":
+            return 161
+        case "snmptrap":
+            return 162
+        case "sunrpc":
+            return 111
+        case "syslog":
+            return 514
+        case "tacacs":
+            return 49
+        case "talk":
+            return 517
+        case "tftp":
+            return 69
+        case "time":
+            return 37
+        case "who":
+            return 513
+        case "xdmcp":
+            return 177
+        default:
+            return nil
+        }
+    }
+
+    var asaIpProtocol: UInt? {  //TOD check list
         switch self {
         case "eigrp":
             return 88
@@ -499,7 +679,7 @@ extension String {
             return nil
         }
     }
-    var port: UInt? {
+/*    var port: UInt? {
         if let portNumber = UInt(self) {
             if portNumber >= 0 && portNumber <= 65535 {
                 return portNumber
@@ -515,5 +695,5 @@ extension String {
                 return nil
             }
         }
-    }
+    }*/
 }

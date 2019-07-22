@@ -63,6 +63,19 @@ class TestNxos: XCTestCase {
         let result5 = acl.analyze(socket: socket5)
         XCTAssert(result5 == .deny)
     }
+    
+    func testNxosProtocolNumbered1() {
+        let line1 = "permit 6 131.252.209.18/31 host 2.2.2.2"
+        let ace1 = AccessControlEntry(line: line1, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace1 != nil)
+    }
+
+    func testNxosProtocolNumbered2() {
+        let line1 = "permit 256 131.252.209.18/31 host 2.2.2.2"
+        let ace1 = AccessControlEntry(line: line1, deviceType: .nxos, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace1 == nil)
+    }
+
 
     func testNxos2() {
         let sample = """
@@ -430,14 +443,6 @@ IP access list ACL_NAME
         let result11 = acl.analyze(socket: socket11)
         XCTAssert(result11 == .deny)
 
-    }
-
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
     }
 
 }

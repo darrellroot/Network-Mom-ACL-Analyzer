@@ -34,7 +34,12 @@ class TestIosXR: XCTestCase {
         let result2 = acl.analyze(socket: socket2)
         XCTAssert(result2 == .deny)
     }
-    
+    func testIosXrProtocolNumbered1() {
+        let line1 = "101 permit 6 131.252.209.18/32 host 2.2.2.2"
+        let ace1 = AccessControlEntry(line: line1, deviceType: .iosxr, linenum: 1, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace1 != nil)
+    }
+
     func testIosXr2() {
         let sample = """
 ipv4 access-list acl_1
@@ -212,7 +217,50 @@ ipv4 access-list ACL-INFRASTRUCTURE-IN
         let result10 = acl.analyze(socket: socket10)
         XCTAssert(result10 == .deny)
     }
+    func testIosXrIndented() {
+        let line = "  10 permit tcp 192.168.36.0 0.0.0.255 any eq 80"
+        let ace = AccessControlEntry(line: line, deviceType: .iosxr, linenum: 7, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace?.destPort[0].minPort == 80)
+        guard let sourceip = "192.168.36.0".ipv4address else {
+            XCTAssert(false)
+            return
+        }
+        XCTAssert(ace?.sourceIp[0].minIp == sourceip)
+    }
     
+    func testIosXrLineNumbered() {
+        let line = "10 permit tcp 192.168.36.0 0.0.0.255 any eq 80"
+        let ace = AccessControlEntry(line: line, deviceType: .iosxr, linenum: 7, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace?.destPort[0].minPort == 80)
+        guard let sourceip = "192.168.36.0".ipv4address else {
+            XCTAssert(false)
+            return
+        }
+        XCTAssert(ace?.sourceIp[0].minIp == sourceip)
+    }
+    
+    func testIosXrSequence() {
+        let sample = """
+ipv4 access-list acl_hw_1
+  10 permit icmp 192.168.36.0 0.0.0.255 any
+  20 permit ip 172.16.3.0 0.0.255.255 any
+  30 deny tcp any any
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.count == 3)
+    }
+    
+    func testIosXr() {
+        let sample = """
+ipv4 access-list acl_hw_1
+   permit icmp 192.168.36.0 0.0.0.255 any
+   permit ip 172.16.3.0 0.0.255.255 any
+   deny tcp any any
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.count == 3)
+    }
+
     func testIosXrLogInput() {
         let sample = """
 ipv4 access-list violation-log
@@ -353,13 +401,6 @@ ipv4 access-list acl_1
         let socket5 = Socket(ipProtocol: 17, sourceIp: "10.3.3.3".ipv4address!, destinationIp: "10.1.2.2".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
         let result5 = acl.analyze(socket: socket5)
         XCTAssert(result5 == .deny)
-    }
-
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
     }
 
 }

@@ -42,6 +42,61 @@ struct AccessControlEntry {
             return nil
         }
     }
+    
+    enum AsaLinePosition: String {
+        case beginning
+        case accessList
+        case listName
+        case extended
+        case action
+        case ipProtocol
+        case protocolObjectGroup
+        case sourceIp
+        case sourceObjectGroup
+        case sourceIpHost
+        case sourceMask
+        case sourcePortOperator
+        case firstSourcePort
+        case lastSourcePort
+        case destIp
+        case destIpHost
+        case destObjectGroup
+        case destMask
+        case destPortOperator
+        case firstDestPort
+        case lastDestPort
+        case destObjectService
+        case comment
+        case log
+        case logInterval
+        case end
+    }
+
+    enum IosLinePosition {
+        case beginning
+        case accessList
+        case listName
+        case action
+        case ipProtocol
+        case protocolObjectGroup
+        case sourceIp
+        case sourceObjectGroup
+        case sourceIpHost
+        case sourceMask
+        case sourcePortOperator
+        case firstSourcePort
+        case lastSourcePort
+        case destIp
+        case destIpHost
+        case destObjectGroup
+        case destMask
+        case destPortOperator
+        case icmpType
+        case firstDestPort
+        case lastDestPort
+        case comment
+        case end
+    }
 
     enum NxLinePosition {
         case beginning
@@ -101,8 +156,10 @@ struct AccessControlEntry {
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?) {
         
         switch deviceType {
-        case .asa, .ios:
-            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosOrAsa: true)
+        case .ios:
+            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, ios: true)
+        case .asa:
+            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, asa: true)
         case .nxos:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, nxos: true)
         case .iosxr:
@@ -166,24 +223,24 @@ struct AccessControlEntry {
                 guard let portRange = PortRange(minPort: firstPort, maxPort: firstPort) else {
                     return false
                 }
-                sourcePort = [portRange]
+                self.sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .gt:
                 guard let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) else {
                     return false
                 }
-                sourcePort = [portRange]
+                self.sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .lt:
                 guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
                     return false
                 }
-                sourcePort = [portRange]
+                self.sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .ne:
                 let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
                 let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
-                sourcePort = [portRange1,portRange2].compactMap({ $0 })
+                self.sourcePort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastSourcePort
             case .range:
                 tempFirstSourcePort = firstPort
@@ -284,7 +341,14 @@ struct AccessControlEntry {
                 case .action(_), .any, .host, .portOperator, .comment, .established, .cidr, .addrgroup,.portgroup,.name, .log, .fourOctet:
                     reportError()
                     return nil
-                case .ipProtocol(let ipProtocol), .number(let ipProtocol):
+                case .ipProtocol(let ipProtocol):
+                    self.ipProtocols = [ipProtocol]
+                    linePosition = .ipProtocol
+                case .number(let ipProtocol):
+                    guard ipProtocol < 256 && ipProtocol > 0 else {
+                        reportError()
+                        return nil
+                    }
                     self.ipProtocols = [ipProtocol]
                     linePosition = .ipProtocol
                 }
@@ -712,7 +776,6 @@ struct AccessControlEntry {
         }
     }
     
-    
     //MARK: IOSXR IPV4 INIT
     
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosxr: Bool) {
@@ -734,10 +797,10 @@ struct AccessControlEntry {
         
         let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         let words = line.split{ $0.isWhitespace }.map{ String($0)}
-        //let words = line.components(separatedBy: CharacterSet.whitespaces).filter { !$0.isEmpty }
         if words.count < 1 {
             return nil
         }
+        
         
         func analyzeFirstSourcePort(firstPort: UInt) -> Bool { // true == success
             guard firstPort >= 0 && firstPort <= 65535, let tempSourcePortOperator = tempSourcePortOperator else {
@@ -887,8 +950,15 @@ struct AccessControlEntry {
                 case .action, .portgroup, .portOperator, .comment, .log,.counter, .established, .name, .netgroup:
                     reportError()
                     return nil
-                case .ipProtocol(let ipProtocol), .number(let ipProtocol):
+                case .ipProtocol(let ipProtocol):
                     guard ipProtocol < 256 else {
+                        reportError()
+                        return nil
+                    }
+                    self.ipProtocols = [ipProtocol]
+                    linePosition = .ipProtocol
+                case .number(let ipProtocol):
+                    guard ipProtocol < 256 && ipProtocol > 0 else {
                         reportError()
                         return nil
                     }
@@ -1533,14 +1603,17 @@ struct AccessControlEntry {
                     linePosition = .end
                 }
             }
-        }
+        }// wordLoop
         if validateIosXr() == false {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
             errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
             return nil
-        }
+        }//Init IOS-XR
     }
+    
+    // DEPRECATED DUAL IOS ASA INIT
 
+    /*
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosOrAsa: Bool) {
 
         // These are temporary variables while parsing the ACE
@@ -2698,6 +2771,814 @@ struct AccessControlEntry {
             }
         }
     }
+    */
+    //MARK: IOS IPV4 INIT
+    
+    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, ios: Bool) {
+        var tempSourcePortOperator: PortOperator?
+        var tempFirstSourcePort: UInt?
+        var tempDestPortOperator: PortOperator?
+        var tempFirstDestPort: UInt?
+        var linePosition: IosLinePosition = .beginning
+        var tempSourceIp: UInt?
+        var tempDestIp: UInt?
+        var protocolObjectGroup = false //set to true if we have a protocol slash service object group, that turns off some port operators
+        
+        self.line = line
+        self.linenum = linenum
+        
+        func reportError() {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+        }
+        
+        func reportUnsupported(keyword: String) {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+        }
+        
+        func validateIos() -> Bool { // true -> ACE validated
+            if self.aclAction == .neither { return false }
+            
+            self.ipVersion = .IPv4
+            
+            if self.sourceIp.count == 0 { return false }
+            if self.destIp.count == 0 { return false }
+            if self.ipProtocols.count != 1 { return false }
+            guard let ipProtocol = self.ipProtocols.first else { return false }
+            
+            switch ipProtocol {
+            case 6:
+                break
+            case 17:
+                if self.established == true { return false }
+            case 0...255:
+                if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
+                    return false
+                }
+                if self.established == true { return false }
+            default:
+                // should not get here
+                return false
+            }
+            return true
+            
+        }
+
+        
+        func analyzeFirstSourcePort(firstPort: UInt) -> Bool { // true = success
+            guard firstPort >= 0 && firstPort <= 65535, let tempSourcePortOperator = tempSourcePortOperator else {
+                return false
+            }
+            switch tempSourcePortOperator {
+                
+            case .eq:
+                guard let portRange = PortRange(minPort: firstPort, maxPort: firstPort) else {
+                    return false
+                }
+                self.sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .gt:
+                guard let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) else {
+                    return false
+                }
+                self.sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .lt:
+                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                    return false
+                }
+                self.sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .ne:
+                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
+                self.sourcePort = [portRange1,portRange2].compactMap({ $0 })
+                linePosition = .lastSourcePort
+            case .range:
+                tempFirstSourcePort = firstPort
+                linePosition = .firstSourcePort
+            }
+            return true
+        }
+        
+        
+        func analyzeFirstDestPort(firstDestPort: UInt) -> Bool { // true = success
+            guard firstDestPort >= 0 && firstDestPort <= 65535, let tempDestPortOperator = tempDestPortOperator else {
+                return false
+            }
+            switch tempDestPortOperator {
+                
+            case .eq:
+                guard let portRange = PortRange(minPort: firstDestPort, maxPort: firstDestPort) else {
+                    return false
+                }
+                self.destPort = [portRange]
+                linePosition = .lastDestPort
+            case .gt:
+                guard let portRange = PortRange(minPort: firstDestPort + 1, maxPort: MAXPORT) else {
+                    return false
+                }
+                self.destPort = [portRange]
+                linePosition = .lastDestPort
+            case .lt:
+                guard let portRange = PortRange(minPort: 0, maxPort: firstDestPort - 1) else {
+                    return false
+                }
+                self.destPort = [portRange]
+                linePosition = .lastDestPort
+            case .ne:
+                let portRange1 = PortRange(minPort: 0, maxPort: firstDestPort - 1)
+                let portRange2 = PortRange(minPort: firstDestPort + 1, maxPort: MAXPORT)
+                self.destPort = [portRange1,portRange2].compactMap({ $0 })
+                linePosition = .lastDestPort
+            case .range:
+                tempFirstDestPort = firstDestPort
+                linePosition = .firstDestPort
+            }
+            return true
+        }
+
+        let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let words = line.split{ $0.isWhitespace }.map{ String($0)}
+        if words.count < 1 {
+            return nil
+        }
+
+        wordLoop: for word in words {
+            guard let token = IosToken(string: word) else {
+                reportError()
+                return nil
+            }
+            switch linePosition {
+            case .beginning:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList:
+                    linePosition = .accessList
+                case .action(let action):
+                    self.aclAction = action
+                    linePosition = .action
+                case .comment:
+                    return nil
+                case .ipProtocol,.any,.host,.portOperator, .log, .established,.fourOctet,.number,.name,.objectGroup:
+                    reportError()
+                    return nil
+                }
+            case .accessList:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .number(let aclNumber):
+                    let listName = String(aclNumber)
+                    self.listName = listName
+                    aclDelegate?.foundName(listName, delegateWindow: delegateWindow)
+                    linePosition = .listName
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet,.name:
+                    reportError()
+                    return nil
+                }
+            case .listName:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action(let aclAction):
+                    self.aclAction = aclAction
+                    linePosition = .action
+                case .accessList,.ipProtocol,.any,.host,.objectGroup,.portOperator,.log,.established,.fourOctet,.number,.name:
+                    reportError()
+                    return nil
+                case .comment:
+                    return nil
+                }
+            case .action:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .ipProtocol(let ipProtocol):
+                    self.ipProtocols = [ipProtocol]
+                    linePosition = .ipProtocol
+                case .number(let possibleIpProtocol):
+                    guard possibleIpProtocol < 256 && possibleIpProtocol > 0 else {
+                        reportError()
+                        return nil
+                    }
+                    self.ipProtocols = [possibleIpProtocol]
+                    linePosition = .ipProtocol
+                case .objectGroup:
+                    protocolObjectGroup = true
+                    linePosition = .protocolObjectGroup
+                case .accessList,.action,.any,.host,.portOperator,.comment,.log,.established,.fourOctet,.number,.name:
+                    reportError()
+                    return nil
+                }
+            case .ipProtocol:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList, .action, .ipProtocol,.portOperator,.comment,.log,.established,.number,.name:
+                    reportError()
+                    return nil
+                case .any:
+                    self.sourceIp = [ANYIPRANGE]
+                    linePosition = .sourceMask
+                case .host:
+                    linePosition = .sourceIpHost
+                case .objectGroup:
+                    linePosition = .sourceObjectGroup
+                case .fourOctet(let sourceIp):
+                    tempSourceIp = sourceIp
+                    linePosition = .sourceIp
+                }
+            case .protocolObjectGroup:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet,.number:
+                    reportError()
+                    return nil
+                case .name(let objectName):
+                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupService(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    //TODO fix object group service for ios
+                    //self.ipProtocols = sourceObjectGroup.
+                }
+            case .sourceIp:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.number,.name:
+                    reportError()
+                    return nil
+                case .fourOctet(let dontCareBit):
+                    guard let tempSourceIp = tempSourceIp, let sourceIp = IpRange(ipv4: tempSourceIp, dontCare: dontCareBit) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    if !sourceIp.bitAligned {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+                    }
+                    self.sourceIp = [sourceIp]
+                    linePosition = .sourceMask
+                }
+            case .sourceObjectGroup:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet,.number:
+                    reportError()
+                    return nil
+                case .name(let objectName):
+                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.sourceIp = sourceObjectGroup.ipRanges
+                    linePosition = .sourceMask
+                }
+            case .sourceIpHost:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.number,.name:
+                    reportError()
+                    return nil
+                case .fourOctet(let ipHost):
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    self.sourceIp = [ipRange]
+                    linePosition = .sourceMask
+                }
+            case .sourceMask:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.comment,.log,.established,.number,.name:
+                    reportError()
+                    return nil
+                case .any:
+                    self.destIp = [ANYIPRANGE]
+                    linePosition = .destMask
+                case .fourOctet(let destIp):
+                    tempDestIp = destIp
+                    linePosition = .destIp
+                case .host:
+                    linePosition = .destIpHost
+                case .objectGroup:
+                    linePosition = .destObjectGroup
+                case .portOperator(let sourcePortOperator):
+                    guard protocolObjectGroup == false else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Port operator cannot be combined with protocol object-group in IOS ACL", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    //no object-group service so we know only 1 protocol
+                    guard let ipProtocol = self.ipProtocols.first, ipProtocol == 6 || ipProtocol == 17 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Port operator only valid for tcp or udp ip protocol", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    tempSourcePortOperator = sourcePortOperator
+                    linePosition = .sourcePortOperator
+                }
+            case .sourcePortOperator:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet:
+                    reportError()
+                    return nil
+                case .number(let port):
+                    guard port < MAXPORT else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    guard analyzeFirstSourcePort(firstPort: port) else {
+                        reportError()
+                        return nil
+                    }
+                    //linePosition set in analyzeFirstSourcePort
+                case .name(let possiblePortName):
+                    //we know there is only one ipProtocol because there cannot be a service object group
+                    guard let ipProtocol = self.ipProtocols.first else {
+                        //should not get here
+                        reportError()
+                        return nil
+                    }
+                    let port: UInt
+                    switch ipProtocol {
+                    case 6:
+                        guard let possiblePort = possiblePortName.iosTcpPort else {
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            errorDelegate?.report(severity: .error, message: "invalid source port \(possiblePortName) for protocol \(ipProtocol)", line: linenum, delegateWindow: delegateWindow)
+                            return nil
+                        }
+                        port = possiblePort
+                    case 17:
+                        guard let possiblePort = possiblePortName.iosUdpPort else {
+                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            errorDelegate?.report(severity: .error, message: "invalid source port \(possiblePortName) for protocol \(ipProtocol)", line: linenum, delegateWindow: delegateWindow)
+                            return nil
+                        }
+                        port = possiblePort
+                    default:
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "invalid source port \(possiblePortName) for protocol \(ipProtocol)", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    guard analyzeFirstSourcePort(firstPort: port) else {
+                        reportError()
+                        return nil
+                    }
+                    //linePosition set in analyzeFirstSourcePort
+                }
+            case .firstSourcePort:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet:
+                    reportError()
+                    return nil
+                case .number(let secondSourcePort):
+                    guard secondSourcePort < MAXPORT, tempSourcePortOperator == .range, let firstSourcePort = tempFirstSourcePort, let portRange = PortRange(minPort: firstSourcePort, maxPort: secondSourcePort) else {
+                        reportError()
+                        return nil
+                    }
+                    self.sourcePort = [portRange]
+                    linePosition = .lastSourcePort
+                case .name(let secondPortString):
+                    //we know only 1 ip protocol since no objectgroupservice
+                    guard let firstSourcePort = tempFirstSourcePort, tempSourcePortOperator == .range, let ipProtocol = self.ipProtocols.first else {
+                        reportError()
+                        return nil
+                    }
+                    let secondSourcePort: UInt
+                    switch ipProtocol {
+                    case 6:
+                        guard let secondPortOptional = secondPortString.iosTcpPort else {
+                            reportError()
+                            return nil
+                        }
+                        secondSourcePort = secondPortOptional
+                    case 17:
+                        guard let secondPortOptional = secondPortString.iosUdpPort else {
+                            reportError()
+                            return nil
+                        }
+                        secondSourcePort = secondPortOptional
+                    default:
+                        reportError()
+                        return nil
+                    }
+                    guard let sourcePortRange = PortRange(minPort: firstSourcePort, maxPort: secondSourcePort) else {
+                        reportError()
+                        return nil
+                    }
+                    self.sourcePort = [sourcePortRange]
+                    linePosition = .lastSourcePort
+                }
+            case .lastSourcePort:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.portOperator,.comment,.log,.established,.number,.name:
+                    reportError()
+                    return nil
+                case .any:
+                    let ipRange = IpRange(minIp: 0, maxIp: MAXIP)
+                    self.destIp = [ipRange]
+                    linePosition = .destIp
+                case .host:
+                    linePosition = .destIpHost
+                case .objectGroup:
+                    linePosition = .destObjectGroup
+                case .fourOctet(let destIp):
+                    tempDestIp = destIp
+                    linePosition = .destIp
+                }
+            case .destIp:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.number,.name:
+                    reportError()
+                case .fourOctet(let dontCareBit):
+                    guard let tempDestIp = tempDestIp, let destIp = IpRange(ipv4: tempDestIp, dontCare: dontCareBit) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    if !destIp.bitAligned {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .warning, message: "Dest IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+                    }
+                    self.destIp = [destIp]
+                    linePosition = .destMask
+                }
+            case .destIpHost:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.number,.name:
+                    reportError()
+                    return nil
+                case .fourOctet(let ipHost):
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    self.destIp = [ipRange]
+                    linePosition = .destMask
+                }
+            case .destObjectGroup:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet,.number:
+                    reportError()
+                    return nil
+                case .name(let objectName):
+                    guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.destIp = destObjectGroup.ipRanges
+                    linePosition = .destMask
+                }
+            case .destMask:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action,.accessList,.ipProtocol,.any,.host,.objectGroup,.fourOctet:
+                    reportError()
+                    return nil
+                case .number(let possibleIcmpMessage):
+                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 1, let icmpMessage = IcmpMessage(type: possibleIcmpMessage, code: nil) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages.append(icmpMessage)
+                    linePosition = .icmpType
+                case .name(let possibleIcmpMessage):
+                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 1, let icmpMessage = IcmpMessage(deviceType: .ios, message: possibleIcmpMessage) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages.append(icmpMessage)
+                    linePosition = .end
+                case .portOperator(let destPortOperator):
+                    guard protocolObjectGroup == false else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Cannot combine port operator with protocol object group in IOS", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    tempDestPortOperator = destPortOperator
+                    linePosition = .destPortOperator
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    linePosition = .end
+                case .established:
+                    guard self.established == false else {
+                        reportError()
+                        return nil
+                    }
+                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Established only has meaning for protocol tcp", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.established = true
+                    linePosition = .end
+                }
+            case .destPortOperator:
+                guard protocolObjectGroup == false else {
+                    //should not get here
+                    reportError()
+                    return nil
+                }
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet:
+                    reportError()
+                    return nil
+                case .number(let firstDestPort):
+                    guard analyzeFirstDestPort(firstDestPort: firstDestPort) else {
+                        reportError()
+                        return nil
+                    }
+                    //linePosition changed in analyzeFirstDestPort
+                case .name(let firstDestPortString):
+                    //we know we only have one protocol
+                    guard let ipProtocol = self.ipProtocols.first else {
+                        reportError()
+                        return nil
+                    }
+                    switch ipProtocol {
+                    case 6:
+                        guard let firstDestPort = firstDestPortString.iosTcpPort, analyzeFirstDestPort(firstDestPort: firstDestPort) else {
+                            reportError()
+                            return nil
+                        }
+                    case 17:
+                        guard let firstDestPort = firstDestPortString.iosUdpPort, analyzeFirstDestPort(firstDestPort: firstDestPort) else {
+                            reportError()
+                            return nil
+                        }
+                    default:
+                        reportError()
+                        return nil
+                    }
+                    //linePosition changed in analyzeFirstDestPort
+                }
+            case .firstDestPort:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList, .action, .ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet:
+                    reportError()
+                    return nil
+                case .number(let secondDestPort):
+                    guard let tempFirstDestPort = tempFirstDestPort, secondDestPort <= MAXPORT, tempDestPortOperator == .range, let destPort = PortRange(minPort: tempFirstDestPort, maxPort: secondDestPort) else {
+                        reportError()
+                        return nil
+                    }
+                    self.destPort.append(destPort)
+                case .name(let secondDestPortString):
+                    var possibleDestPort: UInt?
+                    if self.ipProtocols.count > 1 {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .warning, message: "Unexpectedly found multiple ipProtocols for \(deviceType) after \(linePosition).  Please send this case to feedback@networkmom.net.  Analysis of this line may not be accurate.", line: linenum, delegateWindow: delegateWindow)
+                    }
+                    guard let ipProtocol = self.ipProtocols.first else {
+                        reportError()
+                        return nil
+                    }
+                    switch ipProtocol {
+                    case 6:
+                        if let tempPort = secondDestPortString.iosTcpPort {
+                            possibleDestPort = tempPort
+                        }
+                    case 17:
+                        if let tempPort = secondDestPortString.iosUdpPort {
+                            possibleDestPort = tempPort
+                        }
+                    default:
+                        break // error dealt with with next test since possiblePort is still nil
+                    }
+                    guard let port = possibleDestPort, let tempFirstDestPort = tempFirstDestPort, let destPort = PortRange(minPort: tempFirstDestPort, maxPort: port) else {
+                        reportError()
+                        return nil
+                    }
+                    self.destPort.append(destPort)
+                    linePosition = .lastDestPort
+                }
+            case .icmpType:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.established,.fourOctet,.name:
+                    reportError()
+                    return nil
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    linePosition = .end
+                case .number(let possibleIcmpCode):
+                    guard let icmpType = self.icmpMessages.first?.code else {
+                        reportError()
+                        return nil
+                    }
+                    guard let newIcmp = IcmpMessage(type: icmpType, code: possibleIcmpCode) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages = [newIcmp]
+                    linePosition = .end
+                }
+            case .lastDestPort:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList, .action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.fourOctet,.number,.name:
+                    reportError()
+                    return nil
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    linePosition = .end
+                case .established:
+                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "established keyword is only valid for IP protocol TCP", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.established = true
+                    linePosition = .end
+                }
+            case .comment:
+                linePosition = .comment
+            case .end:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    linePosition = .end
+                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.fourOctet,.number,.name:
+                    reportError()
+                    return nil
+                case .established:
+                    guard established == false && self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
+                        reportError()
+                        return nil
+                    }
+                    self.established = true
+                    linePosition = .end
+                }
+            }
+        }//wordLoop
+        if validateIos() == false {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
+            return nil
+        }
+    }//init IOS
+    
+    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, asa: Bool) {
+        var tempSourcePortOperator: PortOperator?
+        var tempFirstSourcePort: UInt?
+        var tempDestPortOperator: PortOperator?
+        var tempFirstDestPort: UInt?
+        var linePosition: AsaLinePosition = .beginning
+        var tempSourceIp: UInt?
+        var tempDestIp: UInt?
+        
+        self.line = line
+        self.linenum = linenum
+        
+        func reportError() {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+        }
+        let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let words = line.split{ $0.isWhitespace }.map{ String($0)}
+        if words.count < 1 {
+            return nil
+        }
+        
+        //TODO review
+        func analyzeFirstSourcePort(firstPort: UInt) -> Bool { // true == success
+            guard firstPort >= 0 && firstPort <= 65535, let tempSourcePortOperator = tempSourcePortOperator else {
+                return false
+            }
+            switch tempSourcePortOperator {
+                
+            case .eq:
+                guard let portRange = PortRange(minPort: firstPort, maxPort: firstPort) else {
+                    return false
+                }
+                sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .gt:
+                guard let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) else {
+                    return false
+                }
+                sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .lt:
+                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                    return false
+                }
+                sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .ne:
+                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
+                sourcePort = [portRange1,portRange2].compactMap({ $0 })
+                linePosition = .lastSourcePort
+            case .range:
+                tempFirstSourcePort = firstPort
+                linePosition = .firstSourcePort
+            }
+            return true
+        }
+        
+        //TODO review
+        func analyzeFirstDestPort(firstPort: UInt) -> Bool { // true == success
+            guard firstPort >= 0 && firstPort <= 65535, let tempDestPortOperator = tempDestPortOperator else {
+                return false
+            }
+            switch tempDestPortOperator {
+                
+            case .eq:
+                guard let portRange = PortRange(minPort: firstPort, maxPort: firstPort) else {
+                    return false
+                }
+                destPort = [portRange]
+                linePosition = .lastDestPort
+            case .gt:
+                guard let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) else {
+                    return false
+                }
+                destPort = [portRange]
+                linePosition = .lastDestPort
+            case .lt:
+                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                    return false
+                }
+                destPort = [portRange]
+                linePosition = .lastDestPort
+            case .ne:
+                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
+                destPort = [portRange1,portRange2].compactMap({ $0 })
+                linePosition = .lastDestPort
+            case .range:
+                tempFirstDestPort = firstPort
+                linePosition = .firstDestPort
+            }
+            return true
+        }
+
+        wordLoop: for word in words {
+            guard let token = AsaToken(string: word) else {
+                reportError()
+                return nil
+            }
+        }
+    }
+
+
     func analyze(socket: Socket) -> AclAction {
         // check source ip
         var sourceIpMatch = false
