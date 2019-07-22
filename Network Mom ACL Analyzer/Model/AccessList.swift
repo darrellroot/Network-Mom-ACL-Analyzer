@@ -89,6 +89,7 @@ class AccessList {
                     configurationMode = .iosXrObjectGroupService
                     lastSequenceSeen = 0
                     objectName = objectNameTemp
+                    continue lineLoop
                 } else {
                     delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
                     configurationMode = .accessControlEntry
@@ -96,6 +97,46 @@ class AccessList {
                     objectName = nil
                 }
             }
+            if self.deviceType == .iosxr && configurationMode == .iosXrObjectGroupService, let objectName = objectName, let objectGroup = objectGroupServices[objectName], let possibleSequence = words[safe: 0] {
+                let portOperator: PortOperator
+                var myWords = words
+                if let _ = UInt(possibleSequence) {
+                    myWords.removeFirst()
+                }
+                if let firstWord = myWords[safe: 0],let secondWord = myWords[safe: 1] {
+                    switch firstWord {
+                    case "description":
+                        break
+                    case "eq":
+                        if let firstPort = UInt(secondWord) ?? secondWord.iosXrTcpPort ?? secondWord.iosXrUdpPort , let portRange = PortRange(minPort: firstPort, maxPort: firstPort) {
+                            objectGroup.portRanges.append(portRange)
+                            continue lineLoop
+                        }
+                    case "lt":
+                        if let firstPort = UInt(secondWord) ?? secondWord.iosXrTcpPort ?? secondWord.iosXrUdpPort, firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) {
+                            objectGroup.portRanges.append(portRange)
+                            continue lineLoop
+                        }
+                    case "gt":
+                        if let firstPort = UInt(secondWord) ?? secondWord.iosXrTcpPort ?? secondWord.iosXrUdpPort, firstPort < MAXPORT, let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) {
+                            objectGroup.portRanges.append(portRange)
+                            continue lineLoop
+                        }
+                    case "range":
+                        if let firstPort = UInt(secondWord), let thirdWord = myWords[safe: 2], let secondPort = UInt(thirdWord), firstPort < secondPort, firstPort <= MAXPORT, secondPort <= MAXPORT, let portRange = PortRange(minPort: firstPort, maxPort: secondPort) {
+                            objectGroup.portRanges.append(portRange)
+                            continue lineLoop
+                        }//case range
+                    case "object-group":
+                        if let nestedObjectName = myWords[safe: 1], let nestedObject = objectGroupServices[nestedObjectName] {
+                            objectGroup.portRanges.append(contentsOf: nestedObject.portRanges)
+                            continue lineLoop
+                        }//case object-group
+                    default:
+                        break
+                    }//switch firstWord
+                }//let firstWord
+            }//if self.deviceType
             
             if deviceType == .asa && words[safe: 0] == "object" && words[safe: 1] ==
             "network", let tempObjectName = words[safe: 2] {
@@ -329,8 +370,12 @@ class AccessList {
             }
             
             //if line.starts(with: "object-group service") {
-            if words[safe: 0] == "object-group" && words[safe: 1] == "service" && deviceType == .asa  {
-                if let objectNameTemp = words[safe: 2], let type = words[safe: 3] {
+            if deviceType == .asa && words[safe: 0] == "object-group" && words[safe: 1] == "service" {
+                delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                delegate?.report(severity: .error, message: "object-group service not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
+                continue lineLoop
+            }/*
+                if let objectNameTemp = words[safe: 2] {
                     guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
                         delegate?.report(severity: .error, message: "Duplicate object-group service \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
                         configurationMode = .accessControlEntry
@@ -338,27 +383,38 @@ class AccessList {
                         objectName = nil
                         continue lineLoop
                     }
+                    let type = words[safe: 3]
                     switch type {
-                    case "tcp":
+                    case .none:
+                        let objectGroupService = ObjectGroupService(type: .none)
+                        self.objectGroupServices[objectNameTemp] = objectGroupService
+                        configurationMode = .objectGroupService
+                        lastSequenceSeen = 0
+                        objectName = objectNameTemp
+                        continue lineLoop
+                    case .some("tcp"):
                         let objectGroupService = ObjectGroupService(type: .tcp)
                         self.objectGroupServices[objectNameTemp] = objectGroupService
                         configurationMode = .objectGroupService
                         lastSequenceSeen = 0
                         objectName = objectNameTemp
+                        self.warnings.insert("Cisco deprecated tcp/udp/tcp-udp in object-group service")
                         continue lineLoop
-                    case "udp":
+                    case .some("udp"):
                         let objectGroupService = ObjectGroupService(type: .udp)
                         self.objectGroupServices[objectNameTemp] = objectGroupService
                         configurationMode = .objectGroupService
                         lastSequenceSeen = 0
                         objectName = objectNameTemp
+                        self.warnings.insert("Cisco deprecated tcp/udp/tcp-udp in object-group service")
                         continue lineLoop
-                    case "tcp-udp":
+                    case .some("tcp-udp"):
                         let objectGroupService = ObjectGroupService(type: .tcpAndUdp)
                         self.objectGroupServices[objectNameTemp] = objectGroupService
                         configurationMode = .objectGroupService
                         lastSequenceSeen = 0
                         objectName = objectNameTemp
+                        self.warnings.insert("Cisco deprecated tcp/udp/tcp-udp in object-group service")
                         continue lineLoop
                     default:
                         delegate?.report(severity: .error, message: "Invalid object-group type \(type)", line: linenum, delegateWindow: delegateWindow)
@@ -369,7 +425,7 @@ class AccessList {
                     }
                 }
                 continue lineLoop //should not get here but just in case
-            }
+            }*/
             
             if deviceType == .asa && words[safe: 0] == "names" {
                 asaNamesEnabled = true

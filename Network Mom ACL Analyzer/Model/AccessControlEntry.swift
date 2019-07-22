@@ -1237,6 +1237,7 @@ struct AccessControlEntry {
                         return nil
                     }
                     self.sourcePort = serviceObjectGroup.portRanges
+                    linePosition = .lastSourcePort
                 }
             case .lastSourcePort:
                 switch token {
@@ -1278,7 +1279,7 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
                     }
                     self.destIp = [destIp]
-                    linePosition = .sourceMask
+                    linePosition = .destMask
                 }
             case .destIpHost:
                 switch token {

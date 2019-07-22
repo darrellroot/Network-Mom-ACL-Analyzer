@@ -12,4 +12,5 @@ enum ServiceType {
     case tcp
     case udp
     case tcpAndUdp
+    case none      //means service type not specified on asa
 }

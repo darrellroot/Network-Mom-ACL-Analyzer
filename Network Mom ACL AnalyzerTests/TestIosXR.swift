@@ -311,7 +311,50 @@ ipv4 access-list CounterExample
         XCTAssert(result2 == .deny)
     }
 
+    func testIosXrObjectGroup2() {
+        let sample = """
+        object-group network ipv4 aaa
+        description hello
+        host 1.1.1.1
+        2.0.0.0 255.255.255.0
+        range 3.0.0.0 255.255.255.0
+        object-group network ipv4 bbb
+        range 4.0.0.0 255.255.255.0
+        object-group aaa
+        ipv4 access-list bob
+        10 permit tcp net-group aaa net-group bbb eq 80
+        """
+        
+        let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "4.0.0.4".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
 
+        let socket1r = Socket(ipProtocol: 6, sourceIp: "4.0.0.5".ipv4address!, destinationIp: "4.0.0.4".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
+        let result1r = acl.analyze(socket: socket1r)
+        XCTAssert(result1r == .permit)
+    }
+    
+    func testIosXrObjectGroup3() {
+        let sample = """
+        object-group port web
+        eq www
+        eq 443
+        range 450 451
+        ipv4 access-list testing
+        10 permit tcp host 1.1.1.1 port-group web 2.2.2.2 0.0.0.0 port-group web log-input
+        """
+        
+        let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 80, destinationPort: 443, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 450, destinationPort: 451, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .permit)
+
+    }
 
     func testIosXrNestedObjectGroup() {
         let sample = """

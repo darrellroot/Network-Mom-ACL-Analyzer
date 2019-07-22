@@ -221,7 +221,77 @@ statistics per-entry
         XCTAssert(result2 == .deny)
     }
     
+    func testNxosObject1() {
+        let sample = """
+object-group ip address SERVERS
+    10 host 1.1.1.101
+    20 10.0.0.0/24
+    30 11.0.0.0 0.0.255.255
+object-group ip port WEB
+    10 eq 80
+    20 eq 443
+    30 range 8000 8999
+ip access-list L3Port
+    10 permit tcp addrgroup SERVERS portgroup WEB any
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "11.0.37.45".ipv4address!, destinationIp: "12.0.0.2".ipv4address!, sourcePort: 80, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .permit)
+    }
     
+    func testNxosObjectWrong1() {
+        let sample = """
+object-group ip address SERVERS
+    10 host 1.1.1.101
+    20 10.0.0.0/24
+    30 11.0.0.0 255.255.0.0
+object-group ip port WEB
+    10 eq 80
+    20 eq 443
+    30 range 8000 8999
+ip access-list L3Port
+    10 permit tcp addrgroup SERVERS portgroup WEB any
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "11.0.37.45".ipv4address!, destinationIp: "12.0.0.2".ipv4address!, sourcePort: 80, destinationPort: 22, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .deny)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "10.0.0.37".ipv4address!, destinationIp: "12.0.0.2".ipv4address!, sourcePort: 80, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .permit)
+    }
+
+    func testNxosObjectPort1() {
+        let sample = """
+object-group ip address SERVERS
+    10 host 1.1.1.101
+    20 10.0.0.0/24
+    30 11.0.0.0 255.255.0.0
+object-group ip port WEB
+    10 eq 80
+    20 eq 443
+    30 range 8000 8999
+ip access-list L3Port
+    10 permit tcp addrgroup SERVERS portgroup WEB addrgroup SERVERS portgroup WEB log
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        
+        let socket1 = Socket(ipProtocol: 6, sourceIp: "11.0.37.45".ipv4address!, destinationIp: "1.1.1.101".ipv4address!, sourcePort: 80, destinationPort: 8999, established: false)!
+        let result1 = acl.analyze(socket: socket1)
+        XCTAssert(result1 == .deny)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "11.0.37.45".ipv4address!, destinationIp: "1.1.1.101".ipv4address!, sourcePort: 80, destinationPort: 9000, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+
+    }
     func testNxosCcieMcgee1() {
         let sample = """
 object-group ip address SERVERS
@@ -326,6 +396,7 @@ IP access list ACL_NAME
         XCTAssert(result8 == .permit)
 
     }
+    
     
     func testNxosInvalid1() {
         let line1 = "40 permit tcp host 11.0.0.1 range 5000 10000"
