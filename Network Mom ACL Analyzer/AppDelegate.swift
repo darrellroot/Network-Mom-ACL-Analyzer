@@ -12,6 +12,8 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var analyzeDashboardControllers: [AnalyzeDashboardController] = []
+    var findDuplicateControllers:
+    [FindDuplicateController] = []
     var fontManager: NSFontManager!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -29,6 +31,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         for analyzeDashboardController in analyzeDashboardControllers {
             analyzeDashboardController.changeFont(sender: sender)
         }
+        for findDuplicateController in findDuplicateControllers {
+            findDuplicateController.changeFont(sender: sender)
+        }
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -39,6 +44,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let analyzeDashboardController = AnalyzeDashboardController()
         analyzeDashboardControllers.append(analyzeDashboardController)
         analyzeDashboardController.showWindow(self)
+    }
+    
+    @IBAction func findDuplicateACLs(_ sender: NSMenuItem) {
+        let findDuplicateController = FindDuplicateController()
+        findDuplicateControllers.append(findDuplicateController)
+        findDuplicateController.showWindow(self)
     }
 }
 

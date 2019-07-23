@@ -5,13 +5,12 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="AnalyzeDashboardController" customModule="Network_Mom_ACL_Analyzer" customModuleProvider="target">
+        <customObject id="-2" userLabel="File's Owner" customClass="FindDuplicateController" customModule="Network_Mom_ACL_Analyzer" customModuleProvider="target">
             <connections>
+                <outlet property="aclTextView" destination="oxa-LT-8k6" id="kLg-SW-iHC"/>
                 <outlet property="analyzeButton" destination="gBf-Qu-GOY" id="Nxh-L6-dRs"/>
-                <outlet property="importIngressButton" destination="AkQ-Vm-nPB" id="Ocx-aZ-fY2"/>
-                <outlet property="ingressAclTextView" destination="oxa-LT-8k6" id="Zc9-ma-Hwa"/>
-                <outlet property="ingressAclValidation" destination="YaA-tn-p3E" id="zQ7-Le-jcz"/>
-                <outlet property="ingressDeviceTypeOutlet" destination="7qC-1R-IGq" id="3T3-xx-NQs"/>
+                <outlet property="deviceTypeOutlet" destination="7qC-1R-IGq" id="bG4-yS-4zB"/>
+                <outlet property="outputTextView" destination="YaA-tn-p3E" id="DNk-hX-ell"/>
                 <outlet property="validateButton" destination="vPO-bT-uUS" id="ptN-53-5ca"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
@@ -68,7 +67,7 @@
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="importIngressButton:" target="-2" id="I4a-3C-u7x"/>
+                                            <action selector="importFromFile:" target="-2" id="5kU-HW-dvo"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -89,12 +88,12 @@
                                     <rect key="frame" x="0.0" y="0.0" width="605" height="111"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" spellingCorrection="YES" smartInsertDelete="YES" id="oxa-LT-8k6">
+                                        <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" spellingCorrection="YES" smartInsertDelete="YES" id="oxa-LT-8k6" userLabel="aclTextView">
                                             <rect key="frame" x="0.0" y="0.0" width="605" height="111"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="605" height="0.0"/>
+                                            <size key="minSize" width="605" height="111"/>
                                             <size key="maxSize" width="749" height="10000000"/>
                                             <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                         </textView>
@@ -110,7 +109,7 @@
                                 </scroller>
                             </scrollView>
                             <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="20" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="800" verticalHuggingPriority="800" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9SJ-Qy-E1y">
-                                <rect key="frame" x="137" y="119" width="367" height="21"/>
+                                <rect key="frame" x="117" y="119" width="407" height="21"/>
                                 <subviews>
                                     <button horizontalHuggingPriority="751" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vPO-bT-uUS">
                                         <rect key="frame" x="-6" y="-7" width="124" height="32"/>
@@ -119,17 +118,17 @@
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="validateAcl:" target="-2" id="01j-qw-Se2"/>
+                                            <action selector="validateButton:" target="-2" id="BHX-aM-2N0"/>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gBf-Qu-GOY">
-                                        <rect key="frame" x="126" y="-7" width="247" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Validate ACLs and Analyze Socket" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9dn-Iy-EqE">
+                                        <rect key="frame" x="126" y="-7" width="287" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Validate ACLs and Search For Duplicates" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9dn-Iy-EqE">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="analyzeButton:" target="-2" id="v3O-zp-uja"/>
+                                            <action selector="analyzeButton:" target="-2" id="2bZ-zr-mim"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -148,12 +147,12 @@
                                     <rect key="frame" x="0.0" y="0.0" width="605" height="111"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" spellingCorrection="YES" smartInsertDelete="YES" id="YaA-tn-p3E">
+                                        <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" spellingCorrection="YES" smartInsertDelete="YES" id="YaA-tn-p3E" userLabel="outputTextView">
                                             <rect key="frame" x="0.0" y="0.0" width="605" height="111"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="605" height="0.0"/>
+                                            <size key="minSize" width="605" height="111"/>
                                             <size key="maxSize" width="749" height="10000000"/>
                                             <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                         </textView>

@@ -54,13 +54,19 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="File" id="dMs-cI-mzQ">
+                            <menuItem title="ACL Analysis" id="dMs-cI-mzQ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="File" id="bib-Uj-vzu">
+                                <menu key="submenu" title="ACL Analysis" id="bib-Uj-vzu">
                                     <items>
-                                        <menuItem title="New ACL Analyzer" keyEquivalent="n" id="Was-JA-tGl">
+                                        <menuItem title="New ACL Permit Window" keyEquivalent="n" id="Was-JA-tGl">
                                             <connections>
                                                 <action selector="newAclAnalyzer:" target="Voe-Tx-rLC" id="0dv-Zz-tTL"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="New ACL Duplicate Window" id="JSJ-wD-UA4">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="findDuplicateACLs:" target="Voe-Tx-rLC" id="n6N-Ky-cLP"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
