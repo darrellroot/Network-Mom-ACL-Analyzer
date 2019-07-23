@@ -43,6 +43,8 @@
 		2F4B852022B2EFE300927DD2 /* Severity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B851E22B2EFE300927DD2 /* Severity.swift */; };
 		2F4B852222B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
 		2F4B852322B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
+		2F5D690622E7A002002D7E41 /* FindDuplicateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */; };
+		2F5D690822E7A6D8002D7E41 /* FindDuplicateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */; };
 		2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */; };
 		2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
@@ -110,6 +112,8 @@
 		2F4B851B22B2EC2A00927DD2 /* ErrorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorDelegate.swift; sourceTree = "<group>"; };
 		2F4B851E22B2EFE300927DD2 /* Severity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Severity.swift; sourceTree = "<group>"; };
 		2F4B852122B555F200927DD2 /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
+		2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FindDuplicateController.xib; sourceTree = "<group>"; };
+		2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindDuplicateController.swift; sourceTree = "<group>"; };
 		2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedFeatureTests.swift; sourceTree = "<group>"; };
 		2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcmpMessage.swift; sourceTree = "<group>"; };
 		2F7D69AE22C9576D0024348B /* AclDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AclDelegate.swift; sourceTree = "<group>"; };
@@ -175,8 +179,8 @@
 		2F4B851A22B2EBB100927DD2 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
-				2F4B851B22B2EC2A00927DD2 /* ErrorDelegate.swift */,
 				2F7D69AE22C9576D0024348B /* AclDelegate.swift */,
+				2F4B851B22B2EC2A00927DD2 /* ErrorDelegate.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -184,8 +188,8 @@
 		2F5930BE22B80C8A00434C6E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2F32001C22CBFA1100DC43E5 /* net.networkmom.acl-analyzer.help */,
 				2F1540B222CAFA6600FAAAE1 /* Credits.html */,
+				2F32001C22CBFA1100DC43E5 /* net.networkmom.acl-analyzer.help */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -229,10 +233,10 @@
 		2FBAA072228A0DE200B53113 /* extensions */ = {
 			isa = PBXGroup;
 			children = (
-				2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */,
-				2FBAA082228F5B9D00B53113 /* String+extensions.swift */,
 				2FBAA073228A0DF200B53113 /* Array+extensions.swift */,
 				2F1FD8B122B9EE26008ADBC7 /* Collection+extensions.swift */,
+				2FBAA082228F5B9D00B53113 /* String+extensions.swift */,
+				2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */,
 			);
 			path = extensions;
 			sourceTree = "<group>";
@@ -242,6 +246,8 @@
 			children = (
 				2F4B851622B16C8E00927DD2 /* AnalyzeDashboardController.swift */,
 				2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */,
+				2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */,
+				2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -249,8 +255,8 @@
 		2FBAA076228A12A400B53113 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				2FBAA077228A12D500B53113 /* AccessList.swift */,
 				2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */,
+				2FBAA077228A12D500B53113 /* AccessList.swift */,
 				2F49B71322C6AC86001F0DB5 /* IpRange.swift */,
 				2F0E24EA22C81A460032962D /* ObjectGroupNetwork.swift */,
 				2F32058322CE82BA0013A3E8 /* ObjectGroupProtocol.swift */,
@@ -266,19 +272,19 @@
 			children = (
 				2FBAA07C228A392B00B53113 /* AclAction.swift */,
 				2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */,
-				2FD50F5D22D96E8C0016FC95 /* NxAclToken.swift */,
-				2FFE3B6522DE384500718B4E /* IosXrToken.swift */,
 				2FF8F3FA22E543A1007EECFC /* AsaToken.swift */,
-				2FF8F3F722E41395007EECFC /* IosToken.swift */,
 				2F92967322D7A97500F5A731 /* DelegateWindow.swift */,
 				2F1FD8AE22B9DBB3008ADBC7 /* DeviceType.swift */,
+				2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */,
+				2FF8F3F722E41395007EECFC /* IosToken.swift */,
+				2FFE3B6522DE384500718B4E /* IosXrToken.swift */,
 				2FBAA07E228A399300B53113 /* IpVersion.swift */,
 				2FBAA084228F5EAB00B53113 /* LinePosition.swift */,
 				2FBAA086228F613700B53113 /* MaskType.swift */,
+				2FD50F5D22D96E8C0016FC95 /* NxAclToken.swift */,
 				2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */,
-				2F4B851E22B2EFE300927DD2 /* Severity.swift */,
-				2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */,
 				2F32058A22CE96120013A3E8 /* ServiceType.swift */,
+				2F4B851E22B2EFE300927DD2 /* Severity.swift */,
 			);
 			path = enumerations;
 			sourceTree = "<group>";
@@ -378,6 +384,7 @@
 			files = (
 				2F32001D22CBFA1100DC43E5 /* net.networkmom.acl-analyzer.help in Resources */,
 				2F9D067A228A0702002C09EE /* Assets.xcassets in Resources */,
+				2F5D690622E7A002002D7E41 /* FindDuplicateController.xib in Resources */,
 				2F9D067D228A0702002C09EE /* Main.storyboard in Resources */,
 				2F4B851922B16C8E00927DD2 /* AnalyzeDashboardController.xib in Resources */,
 				2F1540B322CAFA6600FAAAE1 /* Credits.html in Resources */,
@@ -457,6 +464,7 @@
 				2F92967422D7A97500F5A731 /* DelegateWindow.swift in Sources */,
 				2F49B71422C6AC86001F0DB5 /* IpRange.swift in Sources */,
 				2F32058422CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */,
+				2F5D690822E7A6D8002D7E41 /* FindDuplicateController.swift in Sources */,
 				2FBAA083228F5B9D00B53113 /* String+extensions.swift in Sources */,
 				2F1FD8AF22B9DBB3008ADBC7 /* DeviceType.swift in Sources */,
 				2F0E24EB22C81A460032962D /* ObjectGroupNetwork.swift in Sources */,

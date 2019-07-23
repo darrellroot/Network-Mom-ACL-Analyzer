@@ -13,4 +13,5 @@ enum DeviceType: String, CaseIterable, Hashable {
     case asa
     case nxos
     case iosxr
+    case arista
 }

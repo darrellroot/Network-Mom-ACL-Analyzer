@@ -26,6 +26,8 @@ struct IcmpMessage {
     }
     init?(deviceType: DeviceType, message: String) {
         switch deviceType {
+        case .arista:
+            fatalError("IcmpMessage.swift.init not implemented for Arista")
         case .asa:
             switch message {
             case "echo-reply":

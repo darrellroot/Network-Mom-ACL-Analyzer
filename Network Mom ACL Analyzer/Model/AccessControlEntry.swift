@@ -163,9 +163,20 @@ struct AccessControlEntry {
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, nxos: true)
         case .iosxr:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosxr: true)
+            
+        case .arista:
+            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, arista: true)
+
         }
     }
     
+    //MARK: Arista IPV4 INIT
+    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, arista: Bool) {
+
+        debugPrint("In Arista initializer")
+        //placeholder until implemented
+        return nil
+    }
 
     //MARK: NXOS IPV4 INIT
     

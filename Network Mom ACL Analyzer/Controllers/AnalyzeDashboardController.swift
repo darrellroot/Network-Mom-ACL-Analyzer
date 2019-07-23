@@ -179,6 +179,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             self.ingressDeviceType = .asa
         case "NX-OS":
             self.ingressDeviceType = .nxos
+        case "Arista":
+            self.ingressDeviceType = .arista
         default:
             self.report(severity: .error, message: "Unable to identify ingress device type", delegateWindow: .ingressValidation)
             return false
@@ -190,6 +192,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             self.egressDeviceType = .iosxr
         case "NX-OS":
             self.egressDeviceType = .nxos
+        case "Arista":
+            self.egressDeviceType = .arista
         default:
             self.report(severity: .error, message: "Unable to identify egress device type", delegateWindow: .egressValidation)
             return false

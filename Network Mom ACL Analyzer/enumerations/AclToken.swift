@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+/*
 enum AclToken: Equatable {
     case accessList
     case permit
@@ -115,3 +115,4 @@ enum AclToken: Equatable {
         }
     }
 }
+ */

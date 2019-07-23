@@ -81,6 +81,9 @@
                                                                     <menuItem title="NX-OS" id="jeh-XN-XJk" userLabel="NX-OS">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
+                                                                    <menuItem title="Arista" id="R3F-go-wRx">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    </menuItem>
                                                                 </items>
                                                             </menu>
                                                         </popUpButtonCell>
@@ -187,6 +190,9 @@
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
                                                                     <menuItem title="NX-OS" id="Nsg-Jo-9Oh" userLabel="NX-OS">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    </menuItem>
+                                                                    <menuItem title="Arista" id="Zl4-Uo-cdT">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
                                                                 </items>
