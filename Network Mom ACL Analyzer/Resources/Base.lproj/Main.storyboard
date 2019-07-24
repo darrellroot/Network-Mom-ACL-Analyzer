@@ -58,12 +58,13 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="ACL Analysis" id="bib-Uj-vzu">
                                     <items>
-                                        <menuItem title="New ACL Permit Window" keyEquivalent="n" id="Was-JA-tGl">
+                                        <menuItem title="Permit-Deny Analysis" id="Was-JA-tGl">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="newAclAnalyzer:" target="Voe-Tx-rLC" id="0dv-Zz-tTL"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="New ACL Duplicate Window" id="JSJ-wD-UA4">
+                                        <menuItem title="Duplicate Analysis" id="JSJ-wD-UA4">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="findDuplicateACLs:" target="Voe-Tx-rLC" id="n6N-Ky-cLP"/>
@@ -370,6 +371,37 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="arrangeInFront:" target="Ady-hI-5gd" id="DRN-fu-gQh"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="ACL Utilities" id="NxO-zK-rx2">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="ACL Utilities" id="U4x-iX-Yok">
+                                    <items>
+                                        <menuItem title="Random IOS ACL" id="bZN-jp-NxQ">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="randomAcl:" target="Voe-Tx-rLC" id="Gtd-lX-7c8"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Random IOS-XR ACL" id="lQ7-RH-sz6">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="randomAcl:" target="Voe-Tx-rLC" id="GTK-rb-xJB"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Random NX-OS ACL" id="bSQ-a5-OHd">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="randomAcl:" target="Voe-Tx-rLC" id="xfw-Pm-f5z"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Random ASA ACL" id="Vhh-Mh-8To">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="randomAcl:" target="Voe-Tx-rLC" id="hfY-y9-Adx"/>
                                             </connections>
                                         </menuItem>
                                     </items>

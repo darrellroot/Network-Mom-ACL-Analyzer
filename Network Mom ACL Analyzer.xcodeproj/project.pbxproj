@@ -64,6 +64,10 @@
 		2FBAA083228F5B9D00B53113 /* String+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA082228F5B9D00B53113 /* String+extensions.swift */; };
 		2FBAA085228F5EAB00B53113 /* LinePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA084228F5EAB00B53113 /* LinePosition.swift */; };
 		2FBAA087228F613700B53113 /* MaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FBAA086228F613700B53113 /* MaskType.swift */; };
+		2FC3F4F522E90D230043F92D /* RandomAclController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3F4F322E90D230043F92D /* RandomAclController.swift */; };
+		2FC3F4F622E90D230043F92D /* RandomAclController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2FC3F4F422E90D230043F92D /* RandomAclController.xib */; };
+		2FC3F4F822E90F650043F92D /* RandomAcl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3F4F722E90F650043F92D /* RandomAcl.swift */; };
+		2FC3F4F922E90F650043F92D /* RandomAcl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3F4F722E90F650043F92D /* RandomAcl.swift */; };
 		2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */; };
 		2FCE6AA422A865A300E0B4D7 /* UInt+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */; };
 		2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */; };
@@ -133,6 +137,9 @@
 		2FBAA082228F5B9D00B53113 /* String+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+extensions.swift"; sourceTree = "<group>"; };
 		2FBAA084228F5EAB00B53113 /* LinePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinePosition.swift; sourceTree = "<group>"; };
 		2FBAA086228F613700B53113 /* MaskType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskType.swift; sourceTree = "<group>"; };
+		2FC3F4F322E90D230043F92D /* RandomAclController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomAclController.swift; sourceTree = "<group>"; };
+		2FC3F4F422E90D230043F92D /* RandomAclController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RandomAclController.xib; sourceTree = "<group>"; };
+		2FC3F4F722E90F650043F92D /* RandomAcl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomAcl.swift; sourceTree = "<group>"; };
 		2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt+extensions.swift"; sourceTree = "<group>"; };
 		2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortOperator.swift; sourceTree = "<group>"; };
 		2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AclToken.swift; sourceTree = "<group>"; };
@@ -188,7 +195,9 @@
 		2F5930BE22B80C8A00434C6E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2F9D0679228A0702002C09EE /* Assets.xcassets */,
 				2F1540B222CAFA6600FAAAE1 /* Credits.html */,
+				2F9D067B228A0702002C09EE /* Main.storyboard */,
 				2F32001C22CBFA1100DC43E5 /* net.networkmom.acl-analyzer.help */,
 			);
 			path = Resources;
@@ -216,8 +225,6 @@
 			isa = PBXGroup;
 			children = (
 				2F9D0675228A0700002C09EE /* AppDelegate.swift */,
-				2F9D0679228A0702002C09EE /* Assets.xcassets */,
-				2F9D067B228A0702002C09EE /* Main.storyboard */,
 				2FBAA072228A0DE200B53113 /* extensions */,
 				2FCE6AA522AAFCF000E0B4D7 /* enumerations */,
 				2F4B851A22B2EBB100927DD2 /* Protocols */,
@@ -248,6 +255,8 @@
 				2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */,
 				2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */,
 				2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */,
+				2FC3F4F322E90D230043F92D /* RandomAclController.swift */,
+				2FC3F4F422E90D230043F92D /* RandomAclController.xib */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -263,6 +272,7 @@
 				2F32058622CE89E60013A3E8 /* ObjectGroupService.swift */,
 				2F49B71622C6DAED001F0DB5 /* PortRange.swift */,
 				2F4B852122B555F200927DD2 /* Socket.swift */,
+				2FC3F4F722E90F650043F92D /* RandomAcl.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -387,6 +397,7 @@
 				2F5D690622E7A002002D7E41 /* FindDuplicateController.xib in Resources */,
 				2F9D067D228A0702002C09EE /* Main.storyboard in Resources */,
 				2F4B851922B16C8E00927DD2 /* AnalyzeDashboardController.xib in Resources */,
+				2FC3F4F622E90D230043F92D /* RandomAclController.xib in Resources */,
 				2F1540B322CAFA6600FAAAE1 /* Credits.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -425,6 +436,7 @@
 				2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */,
 				2F2698A322A7784300517AC9 /* TestIos.swift in Sources */,
 				2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */,
+				2FC3F4F922E90F650043F92D /* RandomAcl.swift in Sources */,
 				2F2698B022A7799200517AC9 /* MaskType.swift in Sources */,
 				2F2698B222A7799F00517AC9 /* Array+extensions.swift in Sources */,
 				2FCE6AA422A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
@@ -449,6 +461,7 @@
 				2F32058B22CE96120013A3E8 /* ServiceType.swift in Sources */,
 				2FD50F5E22D96E8C0016FC95 /* NxAclToken.swift in Sources */,
 				2F49B71722C6DAED001F0DB5 /* PortRange.swift in Sources */,
+				2FC3F4F822E90F650043F92D /* RandomAcl.swift in Sources */,
 				2F4B851C22B2EC2A00927DD2 /* ErrorDelegate.swift in Sources */,
 				2F7D69AF22C9576D0024348B /* AclDelegate.swift in Sources */,
 				2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */,
@@ -460,6 +473,7 @@
 				2FBAA087228F613700B53113 /* MaskType.swift in Sources */,
 				2FCE6AAA22ACAF5100E0B4D7 /* AclToken.swift in Sources */,
 				2FBAA07A228A38AE00B53113 /* AccessControlEntry.swift in Sources */,
+				2FC3F4F522E90D230043F92D /* RandomAclController.swift in Sources */,
 				2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
 				2F92967422D7A97500F5A731 /* DelegateWindow.swift in Sources */,
 				2F49B71422C6AC86001F0DB5 /* IpRange.swift in Sources */,

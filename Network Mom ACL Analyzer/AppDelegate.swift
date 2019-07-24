@@ -14,6 +14,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var analyzeDashboardControllers: [AnalyzeDashboardController] = []
     var findDuplicateControllers:
     [FindDuplicateController] = []
+    var randomAclControllers: [RandomAclController] = []
+
     var fontManager: NSFontManager!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -42,14 +44,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @IBAction func newAclAnalyzer(_ sender: NSMenuItem) {
         let analyzeDashboardController = AnalyzeDashboardController()
-        analyzeDashboardControllers.append(analyzeDashboardController)
+        self.analyzeDashboardControllers.append(analyzeDashboardController)
         analyzeDashboardController.showWindow(self)
     }
     
     @IBAction func findDuplicateACLs(_ sender: NSMenuItem) {
         let findDuplicateController = FindDuplicateController()
-        findDuplicateControllers.append(findDuplicateController)
+        self.findDuplicateControllers.append(findDuplicateController)
         findDuplicateController.showWindow(self)
     }
+    
+    @IBAction func randomAcl(_ sender: NSMenuItem) {
+        let randomAclController = RandomAclController()
+        switch sender.title {
+        case "Random IOS ACL":
+            randomAclController.deviceType = .ios
+        case "Random IOS-XR ACL":
+            randomAclController.deviceType = .iosxr
+        case "Random NX-OS ACL":
+            randomAclController.deviceType = .nxos
+        case "Random ASA ACL":
+            randomAclController.deviceType = .asa
+        default:
+            debugPrint("Fix appdelegate.randomAcl.switch sender.title")
+        }
+        self.randomAclControllers.append(randomAclController)
+            randomAclController.showWindow(self)
+        
+    }
+    
 }
 

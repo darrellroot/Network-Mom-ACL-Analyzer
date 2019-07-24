@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum PortOperator: String {
+enum PortOperator: String, CaseIterable {
     case eq
     case gt
     case lt
