@@ -151,6 +151,88 @@ struct AccessControlEntry {
     }
     
     public func isDuplicate(of topAce: AccessControlEntry) -> Bool {
+        for ipProtocol in self.ipProtocols {
+            guard topAce.ipProtocols.contains(0) || topAce.ipProtocols.contains(ipProtocol) else {
+                return false
+            }
+        }
+        for selfIpRange in self.sourceIp {
+            var thisRangeOk = false
+            for topIpRange in topAce.sourceIp {
+                if selfIpRange.minIp >= topIpRange.minIp && selfIpRange.maxIp <= topIpRange.maxIp {
+                    thisRangeOk = true
+                }
+            }
+            if thisRangeOk == false {
+                return false
+            }
+        }
+        
+        for selfIpRange in self.destIp {
+            var thisRangeOk = false
+            for topIpRange in topAce.destIp {
+                if selfIpRange.minIp >= topIpRange.minIp && selfIpRange.maxIp <= topIpRange.maxIp {
+                    thisRangeOk = true
+                }
+            }
+            if thisRangeOk == false {
+                return false
+            }
+        }
+        
+        if self.ipProtocols.contains(6) || self.ipProtocols.contains(17) {
+            if self.sourcePort.count == 0 || topAce.sourcePort.count == 0 {
+                debugPrint("self.sourcePort.count == 0 ERROR")
+            }
+            for selfPortRange in self.sourcePort {
+                var thisPortOk = false
+
+                for topPortRange in topAce.sourcePort {
+                    if selfPortRange.minPort >= topPortRange.minPort && selfPortRange.maxPort <= topPortRange.maxPort {
+                        thisPortOk = true
+                    }
+                }
+                if thisPortOk == false {
+                    return false
+                }
+            }// for selfPortRange in sourcePort
+            
+            if self.destPort.count == 0 || topAce.destPort.count == 0 {
+                debugPrint("self.destPort.count == 0 ERROR")
+            }
+            for selfPortRange in self.destPort {
+                var thisPortOk = false
+                
+                for topPortRange in topAce.destPort {
+                    if selfPortRange.minPort >= topPortRange.minPort && selfPortRange.maxPort <= topPortRange.maxPort {
+                        thisPortOk = true
+                    }
+                }
+                if thisPortOk == false {
+                    return false
+                }
+            }// for selfPortRange in destPort
+
+        }
+        
+        // if protocol tcp and if topace only covers established, we must be established
+        if self.ipProtocols.contains(6) {
+            if topAce.established == true {
+                guard self.established == true else {
+                    return false
+                }
+            }
+        }
+        
+        // we do not test for ICMP at this time
+        if self.ipProtocols.contains(1) {
+            return false
+        }
+        
+        if self.ipVersion != topAce.ipVersion {
+            return false
+        }
+
         return true
     }
     //MARK: GLOBAL INIT
@@ -212,8 +294,20 @@ struct AccessControlEntry {
             
             switch ipProtocol {
             case 6:
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
                 break
             case 17:
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
                 if self.established == true { return false }
             case 0...255:
                 if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
@@ -899,8 +993,19 @@ struct AccessControlEntry {
             
             switch ipProtocol {
             case 6:
-                break
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
             case 17:
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
                 if self.established == true { return false }
             case 0...255:
                 if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
@@ -2822,8 +2927,19 @@ struct AccessControlEntry {
             
             switch ipProtocol {
             case 6:
-                break
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
             case 17:
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
                 if self.established == true { return false }
             case 0...255:
                 if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
@@ -3435,6 +3551,44 @@ struct AccessControlEntry {
         self.line = line
         self.linenum = linenum
         
+        
+        func validateAsa() -> Bool { // true -> ACE validated
+            if self.aclAction == .neither { return false }
+            
+            self.ipVersion = .IPv4
+            
+            if self.sourceIp.count == 0 { return false }
+            if self.destIp.count == 0 { return false }
+            guard let ipProtocol = self.ipProtocols.first else { return false }
+            
+            switch ipProtocol {
+            case 6:
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
+                break
+            case 17:
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
+                if self.established == true { return false }
+            case 0...255:
+                if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
+                    return false
+                }
+            default:
+                // should not get here
+                return false
+            }
+            return true
+        }
+
         func reportError() {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
             errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
@@ -4126,6 +4280,11 @@ struct AccessControlEntry {
                 }
             }//switch linePosition
         }//wordLoop
+        if validateAsa() == false {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
+            return nil
+        }
     }//init ASA
 
 

@@ -352,7 +352,7 @@ class AccessList {
                         currentObjectGroup.append(ipRange: ipRange)
                         continue lineLoop
                     case .fourOctet(let network):
-                        guard let word2 = localwords[safe: 1], let token2 = NxAclToken(string: word2), case let .fourOctet(netmask) = token2, netmask >= 0, netmask <= MAXIP, let ipRange = IpRange(ip: network, netmask: netmask) else {
+                        guard let word2 = localwords[safe: 1], let token2 = NxAclToken(string: word2), case let .fourOctet(mask) = token2, mask >= 0, mask <= MAXIP, let ipRange = IpRange(ipv4: network, dontCare: mask) else {
                             delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                             delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
                             configurationMode = .accessControlEntry
