@@ -150,6 +150,9 @@ struct AccessControlEntry {
     
     }
     
+    public func isDuplicate(of topAce: AccessControlEntry) -> Bool {
+        return true
+    }
     //MARK: GLOBAL INIT
     
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?) {

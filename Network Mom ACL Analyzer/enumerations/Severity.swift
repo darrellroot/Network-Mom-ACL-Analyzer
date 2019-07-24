@@ -14,4 +14,5 @@ enum Severity: String {
     case notification
     case linetext
     case result
+    case blank
 }

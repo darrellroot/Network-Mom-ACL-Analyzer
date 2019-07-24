@@ -318,6 +318,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             severityText = ""
         }
         switch delegateWindow {
+        case .duplicateOutput:
+            debugPrint("Invalid delegate window \(delegateWindow) for AnalyzeDashboardController")
         case .ingressValidation:
             ingressValidationString.append(contentsOf: "\(severityText)\(message)\n")
         case .egressValidation:

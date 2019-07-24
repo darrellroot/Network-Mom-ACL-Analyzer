@@ -13,4 +13,5 @@ enum DelegateWindow {
     case egressValidation
     case ingressAnalyze
     case egressAnalyze
+    case duplicateOutput
 }
