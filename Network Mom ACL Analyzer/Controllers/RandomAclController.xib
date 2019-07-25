@@ -26,16 +26,16 @@
                     <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="G5Y-ol-z2y">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="470"/>
                         <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="g0G-g5-q8V">
-                            <rect key="frame" x="0.0" y="0.0" width="465" height="470"/>
+                            <rect key="frame" x="0.0" y="0.0" width="480" height="470"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="D8b-v9-I2M">
-                                    <rect key="frame" x="0.0" y="0.0" width="465" height="470"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="480" height="470"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                    <size key="minSize" width="465" height="470"/>
-                                    <size key="maxSize" width="466" height="10000000"/>
+                                    <size key="minSize" width="480" height="470"/>
+                                    <size key="maxSize" width="480" height="10000000"/>
                                     <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                 </textView>
                             </subviews>
@@ -45,7 +45,7 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                         <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="Avl-0c-U1B">
-                            <rect key="frame" x="465" y="0.0" width="15" height="470"/>
+                            <rect key="frame" x="464" y="0.0" width="16" height="470"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>

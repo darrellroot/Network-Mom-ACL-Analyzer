@@ -36,6 +36,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         for findDuplicateController in findDuplicateControllers {
             findDuplicateController.changeFont(sender: sender)
         }
+        for randomAclController in randomAclControllers {
+            randomAclController.changeFont(sender: sender)
+        }
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {

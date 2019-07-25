@@ -15,11 +15,17 @@ class RandomAclController: NSWindowController {
     @IBOutlet var aclTextView: NSTextView!
     var aclString = "! WARNING: DO NOT USE RANDOM ACLS IN PRODUCTION ENVIRONMENTS\n"
     var deviceType: DeviceType? = nil  // set by AppDelegate when called
-    
+    var fontManager: NSFontManager!
+
     override func windowDidLoad() {
         super.windowDidLoad()
         
         aclTextView.substituteFontName = "Consolas"
+
+        self.fontManager = NSFontManager.shared
+        if let newFont = fontManager.selectedFont {
+            aclTextView.font = newFont
+        }
 
         guard let deviceType = deviceType else {
             aclString = "ERROR: UNKNOWN DEVICE TYPE"
@@ -56,4 +62,14 @@ class RandomAclController: NSWindowController {
         appDelegate.randomAclControllers.remove(object: self)
     }
 
+    @objc public func changeFont(sender: AnyObject) {
+        guard let sender = sender as? NSFontManager else {
+            return
+        }
+        guard let oldFont = aclTextView.font else {
+            return
+        }
+        let newFont = sender.convert(oldFont)
+        aclTextView.font = newFont
+    }
 }
