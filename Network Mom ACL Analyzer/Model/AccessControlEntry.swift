@@ -282,6 +282,11 @@ struct AccessControlEntry {
             errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
         }
         
+        func reportUnsupported(keyword: String) {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+        }
+
         func validateNxos() -> Bool { // true -> ACE validated
             if self.aclAction == .neither { return false }
             
@@ -316,6 +321,28 @@ struct AccessControlEntry {
             default:
                 // should not get here
                 return false
+            }
+            var sourceAllBitAligned = true
+            var destAllBitAligned = true
+            for ipRange in self.sourceIp {
+                if ipRange.bitAligned == false {
+                    sourceAllBitAligned = false
+                }
+            }
+            for ipRange in self.destIp {
+                if ipRange.bitAligned == false {
+                    destAllBitAligned = false
+                }
+            }
+
+            if !sourceAllBitAligned || !destAllBitAligned {
+                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            }
+            if !sourceAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+            if !destAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
             }
             return true
         }
@@ -415,8 +442,7 @@ struct AccessControlEntry {
             case .beginning:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(let action):
                     self.aclAction = action
@@ -428,13 +454,13 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .comment:
+                    //no error needed
                     return nil
                 }
             case .sequence:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(let action):
                     self.aclAction = action
@@ -443,13 +469,13 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .comment:
+                    //no error needed
                     return nil
                 }
             case .action:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .any, .host, .portOperator, .comment, .established, .cidr, .addrgroup,.portgroup,.name, .log, .fourOctet:
                     reportError()
@@ -468,8 +494,7 @@ struct AccessControlEntry {
             case .ipProtocol:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_),.ipProtocol,.portOperator,.comment,.established,.number,.log, .portgroup,.name, .fourOctet:
                     reportError()
@@ -488,8 +513,7 @@ struct AccessControlEntry {
             case .sourceAddrgroup:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
                     reportError()
@@ -505,8 +529,7 @@ struct AccessControlEntry {
             case .sourceIp:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_),.ipProtocol,.comment,.established,.number,.name, .log, .fourOctet:
                     reportError()
@@ -530,8 +553,7 @@ struct AccessControlEntry {
             case .sourceIpHost:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_),.ipProtocol,.any,.host,.portOperator,.comment,.established,.addrgroup,.portgroup,.log, .cidr,.number,.name:
                     reportError()
@@ -544,8 +566,7 @@ struct AccessControlEntry {
             case .sourcePortgroup:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
                     reportError()
@@ -562,8 +583,7 @@ struct AccessControlEntry {
                 
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .addrgroup,.portgroup,.log, . established, . fourOctet, .cidr:
                     reportError()
@@ -598,8 +618,7 @@ struct AccessControlEntry {
             case .firstSourcePort:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host, .portOperator, .comment, .addrgroup,.portgroup,.log, .established, .fourOctet, .cidr:
                     reportError()
@@ -644,8 +663,7 @@ struct AccessControlEntry {
             case .lastSourcePort:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .portOperator, .comment, .established, .fourOctet,.log, .portgroup,.number, .name:
                     reportError()
@@ -665,8 +683,7 @@ struct AccessControlEntry {
             case .destAddrgroup:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
                     reportError()
@@ -682,8 +699,7 @@ struct AccessControlEntry {
             case .destIp:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_),.ipProtocol, .any, .host, .fourOctet, .cidr, .number, .addrgroup,.name:
                     reportError()
@@ -706,8 +722,7 @@ struct AccessControlEntry {
             case .destIpHost:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_),.ipProtocol, .any, .host, .portOperator,.comment, .log, .established,.cidr, .number, .addrgroup,.portgroup,.name:
                     reportError()
@@ -720,8 +735,7 @@ struct AccessControlEntry {
             case .destPortOperator:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host, .portOperator, .addrgroup,.portgroup,.established, .log, .fourOctet, .cidr, .comment:
                     reportError()
@@ -757,8 +771,7 @@ struct AccessControlEntry {
             case .destPortgroup:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host, .addrgroup, .portgroup,.portOperator,.comment, .log, .established,.fourOctet,.cidr,.number:
                     reportError()
@@ -774,8 +787,7 @@ struct AccessControlEntry {
             case .firstDestPort:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host, .portOperator, .addrgroup,.portgroup,.comment, .log, .established, .fourOctet, .cidr:
                     reportError()
@@ -825,8 +837,7 @@ struct AccessControlEntry {
             case .lastDestPort:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_),.ipProtocol,.any, .host, .portOperator, .fourOctet, .addrgroup,.portgroup,.cidr, .number, .name:
                     reportError()
@@ -844,8 +855,7 @@ struct AccessControlEntry {
             case .end:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .addrgroup:
                     break
@@ -907,6 +917,12 @@ struct AccessControlEntry {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
             errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
         }
+        
+        func reportUnsupported(keyword: String) {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+        }
+
         
         let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         let words = line.split{ $0.isWhitespace }.map{ String($0)}
@@ -1028,6 +1044,30 @@ struct AccessControlEntry {
                 // should not get here
                 return false
             }
+            
+            var sourceAllBitAligned = true
+            var destAllBitAligned = true
+            for ipRange in self.sourceIp {
+                if ipRange.bitAligned == false {
+                    sourceAllBitAligned = false
+                }
+            }
+            for ipRange in self.destIp {
+                if ipRange.bitAligned == false {
+                    destAllBitAligned = false
+                }
+            }
+            
+            if !sourceAllBitAligned || !destAllBitAligned {
+                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            }
+            if !sourceAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+            if !destAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+
             return true
         }
 
@@ -1041,8 +1081,7 @@ struct AccessControlEntry {
             case .beginning:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(let action):
                     self.aclAction = action
@@ -1059,8 +1098,7 @@ struct AccessControlEntry {
             case .sequence:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(let action):
                     self.aclAction = action
@@ -1074,8 +1112,7 @@ struct AccessControlEntry {
             case .action:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .portgroup, .portOperator, .comment, .log,.counter, .established, .name, .netgroup:
                     reportError()
@@ -1116,8 +1153,7 @@ struct AccessControlEntry {
             case .sourceIpOnly:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                     
                 case .fourOctet(let dontCareBit):
@@ -1125,10 +1161,6 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                         errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
                         return nil
-                    }
-                    if !sourceIp.bitAligned {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
                     }
                     self.sourceIp = [sourceIp]
                     let destIpRange = ANYIPRANGE
@@ -1142,8 +1174,7 @@ struct AccessControlEntry {
             case .sourceIpHostOnly:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                     
                 case .fourOctet(let sourceIp):
@@ -1163,8 +1194,7 @@ struct AccessControlEntry {
             case .ipProtocol:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .portgroup, .portOperator, .comment, .log, .counter, .established, .number, .name:
                     reportError()
@@ -1186,8 +1216,7 @@ struct AccessControlEntry {
             case .sourceIp:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .counter, .portOperator, .comment,.log,.established,.cidr,.number,.name:
                     reportError()
@@ -1198,18 +1227,13 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
                         return nil
                     }
-                    if !sourceIp.bitAligned {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
-                    }
                     self.sourceIp = [sourceIp]
                     linePosition = .sourceMask
                 }
             case .sourceIpHost:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_), .ipProtocol, .any, .host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.cidr,.number,.name:
                     reportError()
@@ -1222,8 +1246,7 @@ struct AccessControlEntry {
             case .sourceNetgroup:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action(_),.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr,.number:
                     reportError()
@@ -1240,8 +1263,7 @@ struct AccessControlEntry {
             case .sourceMask:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action,.ipProtocol,.comment,.log,.counter, .established,.number,.name:
                     reportError()
@@ -1268,8 +1290,7 @@ struct AccessControlEntry {
             case .sourcePortOperator:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr:
                     reportError()
@@ -1305,8 +1326,7 @@ struct AccessControlEntry {
             case .firstSourcePort:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr:
                     reportError()
@@ -1350,8 +1370,7 @@ struct AccessControlEntry {
             case .sourcePortgroup:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr,.number:
                     reportError()
@@ -1374,8 +1393,7 @@ struct AccessControlEntry {
             case .lastSourcePort:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action,.ipProtocol,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
                     reportError()
@@ -1394,8 +1412,7 @@ struct AccessControlEntry {
             case .destIp:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
                     reportError()
@@ -1406,18 +1423,13 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
                         return nil
                     }
-                    if !destIp.bitAligned {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
-                    }
                     self.destIp = [destIp]
                     linePosition = .destMask
                 }
             case .destIpHost:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
                     reportError()
@@ -1430,8 +1442,7 @@ struct AccessControlEntry {
             case .destNetgroup:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .portgroup,.portOperator,.comment,.log,.counter,.established,.fourOctet,.cidr,.number:
                     reportError()
@@ -1448,8 +1459,7 @@ struct AccessControlEntry {
             case .destMask:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .fourOctet,.cidr:
                     reportError()
@@ -1498,8 +1508,7 @@ struct AccessControlEntry {
             case .icmpType:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.established,.fourOctet,.cidr,.name:
                     reportError()
@@ -1530,8 +1539,7 @@ struct AccessControlEntry {
             case .destPortOperator:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr:
                     reportError()
@@ -1567,8 +1575,7 @@ struct AccessControlEntry {
             case .destPortgroup:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr, .number:
                     reportError()
@@ -1585,8 +1592,7 @@ struct AccessControlEntry {
             case .firstDestPort:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unsupported keyword \(keyword) for \(deviceType) after \(linePosition): not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr:
                     reportError()
@@ -1630,8 +1636,7 @@ struct AccessControlEntry {
             case .lastDestPort:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .fourOctet, .cidr, .number, .name:
                     reportError()
@@ -1664,8 +1669,7 @@ struct AccessControlEntry {
             case .flags:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .fourOctet, .cidr, .number, .name:
                     reportError()
@@ -1698,8 +1702,7 @@ struct AccessControlEntry {
             case .counter:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol,.any,.host,.netgroup,.counter,.portgroup,.portOperator,.comment,.log,.established,.fourOctet,.cidr,.number:
                     reportError()
@@ -1712,8 +1715,7 @@ struct AccessControlEntry {
             case .end:
                 switch token {
                 case .unsupported(let keyword):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+                    reportUnsupported(keyword: keyword)
                     return nil
                 case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.established,.fourOctet,.cidr,.number,.name:
                     reportError()
@@ -1744,1168 +1746,7 @@ struct AccessControlEntry {
         }//Init IOS-XR
     }
     
-    // DEPRECATED DUAL IOS ASA INIT
-
-    /*
-    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosOrAsa: Bool) {
-
-        // These are temporary variables while parsing the ACE
-        // If we successfully parse all of these
-        // Then we can finish the initialization
-        // at the end
-        self.line = line
-        self.linenum = linenum
-        var tempAclAction: AclAction? = nil
-        var tempListName: String? = nil
-        var tempSourceOctet: UInt? = nil
-        var tempSourcePortOperator: PortOperator? = nil
-        
-        var tempRangeSourcePort: UInt? = nil
-        var tempDestOctet: UInt? = nil
-        var tempDestPortOperator: PortOperator? = nil
-        var tempRangeDestPort: UInt? = nil
-        var tempEstablished = false
-
-        var linePosition: LinePosition = .beginning
-        
-        let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        
-        //let words = line.components(separatedBy: CharacterSet.whitespaces).filter { !$0.isEmpty }
-        let words = line.split{ $0.isWhitespace }.map{ String($0)}
-        if words.count < 1 {
-            return nil
-        }
-
-        if words[safe: 0] == "ipv4" && words[safe: 1] == "access-list" {
-            if let name = words[safe: 2] {
-                aclDelegate?.foundName(name, delegateWindow: delegateWindow)
-            }
-            return nil
-        }
-
-        wordLoop: for word in words {
-            guard let token = AclToken(deviceType: deviceType, string: word) else {
-                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                return nil
-            }
-            
-/*            if _isDebugAssertConfiguration() {
-                switch token {
-                case .name(let name):
-                    // manually trigger infinite loop for troubleshooting
-                    if name == "infiniteLoop" {
-                        var counter = 0
-                        errorDelegate?.report(severity: .error, message: "infinite loop manually triggered", line: linenum, delegateWindow: delegateWindow)
-                        while counter < Int.max {
-                            counter = counter + 1
-                        }
-                        errorDelegate?.report(severity: .error, message: "infinite loop complete", line: linenum, delegateWindow: delegateWindow)
-                    }
-                default:
-                    break
-                }
-            }*/
-            switch linePosition {
-            
-            case .beginning:
-                switch token {
-                case .accessList:
-                    linePosition = .accessList
-                    continue wordLoop
-                case .permit:
-                    tempAclAction = .permit
-                    linePosition = .action
-                    continue wordLoop
-                case .deny:
-                    tempAclAction = .deny
-                    linePosition = .action
-                    continue wordLoop
-                case .tcp, .ip, .udp, .icmp, .eq, .extended, .range, .gt, .lt, .ne, .established, .fourOctet, .name, .host, .log, .any:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .number: // IOS XR syntax with possible numbering
-                    linePosition = .beginning
-                    continue wordLoop
-                case .remark:
-                    linePosition = .remark
-                    return nil
-                case .comment:
-                    // comment at beginning
-                    return nil
-                    //linePosition = .comment
-                    //continue wordLoop
-                }
-            case .accessList:
-                switch token {
-                    
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq , .range, .remark, .comment, .gt, .lt, .ne, .extended, .established, .log, .fourOctet, .host, .any:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .number(let number):
-                    tempListName = "\(number)"
-                    linePosition = .listName
-                    aclDelegate?.foundName("\(number)", delegateWindow: delegateWindow)
-                case .name(let name):
-                    tempListName = name
-                    linePosition = .listName
-                    aclDelegate?.foundName(name, delegateWindow: delegateWindow)
-                }
-            case .listName:
-                switch token {
-                    
-                case .accessList, .tcp, .ip, .udp, .icmp, .eq, .range, .comment, .gt, .lt, .ne, .established, .log, .fourOctet, .number, .name, .host, .any:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .extended:
-                    linePosition = .listName
-                    if deviceType == .ios {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "ASA-syntax ace detected despite IOS device Type selected", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                case .permit:
-                    tempAclAction = .permit
-                    linePosition = .action
-                case .deny:
-                    tempAclAction = .deny
-                    linePosition = .action
-                case .remark:
-                    return nil
-                }
-            case .action:
-                switch token {
-                
-                case .accessList, .permit, .deny, .eq, .range, .remark, .comment, .gt, .lt, .ne, .established, .extended, .log, .fourOctet, .name, .host, .any:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    guard deviceType == .asa else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Invalid objectgroup as position \(linePosition) for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    linePosition = .protocolObjectGroup
-                case .tcp:
-                    self.ipProtocols.append(6)
-                    linePosition = .ipProtocol
-                case .ip:
-                    self.ipProtocols.append(0)
-                    linePosition = .ipProtocol
-                case .udp:
-                    self.ipProtocols.append(17)
-                    linePosition = .ipProtocol
-                case .icmp:
-                    self.ipProtocols.append(1)
-                    linePosition = .ipProtocol
-                case .number(let number):
-                    if number > 255 || number < 1 {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid ip protocol after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    } else {
-                        self.ipProtocols.append(number)
-                        //tempIpProtocol = number
-                        linePosition = .ipProtocol
-                    }
-                }
-            case .protocolObjectGroup:
-                switch token {
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .objectGroup, .host, .any, .fourOctet(_), .range, .remark, .comment, .extended, .gt, .lt, .ne, .established, .log, .number:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .name(let objectName):
-                    guard let protocolObjectGroup = aclDelegate?.getObjectGroupProtocol(objectName) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.ipProtocols = protocolObjectGroup.ipProtocols
-                }
-                linePosition = .ipProtocol
-            case .ipProtocol:
-                switch token {
-                    
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .comment, .extended, .gt, .lt, .ne, .established, .log, .number, .name:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    linePosition = .sourceObjectGroup
-                case .any:
-                    let ipRange = IpRange(minIp: 0, maxIp: UInt(UInt32.max))
-                    self.sourceIp.append(ipRange)
-                    //tempMinSourceIp = 0
-                    //tempMaxSourceIp = UInt(UInt32.max)
-                    linePosition = .sourceMask
-                case .fourOctet(let number):
-                    tempSourceOctet = number
-                    linePosition = .sourceIp
-                case .host:
-                    linePosition = .sourceIpHost
-                }
-            case .sourceIp:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number, .name:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .fourOctet(let sourceMask):
-                    let numSourceHosts: UInt
-                    switch deviceType {
-                    case .nxos, .iosxr:
-                        fatalError("should never get here")
-                    case .ios:
-                        guard let numSourceHostsTemp = sourceMask.dontCareHosts else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) acl type should be \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        numSourceHosts = numSourceHostsTemp
-                    case .asa:
-                        guard let numSourceHostsTemp = sourceMask.netmaskHosts else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) acl type should be \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        numSourceHosts = numSourceHostsTemp
-                    }
-                    guard tempSourceOctet != nil else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    let remainder = tempSourceOctet! % numSourceHosts
-                    if remainder > 0 {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
-                    }
-                    let tempMinSourceIp = tempSourceOctet! - remainder
-                    let tempMaxSourceIp = tempMinSourceIp + numSourceHosts - 1
-                    let ipRange = IpRange(minIp: tempMinSourceIp, maxIp: tempMaxSourceIp)
-                    self.sourceIp.append(ipRange)
-                    linePosition = .sourceMask
-                }
-                
-            case .sourceIpHost:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .fourOctet(let ipNumber):
-                    let ipRange = IpRange(minIp: ipNumber, maxIp: ipNumber)
-                    self.sourceIp.append(ipRange)
-                    //tempMinSourceIp = ipNumber
-                    //tempMaxSourceIp = ipNumber
-                case .name(_):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) DNS resolution of hostnames is not supported by Network Mom", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                }
-                linePosition = .sourceMask
-            case .sourceObjectGroup:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .objectGroup:
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                case .fourOctet(let fourOctet):
-                    let objectName = fourOctet.ipv4
-                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.sourceIp = sourceObjectGroup.ipRanges
-                case .number(let number): // could be object group name
-                    let objectName = "\(number)"
-                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.sourceIp = sourceObjectGroup.ipRanges
-                case .name(let objectName):
-                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.sourceIp = sourceObjectGroup.ipRanges
-                }
-                linePosition = .sourceMask
-            case .sourceMask:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .remark, .comment, .number, .name, .established, .log:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    linePosition = .destObjectGroup
-                case .eq:
-                    tempSourcePortOperator = .eq
-                    linePosition = .sourcePortOperator
-                case .range:
-                    tempSourcePortOperator = .range
-                    linePosition = .sourcePortOperator
-                case .host:
-                    linePosition = .destIpHost
-                case .any:
-                    let destIp = IpRange(minIp: 0, maxIp: UInt(UInt32.max))
-                    self.destIp.append(destIp)
-                    linePosition = .destMask
-                case .gt:
-                    tempSourcePortOperator = .gt
-                    linePosition = .sourcePortOperator
-                case .ne:
-                    /*if deviceType == .ios {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) IOS does not support ne port operator", line: linenum)
-                        return nil
-                    }*/
-                    tempSourcePortOperator = .ne
-                    linePosition = .sourcePortOperator
-                case .lt:
-                    tempSourcePortOperator = .lt
-                    linePosition = .sourcePortOperator
-                case .fourOctet(let ipNumber):
-                    tempDestOctet = ipNumber
-                    linePosition = .destIp
-                }
-            case .sourcePortOperator:
-                switch token {
-                    
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .number(let port):
-                    guard port < 65536 else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    //start code snippet A
-                    guard let tempSourcePortOperator = tempSourcePortOperator else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    switch tempSourcePortOperator {
-                        
-                    case .eq:
-                        if let sourcePort = PortRange(minPort: port, maxPort: port) {
-                            self.sourcePort.append(sourcePort)
-                        } else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        }
-                        //tempMinSourcePort = port
-                        //tempMaxSourcePort = port
-                        linePosition = .lastSourcePort
-                    case .ne:
-                        
-                        switch port {
-                        case 0:
-                            let sourcePort = PortRange(minPort: 1, maxPort: 65535)!
-                            self.sourcePort.append(sourcePort)
-                        case 65535:
-                            let sourcePort = PortRange(minPort: 0, maxPort: 65534)!
-                            self.sourcePort.append(sourcePort)
-                        case 1...65534:
-                            guard let sourcePort1 = PortRange(minPort: 0, maxPort: port - 1), let sourcePort2 = PortRange(minPort: port + 1, maxPort: 65535) else  {
-                                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                                return nil
-                            }
-                            self.sourcePort.append(sourcePort1)
-                            self.sourcePort.append(sourcePort2)
-                        default:
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                    case .gt:
-                        guard port < 65535 else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        guard let sourcePort = PortRange(minPort: port + 1, maxPort: 65535) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.sourcePort.append(sourcePort)
-                        linePosition = .lastSourcePort
-                    case .lt:
-                        guard let sourcePort = PortRange(minPort: 0, maxPort: port - 1) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.sourcePort.append(sourcePort)
-                        linePosition = .lastSourcePort
-                    case .range:
-                        tempRangeSourcePort = port
-                        linePosition = .firstSourcePort
-                    }
-                    //end code snippet A
-                case .name(let name):
-                    var possiblePort: UInt?
-                    for ipProtocol in self.ipProtocols {
-                        switch ipProtocol {
-                        case 6:
-                            if let tempPort = name.tcpPort {
-                                possiblePort = tempPort
-                            }
-                        case 17:
-                            if let tempPort = name.udpPort {
-                                possiblePort = tempPort
-                            }
-                        default:
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "protocol does not support source port", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                    }
-                    guard let port = possiblePort else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid source port", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    //start code snippet A
-                    guard let tempSourcePortOperator = tempSourcePortOperator else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    switch tempSourcePortOperator {
-                        
-                    case .eq:
-                        guard let sourcePort = PortRange(minPort: port, maxPort: port) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.sourcePort.append(sourcePort)
-                        linePosition = .lastSourcePort
-                    case .ne:
-                        switch port {
-                        case 0:
-                            let sourcePort = PortRange(minPort: 1, maxPort: 65535)!
-                            self.sourcePort.append(sourcePort)
-                        case 65535:
-                            let sourcePort = PortRange(minPort: 0, maxPort: 65534)!
-                            self.sourcePort.append(sourcePort)
-                        case 1...65534:
-                            guard let sourcePort1 = PortRange(minPort: 0, maxPort: port - 1), let sourcePort2 = PortRange(minPort: port + 1, maxPort: 65535) else {
-                                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                                return nil
-                            }
-                            self.sourcePort.append(sourcePort1)
-                            self.sourcePort.append(sourcePort2)
-                        default:
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                    case .gt:
-                        guard let sourcePort = PortRange(minPort: port + 1, maxPort: 65535) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.sourcePort.append(sourcePort)
-                        linePosition = .lastSourcePort
-                    case .lt:
-                        guard let sourcePort = PortRange(minPort: 0, maxPort: port - 1) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid source port \(port)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.sourcePort.append(sourcePort)
-                        linePosition = .lastSourcePort
-                    case .range:
-                        tempRangeSourcePort = port
-                        linePosition = .firstSourcePort
-                    }
-                    //end code snippet A
-                }
-            case .firstSourcePort:
-                switch token {
-                    
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid source port)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unexpected object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .number(let port):
-                    guard let tempRangeSourcePort = tempRangeSourcePort else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "error decoding source port range", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    guard let sourcePort = PortRange(minPort: tempRangeSourcePort, maxPort: port) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "error decoding source port range", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.sourcePort.append(sourcePort)
-                    linePosition = .lastSourcePort
-                case .name(let name):
-                    var possiblePort: UInt?
-                    for ipProtocol in self.ipProtocols {
-                        switch ipProtocol {
-                        case 6:
-                            if let tempPort = name.tcpPort {
-                                possiblePort = tempPort
-                            }
-                        case 17:
-                            if let tempPort = name.udpPort {
-                                possiblePort = tempPort
-                            }
-                        default:
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "protocol does not support source port", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                    }
-                    guard let port = possiblePort else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid source port)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    guard let tempRangeSourcePort = tempRangeSourcePort else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "error decoding source port range", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    guard let sourcePort = PortRange(minPort: tempRangeSourcePort, maxPort: port) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "error decoding source port range", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.sourcePort.append(sourcePort)
-                    linePosition = .lastSourcePort
-                }
-            case .lastSourcePort:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .comment, .gt, .lt, .ne, .established, .log, .number, .name:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    linePosition = .sourceObjectGroup
-                case .host:
-                    linePosition = .destIpHost
-                case .any:
-                    let ipRange = IpRange(minIp: 0, maxIp: UInt(UInt32.max))
-                    self.destIp.append(ipRange)
-                    linePosition = .destMask
-                case .fourOctet(let ipNumber):
-                    tempDestOctet = ipNumber
-                    linePosition = .destIp
-                }
-            case .destIp:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number, .name:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unexpected object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .fourOctet(let destMask):
-                    let numDestHosts: UInt
-                    switch deviceType {
-                    case .nxos, .iosxr:
-                        fatalError("should never get here")
-                    case .ios:
-                        guard let numDestHostsTemp = destMask.dontCareHosts else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) acl type should be \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        numDestHosts = numDestHostsTemp
-                    case .asa:
-                        guard let numDestHostsTemp = destMask.netmaskHosts else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) acl type should be \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        numDestHosts = numDestHostsTemp
-                    }
-                    guard tempDestOctet != nil else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "error decoding destination ip", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    let remainder = tempDestOctet! % numDestHosts
-                    if remainder > 0 {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
-                    }
-                    let tempMinDestIp = tempDestOctet! - remainder
-                    let tempMaxDestIp = tempMinDestIp + numDestHosts - 1
-                    let ipRange = IpRange(minIp: tempMinDestIp, maxIp: tempMaxDestIp)
-                    self.destIp.append(ipRange)
-                    linePosition = .destMask
-                }
-
-            case .destIpHost:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .number:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Unexpected object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .fourOctet(let ipNumber):
-                    let ipRange = IpRange(minIp: ipNumber, maxIp: ipNumber)
-                    self.destIp.append(ipRange)
-                    //tempMinDestIp = ipNumber
-                    //tempMaxDestIp = ipNumber
-                case .name(_):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) DNS resolution of hostnames is not supported", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                }
-                linePosition = .destMask
-            case .destObjectGroup:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Error decoding object group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .fourOctet(let fourOctet):
-                    let objectName = fourOctet.ipv4
-                    // could be service object group for source port
-                    // or could be dest object group
-                    if let serviceObjectGroup = aclDelegate?.getObjectGroupService(objectName) {
-                        guard self.sourcePort.count == 0 else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "Duplicate source port configuration", delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.sourcePort = serviceObjectGroup.portRanges
-                        linePosition = .lastSourcePort
-                    } else {
-                        guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.destIp = destObjectGroup.ipRanges
-                        linePosition = .destMask
-                    }
-                case .number(let number): // could be object group name
-                    let objectName = "\(number)"
-                    // could be service object group for source port
-                    // or could be dest object group
-                    if let serviceObjectGroup = aclDelegate?.getObjectGroupService(objectName) {
-                        guard self.sourcePort.count == 0 else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "Duplicate source port configuration", delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.sourcePort = serviceObjectGroup.portRanges
-                        linePosition = .lastSourcePort
-                    } else {
-                        guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.destIp = destObjectGroup.ipRanges
-                        linePosition = .destMask
-                    }
-                case .name(let objectName):
-                    // could be service object group for source port
-                    // or could be dest object group
-                    if let serviceObjectGroup = aclDelegate?.getObjectGroupService(objectName) {
-                        guard self.sourcePort.count == 0 else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "Duplicate source port configuration", delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.sourcePort = serviceObjectGroup.portRanges
-                        linePosition = .lastSourcePort
-                    } else {
-                        guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.destIp = destObjectGroup.ipRanges
-                        linePosition = .destMask
-                    }
-                }
-            case .destMask:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .remark, .comment, .host, .any, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    linePosition = .destObjectService
-                case .name(let name):  // only valid for icmp here
-                    guard self.ipProtocols.contains(1) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    if let icmpMessage = IcmpMessage(deviceType: deviceType, message: name) {
-                            self.icmpMessages.append(icmpMessage)
-                    } else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                case .number(let number):
-                    guard self.ipProtocols.contains(1) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    guard let icmpMessage = IcmpMessage(type: number, code: nil) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.icmpMessages.append(icmpMessage)
-                case .established:
-                    guard deviceType == .ios else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Established only has meaning for stateless devices, not device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) established only has meaning for TCP protocol", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    tempEstablished = true
-                    linePosition = .end
-                case .ne:
-                    /*if deviceType == .ios {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) IOS does not support ne port operator", line: linenum)
-                        return nil
-                    }*/
-                    tempDestPortOperator = .ne
-                    linePosition = .destPortOperator
-                case .eq:
-                    tempDestPortOperator = .eq
-                    linePosition = .destPortOperator
-                case .range:
-                    tempDestPortOperator = .range
-                    linePosition = .destPortOperator
-                case .gt:
-                    tempDestPortOperator = .gt
-                    linePosition = .destPortOperator
-                case .lt:
-                    tempDestPortOperator = .lt
-                    linePosition = .destPortOperator
-                case .log:
-                    linePosition = .log
-                }
-            case .destObjectService:
-                switch token {
-                    case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .number, .objectGroup, .ne, .established, .log, .fourOctet:
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    case .name(let objectName):
-                        // must be service object group for dest port
-                        if let serviceObjectGroup = aclDelegate?.getObjectGroupService(objectName) {
-                            guard self.destPort.count == 0 else {
-                                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                errorDelegate?.report(severity: .error, message: "Duplicate dest port configuration", delegateWindow: delegateWindow)
-                                return nil
-                            }
-                            self.destPort = serviceObjectGroup.portRanges
-                            linePosition = .lastDestPort
-                    }
-                }
-            case .destPortOperator:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .number(let port):
-                    guard port < 65536 else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    //start code snippet B
-                    guard let tempDestPortOperator = tempDestPortOperator else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "destination port operator not found after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    switch tempDestPortOperator {
-                        
-                    case .eq:
-                        guard let destPort = PortRange(minPort: port, maxPort: port) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.destPort.append(destPort)
-                        linePosition = .lastDestPort
-                    case .ne:
-                        switch port {
-                        case 0:
-                            let destPort = PortRange(minPort: 1, maxPort: 65535)!
-                            self.destPort.append(destPort)
-                        case 65535:
-                            let destPort = PortRange(minPort: 0, maxPort: 65534)!
-                            self.destPort.append(destPort)
-                        case 1...65534:
-                            guard let destPort1 = PortRange(minPort: 0, maxPort: port - 1), let destPort2 = PortRange(minPort: port + 1, maxPort: 65535) else {
-                                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                errorDelegate?.report(severity: .error, message: "unexpected port error after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                                return nil
-                            }
-                            self.destPort.append(destPort1)
-                            self.destPort.append(destPort2)
-                        default:
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        linePosition = .lastDestPort
-                    case .gt:
-                        guard let destPort = PortRange(minPort: port + 1, maxPort: 65535) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.destPort.append(destPort)
-                        linePosition = .lastDestPort
-                    case .lt:
-                        guard let destPort = PortRange(minPort: 0, maxPort: port - 1) else {
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                        self.destPort.append(destPort)
-                        linePosition = .lastDestPort
-                    case .range:
-                        tempRangeDestPort = port
-                        linePosition = .firstDestPort
-                    }
-                //end code snippet B
-                case .name(let name):
-                    var possiblePort: UInt?
-                    for ipProtocol in self.ipProtocols {
-                        switch ipProtocol {
-                        case 6:
-                            if let tempPort = name.tcpPort {
-                                possiblePort = tempPort
-                            }
-                        case 17:
-                            if let tempPort = name.udpPort {
-                                possiblePort = tempPort
-                            }
-                        default:
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "protocol does not support source port", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                    }
-                    guard let port = possiblePort else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    //start code snippet B
-                    
-                    guard let tempDestPortOperator = tempDestPortOperator else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "destination port operator not found after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-
-                    switch tempDestPortOperator {
-
-                        case .eq:
-                            guard let destPort = PortRange(minPort: port, maxPort: port) else {
-                                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                                return nil
-                            }
-                            self.destPort.append(destPort)
-                            linePosition = .lastDestPort
-                        case .ne:
-                            switch port {
-                            case 0:
-                                let destPort = PortRange(minPort: 1, maxPort: 65535)!
-                                self.destPort.append(destPort)
-                            case 65535:
-                                let destPort = PortRange(minPort: 0, maxPort: 65534)!
-                                self.destPort.append(destPort)
-                            case 1...65534:
-                                guard let destPort1 = PortRange(minPort: 0, maxPort: port - 1), let destPort2 = PortRange(minPort: port + 1, maxPort: 65535) else {
-                                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                    errorDelegate?.report(severity: .error, message: "unexpected destination port error after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                                    return nil
-                                }
-                                self.destPort.append(destPort1)
-                                self.destPort.append(destPort2)
-                            default:
-                                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                                return nil
-                            }
-                            linePosition = .lastDestPort
-                        case .gt:
-                            guard let destPort = PortRange(minPort: port + 1, maxPort: 65535) else {
-                                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                                return nil
-                            }
-                            self.destPort.append(destPort)
-                            linePosition = .lastDestPort
-                        case .lt:
-                            guard let destPort = PortRange(minPort: 0, maxPort: port - 1) else {
-                                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                                errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                                return nil
-                            }
-                            self.destPort.append(destPort)
-                            linePosition = .lastDestPort
-                        case .range:
-                            tempRangeDestPort = port
-                            linePosition = .firstDestPort
-                        }
-                    //end code snippet B
-
-                }
-            case .firstDestPort:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .number(let port):
-                    guard let tempRangeDestPort = tempRangeDestPort, let destPort = PortRange(minPort: tempRangeDestPort, maxPort: port) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.destPort.append(destPort)
-                    linePosition = .lastDestPort
-                case .name(let name):
-                    var possiblePort: UInt?
-                    for ipProtocol in self.ipProtocols {
-                        switch ipProtocol {
-                        case 6:
-                            if let tempPort = name.tcpPort {
-                                possiblePort = tempPort
-                            }
-                        case 17:
-                            if let tempPort = name.udpPort {
-                                possiblePort = tempPort
-                            }
-                        default:
-                            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                            errorDelegate?.report(severity: .error, message: "protocol does not support source port", line: linenum, delegateWindow: delegateWindow)
-                            return nil
-                        }
-                    }
-                    guard let port = possiblePort, let tempRangeDestPort = tempRangeDestPort, let destPort = PortRange(minPort: tempRangeDestPort, maxPort: port) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.destPort.append(destPort)
-                    linePosition = .lastDestPort
-                }
-            case .lastDestPort:
-                switch token {
-                case .accessList, .permit, .deny, .extended, .tcp, .ip, .udp, .icmp, .eq, .range, .remark, .gt, .lt, .ne, .number, .name, .host, .any, .fourOctet:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid destination port after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .objectGroup:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "ACL Analyzer does not support object-group at \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                case .log:
-                    linePosition = .log
-                case .comment:
-                    linePosition = .comment
-                case .established:
-                    guard deviceType == .ios else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Established only has meaning for stateless devices, not device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    guard self.ipProtocols.count == 1 && self.ipProtocols.first == 6 else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "invalid after \(linePosition) established only has meaning for TCP protocol", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    tempEstablished = true
-                    linePosition = .end
-                }
-
-            case .log:
-                switch token {
-                    
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .extended, .objectGroup, .range, .host, .any, .remark, .gt, .lt, .ne, .established, .log, .fourOctet(_):
-                    break
-                case .comment:
-                    linePosition = .comment
-                case .number(let logLevel):
-                    switch logLevel {
-                    case (0...7):
-                        break
-                    default:
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "possibly invalid logging level after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    }
-                case .name(let logName):
-                    switch logName {
-                    case "interval":
-                        linePosition = .logInterval
-                    case "disable", "default":
-                        linePosition = .log
-                    default:
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "possibly invalid logging level after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    }
-                }
-            case .logInterval:
-                switch token {
-                    
-                case .accessList, .permit, .deny, .tcp, .ip, .udp, .icmp, .eq, .extended, .objectGroup, .range, .host, .any, .remark, .comment, .gt, .lt, .ne, .established, .log, .name(_),.fourOctet(_):
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .warning, message: "possibly invalid logging interval after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    linePosition = .end
-                case .number(let logLevel):
-                    switch logLevel {
-                    case (1...600):
-                        linePosition = .log
-                    default:
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "possibly invalid logging interval after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    }
-                }
-            case .end:
-                switch token {
-                case .log:
-                    linePosition = .log
-                case .comment:
-                    linePosition = .comment
-                default:
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                }
-            case .comment:
-                break // do nothing, we are in a comment
-            case .remark:
-                return nil
-            }
-        }
-        
-        guard tempAclAction != nil else {
-            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-            errorDelegate?.report(severity: .error, message: "no acl action found", line: linenum, delegateWindow: delegateWindow)
-            return nil
-        }
-        self.aclAction = tempAclAction!
-        self.ipVersion = .IPv4
-        self.listName = tempListName
-        
-        guard self.sourceIp.count > 0 else {
-            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-            errorDelegate?.report(severity: .error, message: "source ip not found", line: linenum, delegateWindow: delegateWindow)
-            return nil
-        }
-
-        guard self.destIp.count > 0 else {
-            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-            errorDelegate?.report(severity: .error, message: "dest ip not found", line: linenum, delegateWindow: delegateWindow)
-            return nil
-        }
-        
-        self.established = tempEstablished
-
-        guard self.ipProtocols.count > 0 else {
-            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-            errorDelegate?.report(severity: .error, message: "no protocol found", line: linenum, delegateWindow: delegateWindow)
-            return nil
-        }
-        for ipProtocol in ipProtocols {
-            switch ipProtocol {
-            case 6, 17:
-                break
-            case 0...255:
-                if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
-                    errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    errorDelegate?.report(severity: .error, message: "Only protocols tcp and udp support port numbers", line: linenum, delegateWindow: delegateWindow)
-                    return nil
-                }
-            default:
-                // should not get here
-                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                errorDelegate?.report(severity: .error, message: "Unable to identify ip protocol", line: linenum, delegateWindow: delegateWindow)
-            }
-        }
-    }
-    */
-    //MARK: IOS IPV4 INIT
+   //MARK: IOS IPV4 INIT
     
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, ios: Bool) {
         var tempSourcePortOperator: PortOperator?
@@ -2964,6 +1805,30 @@ struct AccessControlEntry {
                 // should not get here
                 return false
             }
+            
+            var sourceAllBitAligned = true
+            var destAllBitAligned = true
+            for ipRange in self.sourceIp {
+                if ipRange.bitAligned == false {
+                    sourceAllBitAligned = false
+                }
+            }
+            for ipRange in self.destIp {
+                if ipRange.bitAligned == false {
+                    destAllBitAligned = false
+                }
+            }
+            
+            if !sourceAllBitAligned || !destAllBitAligned {
+                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            }
+            if !sourceAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+            if !destAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+
             return true
             
         }
@@ -3158,10 +2023,6 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
                         return nil
                     }
-                    if !sourceIp.bitAligned {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
-                    }
                     self.sourceIp = [sourceIp]
                     linePosition = .sourceMask
                 }
@@ -3333,10 +2194,6 @@ struct AccessControlEntry {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                         errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
                         return nil
-                    }
-                    if !destIp.bitAligned {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .warning, message: "Dest IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
                     }
                     self.destIp = [destIp]
                     linePosition = .destMask
@@ -3600,6 +2457,30 @@ struct AccessControlEntry {
                 // should not get here
                 return false
             }
+            
+            var sourceAllBitAligned = true
+            var destAllBitAligned = true
+            for ipRange in self.sourceIp {
+                if ipRange.bitAligned == false {
+                    sourceAllBitAligned = false
+                }
+            }
+            for ipRange in self.destIp {
+                if ipRange.bitAligned == false {
+                    destAllBitAligned = false
+                }
+            }
+            
+            if !sourceAllBitAligned || !destAllBitAligned {
+                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            }
+            if !sourceAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+            if !destAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+
             return true
         }
 
@@ -3846,6 +2727,7 @@ struct AccessControlEntry {
                     return nil
                 case .fourOctet(let sourceNetmask):
                     guard let tempSourceIp = tempSourceIp, let sourceIpRange = IpRange(ip: tempSourceIp, netmask: sourceNetmask) else {
+                        reportError()
                         return nil
                     }
                     self.sourceIp = [sourceIpRange]
@@ -4045,6 +2927,7 @@ struct AccessControlEntry {
                     reportError()
                 case .fourOctet(let destNetmask):
                     guard let tempDestIp = tempDestIp, let destIpRange = IpRange(ip: tempDestIp, netmask: destNetmask) else {
+                        reportError()
                         return nil
                     }
                     self.destIp = [destIpRange]

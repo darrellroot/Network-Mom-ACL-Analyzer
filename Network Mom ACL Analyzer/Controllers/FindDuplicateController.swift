@@ -19,6 +19,8 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
     
     @IBOutlet weak var validateButtonOutlet: NSButton!
     @IBOutlet weak var analyzeButtonOutlet: NSButton!
+    @IBOutlet weak var cancelButtonOutlet: NSButton!
+    @IBOutlet weak var progressBarOutlet: NSProgressIndicator!
     
     var fontManager: NSFontManager!
     
@@ -26,11 +28,17 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
     var deviceType: DeviceType = .ios
     var outputTextString = ""
     var outputTimerActive = false
+    var analysisRunning = false
+    var cancelButtonPushed = false
+    
+    var totalCalculations = 0.0
+    var currentCalculation = 0.0
 
     override func windowDidLoad() {
         super.windowDidLoad()
         aclTextView.substituteFontName = "Consolas"
         outputTextView.substituteFontName = "Consolas"
+        self.progressBarOutlet.minValue = 0.0
 
         self.fontManager = NSFontManager.shared
         if let newFont = fontManager.selectedFont {
@@ -80,6 +88,7 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
     }
     
     @IBAction func validateButton(_ sender: NSButton) {
+        self.progressBarOutlet.doubleValue = 0.0
         guard readyToValidate() else {
             return
         }
@@ -107,17 +116,28 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
     }
     func disableButtons() {
         DispatchQueue.main.async {
+            self.analysisRunning = true
             self.analyzeButtonOutlet.isEnabled = false
             self.validateButtonOutlet.isEnabled = false
+            self.cancelButtonOutlet.isEnabled = true
+            self.cancelButtonPushed = false
         }
     }
     func enableButtons() {
         DispatchQueue.main.async {
+            self.analysisRunning = false
+            self.outputTextView.string = self.outputTextString
             self.analyzeButtonOutlet.isEnabled = true
             self.validateButtonOutlet.isEnabled = true
+            self.cancelButtonOutlet.isEnabled = false
+            self.cancelButtonPushed = false
+            self.progressBarOutlet.stopAnimation(self)
         }
     }
     
+    @IBAction func cancelButton(_ sender: NSButton) {
+        self.cancelButtonPushed = true
+    }
     @IBAction func analyzeButton(_ sender: NSButton) {
         guard readyToValidate() else {
             return
@@ -145,10 +165,28 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
                 self.enableButtons()
                 return
             }
+            let aclSize = accessList.accessControlEntries.count
+            self.totalCalculations = Double(aclSize * (aclSize - 1) / 2)
+            self.currentCalculation = 0.0
+            DispatchQueue.main.async {
+                self.progressBarOutlet.maxValue = self.totalCalculations
+                self.progressBarOutlet.doubleValue = self.currentCalculation // 0.0
+                self.progressBarOutlet.startAnimation(self)
+            }
             var topPrinted = false
             var anyPrinted = false
             for topIndex in 0..<(accessList.accessControlEntries.count - 1) {
+                DispatchQueue.main.async {
+                    self.progressBarOutlet.doubleValue = self.currentCalculation
+                }
+                if self.cancelButtonPushed == true {
+                    self.report(severity: .linetext, message: "    Analysis Incomplete (cancelled)",delegateWindow: .duplicateOutput)
+
+                    break
+                }
+
                 for bottomIndex in (topIndex+1)..<accessList.accessControlEntries.count {
+                    self.currentCalculation = self.currentCalculation + 1.0
                     let topAce = accessList.accessControlEntries[topIndex]
                     let bottomAce = accessList.accessControlEntries[bottomIndex]
                     if bottomAce.isDuplicate(of: topAce) {
@@ -192,7 +230,7 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
         case .duplicateOutput:
             outputTextString.append(contentsOf: "\(severityText)\(message)\n")
         }
-        if !outputTimerActive {
+        if !outputTimerActive && !analysisRunning {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.outputTextView.string = self.outputTextString
                 self.outputTimerActive = false

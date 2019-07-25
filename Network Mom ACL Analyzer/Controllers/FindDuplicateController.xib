@@ -9,8 +9,10 @@
             <connections>
                 <outlet property="aclTextView" destination="oxa-LT-8k6" id="kLg-SW-iHC"/>
                 <outlet property="analyzeButtonOutlet" destination="gBf-Qu-GOY" id="yUK-zT-BlI"/>
+                <outlet property="cancelButtonOutlet" destination="3nd-Gw-ct5" id="w9k-LI-dFe"/>
                 <outlet property="deviceTypeOutlet" destination="7qC-1R-IGq" id="bG4-yS-4zB"/>
                 <outlet property="outputTextView" destination="YaA-tn-p3E" id="DNk-hX-ell"/>
+                <outlet property="progressBarOutlet" destination="4b5-mq-koE" id="WXf-Wq-UrH"/>
                 <outlet property="validateButton" destination="vPO-bT-uUS" id="ptN-53-5ca"/>
                 <outlet property="validateButtonOutlet" destination="vPO-bT-uUS" id="VYL-Sv-b7T"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
@@ -86,31 +88,31 @@
                             <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pvl-g4-J1d">
                                 <rect key="frame" x="10" y="148" width="620" height="111"/>
                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="u6T-Vt-bVm">
-                                    <rect key="frame" x="0.0" y="0.0" width="605" height="111"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="620" height="111"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" spellingCorrection="YES" smartInsertDelete="YES" id="oxa-LT-8k6" userLabel="aclTextView">
-                                            <rect key="frame" x="0.0" y="0.0" width="605" height="111"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="620" height="111"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="605" height="111"/>
+                                            <size key="minSize" width="620" height="111"/>
                                             <size key="maxSize" width="749" height="10000000"/>
                                             <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                         </textView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="i2x-IS-RaT">
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="i2x-IS-RaT">
                                     <rect key="frame" x="-100" y="-100" width="225" height="15"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="SHV-dA-4lo">
-                                    <rect key="frame" x="605" y="0.0" width="15" height="111"/>
+                                <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="SHV-dA-4lo">
+                                    <rect key="frame" x="604" y="0.0" width="16" height="111"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
                             <stackView distribution="fill" orientation="horizontal" alignment="top" spacing="20" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="800" verticalHuggingPriority="800" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9SJ-Qy-E1y">
-                                <rect key="frame" x="117" y="119" width="407" height="21"/>
+                                <rect key="frame" x="12" y="119" width="617" height="21"/>
                                 <subviews>
                                     <button horizontalHuggingPriority="751" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vPO-bT-uUS">
                                         <rect key="frame" x="-6" y="-7" width="124" height="32"/>
@@ -132,12 +134,32 @@
                                             <action selector="analyzeButton:" target="-2" id="2bZ-zr-mim"/>
                                         </connections>
                                     </button>
+                                    <progressIndicator wantsLayer="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="4b5-mq-koE">
+                                        <rect key="frame" x="427" y="-1" width="100" height="23"/>
+                                    </progressIndicator>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3nd-Gw-ct5" userLabel="Cancel">
+                                        <rect key="frame" x="541" y="-7" width="82" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="RoZ-7q-39h">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="cancelButton:" target="-2" id="des-Rw-yje"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <visibilityPriorities>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
+                                    <integer value="1000"/>
+                                    <integer value="1000"/>
                                 </visibilityPriorities>
                                 <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
+                                    <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                 </customSpacing>
@@ -145,26 +167,26 @@
                             <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eea-mo-0Vc">
                                 <rect key="frame" x="10" y="0.0" width="620" height="111"/>
                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="0tQ-dB-80x">
-                                    <rect key="frame" x="0.0" y="0.0" width="605" height="111"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="620" height="111"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textView editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" usesFontPanel="YES" spellingCorrection="YES" smartInsertDelete="YES" id="YaA-tn-p3E" userLabel="outputTextView">
-                                            <rect key="frame" x="0.0" y="0.0" width="605" height="111"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="620" height="111"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                            <size key="minSize" width="605" height="111"/>
+                                            <size key="minSize" width="620" height="111"/>
                                             <size key="maxSize" width="749" height="10000000"/>
                                             <color key="insertionPointColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                         </textView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="dvh-E9-2bf">
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="dvh-E9-2bf">
                                     <rect key="frame" x="-100" y="-100" width="225" height="15"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="5gy-hQ-7zz">
-                                    <rect key="frame" x="605" y="0.0" width="15" height="111"/>
+                                <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="5gy-hQ-7zz">
+                                    <rect key="frame" x="604" y="0.0" width="16" height="111"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>

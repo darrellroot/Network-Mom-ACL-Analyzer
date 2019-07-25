@@ -38,7 +38,7 @@ class RandomAclController: NSWindowController {
             self.window?.title = "Random Arista ACL"
         }
         RandomAcl.staticSequence = 1
-        for _ in 0..<1000 {
+        for _ in 0..<2000 {
             let ace = RandomAcl(deviceType: deviceType)
             aclString.append(ace.description)
         }
