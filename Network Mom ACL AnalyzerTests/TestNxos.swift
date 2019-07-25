@@ -240,8 +240,14 @@ ip access-list L3Port
         let socket1 = Socket(ipProtocol: 6, sourceIp: "11.0.37.45".ipv4address!, destinationIp: "12.0.0.2".ipv4address!, sourcePort: 80, destinationPort: 22, established: false)!
         let result1 = acl.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
+        
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "11.1.0.0".ipv4address!, destinationIp: "12.0.0.2".ipv4address!, sourcePort: 80, destinationPort: 22, established: false)!
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+
     }
     
+    // in below example 11-net is incorrect
     func testNxosObjectWrong1() {
         let sample = """
 object-group ip address SERVERS
@@ -257,6 +263,7 @@ ip access-list L3Port
 """
         let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.accessControlEntries.count == 1)
+        XCTAssert(acl.objectGroupNetworks["servers"]?.ipRanges.count == 2)
         
         let socket1 = Socket(ipProtocol: 6, sourceIp: "11.0.37.45".ipv4address!, destinationIp: "12.0.0.2".ipv4address!, sourcePort: 80, destinationPort: 22, established: false)!
         let result1 = acl.analyze(socket: socket1)
@@ -265,6 +272,7 @@ ip access-list L3Port
         let socket2 = Socket(ipProtocol: 6, sourceIp: "10.0.0.37".ipv4address!, destinationIp: "12.0.0.2".ipv4address!, sourcePort: 80, destinationPort: 22, established: false)!
         let result2 = acl.analyze(socket: socket2)
         XCTAssert(result2 == .permit)
+        
     }
 
     func testNxosObjectPort1() {
