@@ -151,11 +151,13 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
     }
     
     func report(severity: Severity, message: String, line: Int, delegateWindow: DelegateWindow?) {
-        self.report(severity: severity, message: "line \(line): \(message)", delegateWindow: delegateWindow)
+        let lineString = String(format: "line %5d: \(message)", line)
+        //self.report(severity: severity, message: "line \(line): \(message)", delegateWindow: delegateWindow)
+        self.report(severity: severity, message: lineString, delegateWindow: delegateWindow)
     }
     
     func report(severity: Severity, message: String, delegateWindow: DelegateWindow?) {
-        debugPrint("report \(severity) \(message)")
+        //debugPrint("report \(severity) \(message)")
         guard let delegateWindow = delegateWindow else {
             return
         }

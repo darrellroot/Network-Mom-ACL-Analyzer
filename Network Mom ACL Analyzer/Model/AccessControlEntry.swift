@@ -180,7 +180,7 @@ struct AccessControlEntry {
             }
         }
         
-        if self.ipProtocols.contains(6) || self.ipProtocols.contains(17) {
+        if (self.ipProtocols.contains(6) || self.ipProtocols.contains(17)) && (topAce.ipProtocols.contains(6) || topAce.ipProtocols.contains(17)) {
             if self.sourcePort.count == 0 || topAce.sourcePort.count == 0 {
                 debugPrint("self.sourcePort.count == 0 ERROR")
             }
