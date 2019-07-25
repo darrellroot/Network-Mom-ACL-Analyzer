@@ -729,17 +729,26 @@ access-list outside_access_in extended permit tcp object-group info object-group
             network-object host 10.1.1.78
             network-object host 10.1.1.89
         access-list ACL_IN extended deny tcp object-group denied any eq www
+        access-list ACL_IN extended permit tcp any any
         """
         let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupNetworks.count == 1)
         XCTAssert(acl.objectGroupNetworks["denied"]!.count == 3)
-        XCTAssert(acl.accessControlEntries.count == 1)
+        XCTAssert(acl.accessControlEntries.count == 2)
         guard let socket = Socket(ipProtocol: 6, sourceIp: "10.1.1.4".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
             XCTAssert(false)
             return
         }
         let result = acl.analyze(socket: socket)
         XCTAssert(result == .deny)
+        
+        guard let socket2 = Socket(ipProtocol: 6, sourceIp: "10.1.1.5".ipv4address!, destinationIp: "209.165.201.29".ipv4address!, sourcePort: 33, destinationPort: 80, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .permit)
+
     }
 /*    func testAsaObjectGroupServiceSource1() {
         let sample = """

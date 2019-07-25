@@ -76,6 +76,7 @@ struct AccessControlEntry {
 
     enum IosLinePosition {
         case beginning
+        case sequence    // only some ios versions support sequence
         case accessList
         case listName
         case action
@@ -1941,8 +1942,25 @@ struct AccessControlEntry {
                     linePosition = .action
                 case .comment:
                     return nil
-                case .ipProtocol,.any,.host,.portOperator, .log, .established,.fourOctet,.number,.name:
+                case .number(let sequence):
+                    self.sequence = sequence
+                    linePosition = .sequence
+                case .ipProtocol,.any,.host,.portOperator, .log, .established,.fourOctet,.name:
                     reportError()
+                    return nil
+                }
+            case .sequence:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action(let aclAction):
+                    self.aclAction = aclAction
+                    linePosition = .action
+                case .accessList,.ipProtocol,.any,.host,.portOperator,.log,.established,.fourOctet,.number,.name:
+                    reportError()
+                    return nil
+                case .comment:
                     return nil
                 }
             case .accessList:

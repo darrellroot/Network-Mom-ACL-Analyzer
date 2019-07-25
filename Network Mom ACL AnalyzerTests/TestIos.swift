@@ -563,6 +563,28 @@ permit ip host 10.0.0.2 any
         XCTAssert(ace == nil)
     }
 
+    func testIosSequence() {
+        let sample = """
+        10 permit tcp host 1.1.1.1 host 1.1.1.2 eq 179
+        20 permit tcp host 2.1.1.1 eq 179 host 2.2.2.2
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .ios, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 2)
+        guard let socket = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "1.1.1.2".ipv4address!, sourcePort: 33, destinationPort: 179, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result = acl.analyze(socket: socket)
+        XCTAssert(result == .permit)
+
+        guard let socket2 = Socket(ipProtocol: 6, sourceIp: "1.1.1.0".ipv4address!, destinationIp: "1.1.1.2".ipv4address!, sourcePort: 33, destinationPort: 179, established: false) else {
+            XCTAssert(false)
+            return
+        }
+        let result2 = acl.analyze(socket: socket2)
+        XCTAssert(result2 == .deny)
+
+    }
     func testDummies1() {
         let sample = """
         access-list 101 remark This ACL is to control the outbound router traffic.
