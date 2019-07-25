@@ -17,6 +17,9 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
     @IBOutlet var aclTextView: NSTextView!
     @IBOutlet var outputTextView: NSTextView!
     
+    @IBOutlet weak var validateButtonOutlet: NSButton!
+    @IBOutlet weak var analyzeButtonOutlet: NSButton!
+    
     var fontManager: NSFontManager!
     
     var accessList: AccessList?
@@ -79,8 +82,7 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
         }
         let aclString = aclTextView.string
 
-        //TODO
-        //self.disableButtons()
+        self.disableButtons()
         
         DispatchQueue.global(qos: .background).async {
             self.accessList = AccessList(sourceText: aclString, deviceType: self.deviceType, delegate: self, delegateWindow: .duplicateOutput)
@@ -95,20 +97,21 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
             } else {
                 self.report(severity: .warning, message: "Access List Not Analyzed", delegateWindow: .duplicateOutput)
             }
-            /* TODO
             DispatchQueue.main.async {
                 self.enableButtons()
-            }*/
+            }
         }
     }
     func disableButtons() {
         DispatchQueue.main.async {
-            //TODO add functionality on main thread
+            self.analyzeButtonOutlet.isEnabled = false
+            self.validateButtonOutlet.isEnabled = false
         }
     }
     func enableButtons() {
         DispatchQueue.main.async {
-            //TODO add functionality on main thread
+            self.analyzeButtonOutlet.isEnabled = true
+            self.validateButtonOutlet.isEnabled = true
         }
     }
     
@@ -118,7 +121,7 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
         }
         let aclString = aclTextView.string
         
-        //self.disableButtons()
+        self.disableButtons()
         
         DispatchQueue.global(qos: .background).async {
             self.accessList = AccessList(sourceText: aclString, deviceType: self.deviceType, delegate: self, delegateWindow: .duplicateOutput)
@@ -187,7 +190,7 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
             outputTextString.append(contentsOf: "\(severityText)\(message)\n")
         }
         if !outputTimerActive {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.outputTextView.string = self.outputTextString
                 self.outputTimerActive = false
             }

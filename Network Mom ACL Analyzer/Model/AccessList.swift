@@ -98,7 +98,6 @@ class AccessList {
                 }
             }
             if self.deviceType == .iosxr && configurationMode == .iosXrObjectGroupService, let objectName = objectName, let objectGroup = objectGroupServices[objectName], let possibleSequence = words[safe: 0] {
-                let portOperator: PortOperator
                 var myWords = words
                 if let _ = UInt(possibleSequence) {
                     myWords.removeFirst()

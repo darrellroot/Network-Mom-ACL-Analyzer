@@ -86,8 +86,6 @@ struct RandomAcl: CustomStringConvertible {
         case .arista:
             fatalError("Not implemented")
         }
-        let sourcePortString: String
-        let destPortString: String
         switch ipProtocol {
         case "tcp","udp","6","17":
             switch sourcePortOperator {
@@ -146,63 +144,28 @@ struct RandomAcl: CustomStringConvertible {
         return outputString
     }
     
-/*
-    static let maxip = UInt(UInt32.max)
-    static let maxport = UInt(UInt16.max)
-    
-    static let dontcareMasks: [UInt] = [0,1,3,7,15,31,63,127,255,511,1023,2047,4095,8191,16383,32767,65535,131071,262143,524287,1048575,2097151,4194303,8388607,16777215,33554431,67108863,134217727,268435455,536870911,1073741823,2147483647,4294967295]
-    static let operators = ["eq","lt","gt","neq","range",""]
-    
-    static func ipv4String() -> String {
-        let ipv4 = UInt.random(in: 0...UInt(UInt32.max))
-        return ipv4.ipv4
-    }
-    static func dontcare() -> String {
-        //let valid = Bool.random()
-        let valid = true
-        if valid {
-            return dontcareMasks.randomElement()!.ipv4
-        } else {
-            return UInt.random(in: 0...UInt(UInt32.max)).ipv4
-        }
-    }*/
     static func operation() -> String {
         //let valid = Bool.random()
-        let valid = true
         let portOperator = PortOperator.allCases.randomElement()!
         var portOperatorString: String = ""
         let port1 = UInt.random(in: 0...UInt.MAXPORT)
         let port2 = UInt.random(in: 0...UInt.MAXPORT)
-        if valid {
-            switch portOperator {
-            case .eq:
-                portOperatorString = "\(portOperator) \(port1)"
-            case .gt:
-                portOperatorString = "\(portOperator) \(port1)"
-            case .lt:
-                portOperatorString = "\(portOperator) \(port1)"
-            case .ne:
-                portOperatorString = "\(portOperator) \(port1)"
-            case .range:
-                if port1 <= port2 {
-                    portOperatorString = "\(portOperator) \(port1) \(port2)"
-                } else {
-                    portOperatorString = "\(portOperator) \(port2) \(port1)"
-                }
-//            case .nothing:
-//                portOperatorString = ""
+        switch portOperator {
+        case .eq:
+            portOperatorString = "\(portOperator) \(port1)"
+        case .gt:
+            portOperatorString = "\(portOperator) \(port1)"
+        case .lt:
+            portOperatorString = "\(portOperator) \(port1)"
+        case .ne:
+            portOperatorString = "\(portOperator) \(port1)"
+        case .range:
+            if port1 <= port2 {
+                portOperatorString = "\(portOperator) \(port1) \(port2)"
+            } else {
+                portOperatorString = "\(portOperator) \(port2) \(port1)"
             }
-        } else {
-            if Bool.random() {
-                portOperatorString += portOperator.rawValue
-            }
-            if Bool.random() {
-                portOperatorString += " \(port1)"
-            }
-            if Bool.random() {
-                portOperatorString += " \(port2)"
-            }
-        }
+        }//switch portOperator
         return portOperatorString
     }
 }
