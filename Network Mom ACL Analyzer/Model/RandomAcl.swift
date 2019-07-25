@@ -9,6 +9,8 @@
 import Foundation
 
 struct RandomAcl: CustomStringConvertible {
+    static var staticSequence: Int = 1
+    var sequence: Int
     
     static let protocols = ["ip","tcp","udp","6","17","gre"]
     
@@ -29,7 +31,14 @@ struct RandomAcl: CustomStringConvertible {
     var destPortOperator: PortOperator
     
     init(deviceType: DeviceType) {
+        
         self.deviceType = deviceType
+        
+        self.sequence = RandomAcl.staticSequence
+        if deviceType == .iosxr {
+            RandomAcl.staticSequence = RandomAcl.staticSequence + 1
+        }
+        
         let sourceIp = UInt.random(in: 0...UInt(UInt32.max))
         self.sourcePrefix = Ipv4Prefix.allCases.randomElement()!
         //let sourceDontCare = self.sourcePrefix.dontCareHosts
@@ -74,6 +83,10 @@ struct RandomAcl: CustomStringConvertible {
         var outputString = ""
         if self.deviceType == .asa {
             outputString.append("access-list 101 extended ")
+        }
+        if self.deviceType == .iosxr {
+            let sequenceString = String(format: "%4d ", self.sequence)
+            outputString.append(sequenceString)
         }
         outputString.append("\(aclAction) \(ipProtocol) \(self.sourceIp.ipv4)")
         switch self.deviceType {

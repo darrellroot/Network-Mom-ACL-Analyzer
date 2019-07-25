@@ -339,13 +339,16 @@ struct AccessControlEntry {
                 self.sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .lt:
-                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                guard firstPort > 0 , let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
                     return false
                 }
                 self.sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .ne:
-                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                var portRange1: PortRange? = nil
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                }
                 let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
                 self.sourcePort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastSourcePort
@@ -375,13 +378,16 @@ struct AccessControlEntry {
                 destPort = [portRange]
                 linePosition = .lastDestPort
             case .lt:
-                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                guard firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
                     return false
                 }
                 destPort = [portRange]
                 linePosition = .lastDestPort
             case .ne:
-                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                var portRange1: PortRange? = nil
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                }
                 let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
                 destPort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastDestPort
@@ -928,13 +934,16 @@ struct AccessControlEntry {
                 sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .lt:
-                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                guard firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
                     return false
                 }
                 sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .ne:
-                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                var portRange1: PortRange? = nil
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                }
                 let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
                 sourcePort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastSourcePort
@@ -964,13 +973,16 @@ struct AccessControlEntry {
                 destPort = [portRange]
                 linePosition = .lastDestPort
             case .lt:
-                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                guard firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
                     return false
                 }
                 destPort = [portRange]
                 linePosition = .lastDestPort
             case .ne:
-                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                var portRange1: PortRange? = nil
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                }
                 let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
                 destPort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastDestPort
@@ -1305,6 +1317,7 @@ struct AccessControlEntry {
                         return nil
                     }
                     self.sourcePort.append(sourcePort)
+                    linePosition = .lastSourcePort
                 case .name(let name):
                     var possiblePort: UInt?
                     if self.ipProtocols.count > 1 {
@@ -1584,6 +1597,7 @@ struct AccessControlEntry {
                         return nil
                     }
                     self.destPort.append(destPort)
+                    linePosition = .lastDestPort
                 case .name(let secondPortString):
                     var possiblePort: UInt?
                     if self.ipProtocols.count > 1 {
@@ -2974,7 +2988,7 @@ struct AccessControlEntry {
                 self.sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .lt:
-                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                guard firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
                     return false
                 }
                 self.sourcePort = [portRange]
@@ -3016,7 +3030,7 @@ struct AccessControlEntry {
                 self.destPort = [portRange]
                 linePosition = .lastDestPort
             case .lt:
-                guard let portRange = PortRange(minPort: 0, maxPort: firstDestPort - 1) else {
+                guard firstDestPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstDestPort - 1) else {
                     return false
                 }
                 self.destPort = [portRange]
@@ -3625,13 +3639,16 @@ struct AccessControlEntry {
                 sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .lt:
-                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                guard firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
                     return false
                 }
                 sourcePort = [portRange]
                 linePosition = .lastSourcePort
             case .ne:
-                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                var portRange1: PortRange? = nil
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                }
                 let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
                 sourcePort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastSourcePort
@@ -3662,13 +3679,16 @@ struct AccessControlEntry {
                 destPort = [portRange]
                 linePosition = .lastDestPort
             case .lt:
-                guard let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                guard firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
                     return false
                 }
                 destPort = [portRange]
                 linePosition = .lastDestPort
             case .ne:
-                let portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                var portRange1: PortRange? = nil
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                }
                 let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
                 destPort = [portRange1,portRange2].compactMap({ $0 })
                 linePosition = .lastDestPort
