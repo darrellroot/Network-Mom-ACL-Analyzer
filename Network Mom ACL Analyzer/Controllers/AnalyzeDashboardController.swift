@@ -66,6 +66,34 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             ingressAclAnalysis.font = newFont
             egressAclAnalysis.font = newFont
         }
+        
+        ingressAclValidation.string = """
+        To validate ACL syntax:
+        1) Input the ACL in the top-left text field.
+        2) Select the type of device
+        3) Click Validate
+        
+        Warning: Different variants of IOS/IOS-XR/ASA/NX-OS support different named ports, named protocols, object-group syntax, or sequence numbers.  This tool generally accepts a superset of those features.  Your device may not recognize some of those features.  Always watch for errors when pushing to production devices.
+        """
+        
+        ingressAclAnalysis.string = """
+        To determine if a specific TCP or UDP socket is permitted by an ACL:
+        1) Input the ACL i the top-left text field.
+        2) Select the type of device.
+        3) Click Validate ACLs and Analyze Socket
+        4) Make sure to review the validation window for errors.  ACL lines with errors are not included in the permit/deny analysis.
+        
+        Warning: This tool is not perfect.  Do not base your security decisions solely on the output of this tool.  If you find an error please email feedback@networkmom.net an ACL sample.
+        """
+        
+        egressAclValidation.string = """
+        Almost all network communications are bidirectional.  The "ingress" traffic (from the socket-initiator to the listening server) is analyzed against the ACL in the top-left window.  If you have a stateless "egress" ACL, place it in the top-right window.  The analyzer will automatically reverse the socket (including adding the "established" flag if TCP) and analyze the return direction.
+        
+        Adaptive Security Appliances (ASA's) are stateful firewalls and automatically permit return traffic as long as traffic in both directions traverses the same ASA device.
+        """
+        //ingressAclAnalysis.needsDisplay = true
+        //ingressAclAnalysis.needsDisplay = true
+
     }
     
     @objc public func changeFont(sender: AnyObject) {

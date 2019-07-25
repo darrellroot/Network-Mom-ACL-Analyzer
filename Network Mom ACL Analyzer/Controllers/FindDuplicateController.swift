@@ -31,6 +31,20 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
             aclTextView.font = newFont
             outputTextView.font = newFont
         }
+        outputTextView.string = """
+        To find "duplicate" ACL lines:
+        1) Input your ACL in the top window
+        2) Click "Validate ACLs and Search for Duplicates"
+        
+        Sample Output:
+        
+        line   256: deny 6 128.0.0.0 127.255.255.255 lt 26117 128.0.0.0 127.255.255.255 lt 50797 established
+        line   574:     deny 6 248.64.0.0 0.15.255.255 eq 15355 227.45.128.0 0.0.127.255 eq 10432 established
+        line   700:     deny tcp 175.195.108.0 0.0.1.255 eq 7213 148.0.0.0 3.255.255.255 lt 31335 established log
+        line   769:     permit 6 232.160.0.0 0.7.255.255 lt 4482 204.69.76.0 0.0.0.255 eq 1546 established log
+        
+        The non-indented line "masks" the later (indented) lines.  The later lines could be said to be "duplicates".  But the first line could be too broad.  After all, every line is a "duplicate" of "permit ip any any".  You have to decide whether to remove the duplicate line or address the (possibly overbroad) "original" line.
+        """
     }
     
     private func readyToValidate() -> Bool {

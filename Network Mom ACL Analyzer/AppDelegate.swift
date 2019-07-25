@@ -24,9 +24,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         fontManager.target = self
         fontManager.action = #selector(self.changeFont(sender:))
 
-        let analyzeDashboardController = AnalyzeDashboardController()
+        /*let analyzeDashboardController = AnalyzeDashboardController()
         analyzeDashboardControllers.append(analyzeDashboardController)
-        analyzeDashboardController.showWindow(self)
+        analyzeDashboardController.showWindow(self)*/
     }
 
     @objc public func changeFont(sender: AnyObject) {
