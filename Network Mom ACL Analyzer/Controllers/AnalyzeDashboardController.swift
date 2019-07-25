@@ -16,7 +16,9 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
     @IBOutlet var egressAclTextView: NSTextView!
     @IBOutlet var ingressAclValidation: NSTextView!
     @IBOutlet var egressAclValidation: NSTextView!
-    
+    @IBOutlet var ingressAclAnalysis: NSTextView!
+    @IBOutlet var egressAclAnalysis: NSTextView!
+
     @IBOutlet weak var importIngressButton: NSButton!
     @IBOutlet weak var importEgressButton: NSButton!
     @IBOutlet weak var validateButton: NSButton!
@@ -28,8 +30,6 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
     var egressAnalyzeString: String = ""
     var outputTimerActive = false
     
-    @IBOutlet var ingressAclAnalysis: NSTextView!
-    @IBOutlet var egressAclAnalysis: NSTextView!
     
     @IBOutlet weak var protocolButton: NSPopUpButton!
     @IBOutlet weak var sourceIpOutlet: NSTextField!
@@ -57,6 +57,13 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
     override func windowDidLoad() {
         super.windowDidLoad()
         
+        ingressAclTextView.substituteFontName = "Consolas"
+        egressAclTextView.substituteFontName = "Consolas"
+        ingressAclValidation.substituteFontName = "Consolas"
+        egressAclValidation.substituteFontName = "Consolas"
+        ingressAclAnalysis.substituteFontName = "Consolas"
+        egressAclAnalysis.substituteFontName = "Consolas"
+
         self.fontManager = NSFontManager.shared
         if let newFont = fontManager.selectedFont {
             ingressAclTextView.font = newFont

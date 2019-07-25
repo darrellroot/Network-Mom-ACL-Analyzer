@@ -18,6 +18,9 @@ class RandomAclController: NSWindowController {
     
     override func windowDidLoad() {
         super.windowDidLoad()
+        
+        aclTextView.substituteFontName = "Consolas"
+
         guard let deviceType = deviceType else {
             aclString = "ERROR: UNKNOWN DEVICE TYPE"
             return

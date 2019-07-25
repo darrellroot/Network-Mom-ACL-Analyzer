@@ -29,6 +29,9 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
 
     override func windowDidLoad() {
         super.windowDidLoad()
+        aclTextView.substituteFontName = "Consolas"
+        outputTextView.substituteFontName = "Consolas"
+
         self.fontManager = NSFontManager.shared
         if let newFont = fontManager.selectedFont {
             aclTextView.font = newFont

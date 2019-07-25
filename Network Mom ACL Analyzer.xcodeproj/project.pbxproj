@@ -70,6 +70,7 @@
 		2FC3F4F922E90F650043F92D /* RandomAcl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3F4F722E90F650043F92D /* RandomAcl.swift */; };
 		2FC3F4FB22E91A7D0043F92D /* Ipv4Prefix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3F4FA22E91A7D0043F92D /* Ipv4Prefix.swift */; };
 		2FC3F4FC22E91A7D0043F92D /* Ipv4Prefix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3F4FA22E91A7D0043F92D /* Ipv4Prefix.swift */; };
+		2FC3F4FE22E9F7550043F92D /* NSTextView+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3F4FD22E9F7550043F92D /* NSTextView+extensions.swift */; };
 		2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */; };
 		2FCE6AA422A865A300E0B4D7 /* UInt+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */; };
 		2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */; };
@@ -143,6 +144,7 @@
 		2FC3F4F422E90D230043F92D /* RandomAclController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = RandomAclController.xib; sourceTree = "<group>"; };
 		2FC3F4F722E90F650043F92D /* RandomAcl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomAcl.swift; sourceTree = "<group>"; };
 		2FC3F4FA22E91A7D0043F92D /* Ipv4Prefix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ipv4Prefix.swift; sourceTree = "<group>"; };
+		2FC3F4FD22E9F7550043F92D /* NSTextView+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSTextView+extensions.swift"; sourceTree = "<group>"; };
 		2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt+extensions.swift"; sourceTree = "<group>"; };
 		2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PortOperator.swift; sourceTree = "<group>"; };
 		2FCE6AA922ACAF5100E0B4D7 /* AclToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AclToken.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 				2F1FD8B122B9EE26008ADBC7 /* Collection+extensions.swift */,
 				2FBAA082228F5B9D00B53113 /* String+extensions.swift */,
 				2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */,
+				2FC3F4FD22E9F7550043F92D /* NSTextView+extensions.swift */,
 			);
 			path = extensions;
 			sourceTree = "<group>";
@@ -491,6 +494,7 @@
 				2FF8F3F822E41395007EECFC /* IosToken.swift in Sources */,
 				2F4B851F22B2EFE300927DD2 /* Severity.swift in Sources */,
 				2FBAA074228A0DF200B53113 /* Array+extensions.swift in Sources */,
+				2FC3F4FE22E9F7550043F92D /* NSTextView+extensions.swift in Sources */,
 				2FF8F3FB22E543A1007EECFC /* AsaToken.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
