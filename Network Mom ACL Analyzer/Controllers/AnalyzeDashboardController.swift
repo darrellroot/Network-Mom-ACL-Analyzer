@@ -57,12 +57,12 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
     override func windowDidLoad() {
         super.windowDidLoad()
         
-        ingressAclTextView.substituteFontName = "Consolas"
-        egressAclTextView.substituteFontName = "Consolas"
-        ingressAclValidation.substituteFontName = "Consolas"
-        egressAclValidation.substituteFontName = "Consolas"
-        ingressAclAnalysis.substituteFontName = "Consolas"
-        egressAclAnalysis.substituteFontName = "Consolas"
+        /*ingressAclTextView.substituteFontName = "Courier"
+        egressAclTextView.substituteFontName = "Courier"
+        ingressAclValidation.substituteFontName = "Courier"
+        egressAclValidation.substituteFontName = "Courier"
+        ingressAclAnalysis.substituteFontName = "Courier"
+        egressAclAnalysis.substituteFontName = "Courier"*/
 
         self.fontManager = NSFontManager.shared
         if let newFont = fontManager.selectedFont {

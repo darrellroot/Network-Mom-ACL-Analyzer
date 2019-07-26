@@ -36,8 +36,8 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
 
     override func windowDidLoad() {
         super.windowDidLoad()
-        aclTextView.substituteFontName = "Consolas"
-        outputTextView.substituteFontName = "Consolas"
+        /*aclTextView.substituteFontName = "Courier"
+        outputTextView.substituteFontName = "Courier"*/
         self.progressBarOutlet.minValue = 0.0
 
         self.fontManager = NSFontManager.shared

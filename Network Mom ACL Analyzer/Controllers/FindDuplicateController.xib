@@ -13,7 +13,6 @@
                 <outlet property="deviceTypeOutlet" destination="7qC-1R-IGq" id="bG4-yS-4zB"/>
                 <outlet property="outputTextView" destination="YaA-tn-p3E" id="DNk-hX-ell"/>
                 <outlet property="progressBarOutlet" destination="4b5-mq-koE" id="WXf-Wq-UrH"/>
-                <outlet property="validateButton" destination="vPO-bT-uUS" id="ptN-53-5ca"/>
                 <outlet property="validateButtonOutlet" destination="vPO-bT-uUS" id="VYL-Sv-b7T"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>

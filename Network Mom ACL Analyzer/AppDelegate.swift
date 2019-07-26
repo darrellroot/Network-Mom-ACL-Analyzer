@@ -24,6 +24,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         fontManager.target = self
         fontManager.action = #selector(self.changeFont(sender:))
 
+        if let newFont = NSFont(name: "Consolas", size: 12) {
+            fontManager.setSelectedFont(newFont, isMultiple: false)
+        } else if let newFont = NSFont(name: "Courier", size: 12) {
+            fontManager.setSelectedFont(newFont, isMultiple: false)
+        }
         /*let analyzeDashboardController = AnalyzeDashboardController()
         analyzeDashboardControllers.append(analyzeDashboardController)
         analyzeDashboardController.showWindow(self)*/

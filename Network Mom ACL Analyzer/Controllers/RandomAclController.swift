@@ -20,7 +20,7 @@ class RandomAclController: NSWindowController {
     override func windowDidLoad() {
         super.windowDidLoad()
         
-        aclTextView.substituteFontName = "Consolas"
+        //aclTextView.substituteFontName = "Consolas"
 
         self.fontManager = NSFontManager.shared
         if let newFont = fontManager.selectedFont {
