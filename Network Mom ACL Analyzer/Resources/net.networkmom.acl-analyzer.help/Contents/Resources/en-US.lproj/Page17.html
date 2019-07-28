@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <script src="../js/topicpage.js" type="text/javascript"></script>
+        <title>Feature Overview</title>
+        <meta name="robots" content="index" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    </head>
+    <body>
+        <a name="Page17"></a>
+        <p class="Left Heading1">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="0.0" src="../images/" width="0.0" />
+            <span class="Heading1">Feature Overview</span>
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Supported OS Variants</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">As of version 1.5 (25 July 2019) Network Mom ACL Analyzer supports analyzing the following variants of Cisco ACLs:</span>
+        </p>
+        <ul class="listDecimal">
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Cisco IOS (without object-groups but including optional sequence numbers)</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Cisco IOS-XR (including object-groups)</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Cisco NX-OS (including object-groups)</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Cisco ASA (including network object-groups but not service object-groups)</span>
+                </p>
+            </li>
+        </ul>
+        <p class="Left Normal">
+            <span class="Normal">Every time you do an analysis, make sure to set the&nbsp;</span>
+            <span class="Normal bold">device type</span>
+            <span class="Normal">.  If every line of your ACL is reported as an error, this is the most likely cause.</span>
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">ACL Analysis -&gt; Permit-Deny Analysis -&gt; Validate ACLs</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">This “Validate ACLs” button performs the following functions:</span>
+        </p>
+        <ul class="listDecimal">
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Tests the ACL for basic syntax</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Reports misaligned subnetting (such as 10.1.1.1/24) as a warning.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Reports discontiguous or misaligned “do-not-care-bits” (such as “10.1.1.0 0.0.0.253”) as an error.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Warns if multiple ACL names are detected in the input.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Warns if sequence numbers are out-of-order</span>
+                </p>
+            </li>
+        </ul>
+        <p class="Left Heading2">
+            <span class="Heading2">ACL Analysis -&gt; Permit-Deny Analysis -&gt; Analyze Socket</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">In addition to revalidating the ACL, the Analyze Socket command can test to see if a specific TCP or UDP socket is permitted or denied through the acl.</span>
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">ACL Analysis -&gt; Duplicate ACL Finder -&gt; Search For Duplicates</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">In addition to revalidating the ACL, the “search for duplicates” command finds ACL lines which will never be matched because a prior line permits everything the found line matches.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">This may be the result of an unnecessary second line.  But it also might mean the first line is too permissive.  If the first line is “permit ip any any”, every subsequent line will be reported as a duplicate.  But removing all those duplicates and leaving “permit ip any any” in place may be a security risk.  This tool helps to find these situations, but the decision what to do about it is up to your network, information security, and management teams.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">The time required to search for duplicates increases exponentially O(N^2) as the number of lines increases.  A 2000-line ACL can be searched for duplicates in a few seconds.  But a 10,000-line ACL will take 25 times as long (several minutes).</span>
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">ACL Utilities -&gt; Random ACL Generation</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">To make it easy to try out the permit-deny analysis and duplicate ACL detection, we’ve included utilities to create 2,000-line “random” access-lists for each of the four supported platforms.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">These are, of course, only intended for demonstrating this tool.  Do not use random access-lists in your production environments!</span>
+        </p>
+        <p class="Center Normal">
+            <span class="Normal">©2019 Network Mom LLC   https://networkmom.net    feedback@networkmom.net</span>
+        </p>
+    </body>
+</html>

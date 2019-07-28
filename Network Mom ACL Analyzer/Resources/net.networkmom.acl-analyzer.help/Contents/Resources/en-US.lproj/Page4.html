@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <script src="../js/topicpage.js" type="text/javascript"></script>
+        <title>Using The ACL Analyzer</title>
+        <meta name="robots" content="index" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    </head>
+    <body>
+        <a name="Page4"></a>
+        <p class="Left Heading1">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="0.0" src="../images/" width="0.0" />
+            <span class="Heading1">Using The ACL Analyzer</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">One ACL analyzer window opens by default when the application starts.  To open more windows use the ACL Analysis -&gt; New ACL Analyzer menu item.</span>
+        </p>
+        <p class="Left">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="83.0" src="../images/file-new-menu.png" width="451.0" />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Input your access-list in the top-left box.  Select the device type from the pull down menu.  It is important to only put one access-list in the box at a time.  An access-list typically has many lines (access control entries or ACEs).</span>
+        </p>
+        <p class="Left">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="231.0" src="../images/top-left-field.png" width="737.0" />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Click the “Validate ACLs” box to perform a series of syntax checks on your ACL and review the output:</span>
+        </p>
+        <p class="Left">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="150.0" src="../images/middle-left-field.png" width="725.0" />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Review the errors and warnings.  The error for line number 3 above is very dangerous from a security perspective, but is valid IOS ACL “don’t care bit” syntax.  Any lines reporting ERROR will not be included in socket analysis.  The analyzer will list the “names” of access-lists it detected in the input.  There should at most be only one access-list name.</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Input the source ip, destination ip, and destination port for your socket.  Select TCP or UDP.  You can input a specific source port, or let the ACL analyzer choose a “random high” source port for you.</span>
+        </p>
+        <p class="Left">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="83.0" src="../images/socket-field.png" width="772.0" />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Click the “Validate ACLs and Analyze Socket” button.</span>
+        </p>
+        <p class="Left">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="47.0" src="../images/socket-output.png" width="652.0" />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">The FIRST MATCH shows the first ACE in the ACL that matches the packet.  The action (permit or deny) for that ACE determines whether the socket is permitted by that ACL in this direction.  Other lines in the ACL which match the socket will also be reported with “ALSO MATCH”.  But only the “FIRST MATCH” determines whether packets are permitted or denied.  If no lines of the ACL match the socket, an “IMPLICIT DENY” is reported.</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Stateful network devices (such as ASA’s) always permit return traffic in a TCP or UDP socket automatically.  But a stateless device (a Cisco router with IOS ACLs) may have a separate egress ACL for return traffic.  You can put the return ACL in the top right box:</span>
+        </p>
+        <p class="Left">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="77.0" src="../images/top-right-field.png" width="673.0" />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Click “Validate ACLs” and review the middle-right box for warnings and errors.</span>
+        </p>
+        <p class="Left">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="63.0" src="../images/top-middle-field.png" width="490.0" />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">When you click “Validate ACLs and Analyze Socket”, the ingress socket will be “reversed” and analyzed against the egress ACL in the bottom-right box.  For TCP sockets “reversing” the socket will include adding the “established” flag.</span>
+        </p>
+        <p class="Left">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="79.0" src="../images/bottom-right-field.png" width="795.0" />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Center Normal">
+            <span class="Normal">©2019 Network Mom LLC   https://networkmom.net    feedback@networkmom.net</span>
+        </p>
+    </body>
+</html>

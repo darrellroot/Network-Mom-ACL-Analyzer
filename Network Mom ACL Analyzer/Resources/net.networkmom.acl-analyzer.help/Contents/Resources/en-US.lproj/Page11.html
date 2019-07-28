@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <script src="../js/topicpage.js" type="text/javascript"></script>
+        <title>Beware netmask ACLs on IOS devices</title>
+        <meta name="robots" content="index" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    </head>
+    <body>
+        <a name="Page11"></a>
+        <p class="Left Heading1">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="0.0" src="../images/" width="0.0" />
+            <span class="Heading1">Beware netmask ACLs on IOS devices</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Cisco ASA’s use netmask ACL syntax: 10.1.0.0 255.255.0.0.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Cisco IOS devices use don’t care bit ACL syntax: 10.1.0.0 0.0.255.255.</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">The good news is that don’t care bit syntax is invalid on an ASA and will not be accepted into the running configuration.</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">The bad news is that netmask ACL syntax is valid on IOS.  “10.1.0.0 255.255.0.0” will be accepted and will match 0.0.0.0, 0.1.0.0, 0.2.0.0 up through 255.255.0.0.  This type of error can cause a security incident.</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Network Mom ACL analyzer reports netmasks on IOS devices as an error whenever possible.  Unfortunately there is one case that is problematic:</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">“0.0.0.0 255.255.255.255” is valid on both IOS and ASA devices.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">On a ASA it means IP address 0.0.0.0 exactly.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">On IOS it means “any” and is commonly used.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Similarly, “10.1.2.3 255.255.255.255” means exactly 10.1.2.3 on a ASA and “any” on IOS.  That’s dangerous!</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">We recommend using “any” in your configurations rather than “0.0.0.0 255.255.255.255”&nbsp;</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">We recommend using “host 10.1.2.3” rather than “10.1.2.3 255.255.255.255” in an ASA configuration.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">We recommend using “host 10.1.2.3” rather than “10.1.2.3 0.0.0.0” in an IOS configuration.</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Center Normal">
+            <span class="Normal">©2019 Network Mom LLC   https://networkmom.net    feedback@networkmom.net</span>
+        </p>
+    </body>
+</html>

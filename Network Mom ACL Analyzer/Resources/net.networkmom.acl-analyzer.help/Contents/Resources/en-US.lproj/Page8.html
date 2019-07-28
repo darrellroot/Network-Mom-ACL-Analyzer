@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <script src="../js/topicpage.js" type="text/javascript"></script>
+        <title>General Limitations</title>
+        <meta name="robots" content="index" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    </head>
+    <body>
+        <a name="Page8"></a>
+        <p class="Left Heading1">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="0.0" src="../images/" width="0.0" />
+            <span class="Heading1">General Limitations</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Network Mom ACL Analyzer supports analyzing the following types of&nbsp;</span>
+            <span class="Normal bold">security</span>
+            <span class="Normal">&nbsp;access lists:</span>
+        </p>
+        <ul class="listDecimal">
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Cisco IOS IPv4 extended access-lists</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Cisco IOS-XR IPv4 access-lists, including nested object-group support</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Cisco ASA IPv4 extended access-lists, including nested network object-group support</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Cisco NX-OS IPv4 L3 access-lists, including object-group support.</span>
+                </p>
+            </li>
+        </ul>
+        <p class="Left Normal">
+            <span class="Normal">Network Mom ACL Analyzer has many limitations.  Here is a list of _some_ of those limitations.  Also see the platform-specific limitations on the following pages.</span>
+        </p>
+        <ul class="listDecimal">
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Socket analysis currently only supports TCP and UDP sockets.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">IPv6 access-lists are not supported</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">The ACL analyzer converts all input to lowercase because most Cisco configuration is case-insensitive.  This can cause diagnostic output to be lowercase when original input was mixed case.  In a few cases Cisco may treat input in a case-sensitive manner resulting in incorrect analysis.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Text names for ports and protocols ( “esp”, “isakmp” and “non500-isakmp” for example) are very OS and platform specific.  Network Mom ACL Analyzer does not know your precise OS or platform and cannot verify that the text name you use will be recognized on your device.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">IOS Object-groups (for those IOS devices/versions which support them) are not supported.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Discontiguous “don’t care bit” configurations are reported as errors (see related help page).</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">DNS lookup of hostnames in ACL configurations*</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Standard access-lists (although the short source-ip address form of IOS-XR ACEs are supported)</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">NAT configurations</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Dynamic ACLs (lock and key)</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">VACLs</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Reflexive ACLs</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Time-based ACLs</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Context-based access control</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Infrastructure Protection Access Control Lists</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Access lists which use keywords for router IP addresses, such as “infrastructure_ips”, “bgp_peer”,  “router_ip”, or “interface” (ASA).</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Access list entries which filter based on DSCP, precedence, tos, fragments, or IGMP message-type.  ICMP message-types are only partially understood.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Understanding which L3/L2 ACL features are supported on various types of NX-OS boxes (for example, L3 ACL’s are not supported on L2 ports on a Nexus 5010).</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Mac-address access-lists.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Out-of-order or duplicated sequence numbers are reported as an error and must be placed in order before socket analysis will be accurate.</span>
+                </p>
+            </li>
+        </ul>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">* To protect the security of your ACLs, Network Mom ACL Analyzer is not allowed to make network connections.  This prevents the tool from performing DNS lookups.</span>
+        </p>
+        <p class="Center Normal">
+            <span class="Normal">©2019 Network Mom LLC   https://networkmom.net    feedback@networkmom.net</span>
+        </p>
+    </body>
+</html>

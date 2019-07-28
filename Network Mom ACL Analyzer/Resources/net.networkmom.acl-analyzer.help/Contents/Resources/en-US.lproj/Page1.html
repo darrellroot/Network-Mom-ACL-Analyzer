@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <script src="../js/topicpage.js" type="text/javascript"></script>
+        <title>IOS-XR Limitations</title>
+        <meta name="robots" content="index" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    </head>
+    <body>
+        <a name="Page1"></a>
+        <p class="Left Heading1">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="0.0" src="../images/" width="0.0" />
+            <span class="Heading1">IOS-XR Limitations</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">In addition to the general limitations, Network Mom ACL Analyzer has many limitations regarding IOS-XR ACLS.  Here are _some_ of those limitations:</span>
+        </p>
+        <ul class="listDecimal">
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Some ACL features (including even the ability to apply a L3 ACL to an interface) are IOS-XR version, platform, or linecard-specific.  The ACL analyzer does not know what type of box you have and cannot report related errors.</span>
+                </p>
+            </li>
+        </ul>
+        <ul class="listDecimal">
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Nested object groups on some IOS-XR platforms can only be 4 layers deep.  The ACL analyzer does not report if it finds object groups nested greater than 4 deep.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">ACL-Chaining / Multi-ACL / Common-ACL configurations are not supported.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">ACL-based forwarding is not supported.</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">Receive access control lists</span>
+                </p>
+            </li>
+        </ul>
+        <p class="Center Normal">
+            <span class="Normal">©2019 Network Mom LLC   https://networkmom.net    feedback@networkmom.net</span>
+        </p>
+    </body>
+</html>

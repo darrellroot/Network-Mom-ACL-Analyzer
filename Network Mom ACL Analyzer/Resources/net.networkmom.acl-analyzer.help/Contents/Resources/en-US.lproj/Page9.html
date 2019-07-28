@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <script src="../js/topicpage.js" type="text/javascript"></script>
+        <title>Terminology</title>
+        <meta name="robots" content="index" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    </head>
+    <body>
+        <a name="Page9"></a>
+        <p class="Left Heading1">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="0.0" src="../images/" width="0.0" />
+            <span class="Heading1">Terminology</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal bold">Socket</span>
+            <span class="Normal">: The specification for a network communication.  An IP socket has the following components: source ip address, destination ip address, and IP protocol (0 - 255).  UDP and TCP sockets also have a source port and a destination port.  Ports range from 0 - 65535.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal bold">Access Control Entry (ACE)</span>
+            <span class="Normal">: One line in an access-list.  Each line is a rule which specifies which packets match (based on the socket components), and what should be done with packets that match (permit or deny).</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal bold">Access Control List (ACL)</span>
+            <span class="Normal">: A list of rules (ACEs) which, in aggregate, determine whether packets are permitted or denied.  Packets which are not explicitly permitted or denied are usually implicitly denied at the end of the ACL.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal bold">Ingress ACL</span>
+            <span class="Normal">: This tool considers the “ingress ACL” as the ACL which applies in the direction the socket is initiated: from the source IP address to the destination IP address.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal bold">Egress ACL</span>
+            <span class="Normal">: This tool considers the “egress ACL” as the ACL which applies to return traffic (from the destination IP address to the source IP address).  Almost all IP sockets have network traffic which goes in both directions (even if the return traffic consists entirely of acknowledgements).</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal bold">Stateless ACL</span>
+            <span class="Normal">: A stateless ACL is an ACL which does not “remember” the state of the connection through the device.  Packets are permitted or denied based solely on the individual packet and the ACL currently applied.  Most IOS ACLs are stateless.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal bold">Stateful ACL</span>
+            <span class="Normal">: A stateful ACL is an ACL which “remembers” the state of the connection through the device.  In particular, if ingress traffic is allowed by the stateful ACL, return egress traffic will automatically be allowed.  ASA ACLs are stateful.</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Center Normal">
+            <span class="Normal">©2019 Network Mom LLC   https://networkmom.net    feedback@networkmom.net</span>
+        </p>
+    </body>
+</html>

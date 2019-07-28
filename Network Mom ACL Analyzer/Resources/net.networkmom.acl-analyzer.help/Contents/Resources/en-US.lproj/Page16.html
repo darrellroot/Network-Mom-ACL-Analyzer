@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <script src="../js/topicpage.js" type="text/javascript"></script>
+        <title>Cisco Network Object-Group Configuration</title>
+        <meta name="robots" content="index" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    </head>
+    <body>
+        <a name="Page16"></a>
+        <p class="Left Heading1">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="0.0" src="../images/" width="0.0" />
+            <span class="Heading1">Cisco Network Object-Group Configuration</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Cisco object-groups are inconsistent between platforms.  Here are notes from my research on different platforms, including the links to the documentation where I found each object-group specified.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">What is disturbing is that the IOS platforms use do-not-care-bit configurations for ACLs, but netmask configuration for object-group networks.  Meanwhile NX-OS allows /prefix format (good!) but also allows do-not-care-bit configuration for object groups.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">Is Cisco deliberately trying to confuse network engineers regarding network object-group configuration?</span>
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Cisco IOS-XR</span>
+        </p>
+        <p class="Left Normal">
+            <a href="https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r6-4/ip-addresses/configuration/guide/b-ip-addresses-configuration-guide-asr9000-64x/b-ip-addresses-configuration-guide-asr9000-64x_chapter_0110.html#task_F1C9DD53BF954A92B7DAE9BF5AFF5545">
+                <span class="Normal_link">https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r6-4/ip-addresses/configuration/guide/b-ip-addresses-configuration-guide-asr9000-64x/b-ip-addresses-configuration-guide-asr9000-64x_chapter_0110.html#task_F1C9DD53BF954A92B7DAE9BF5AFF5545</span>
+            </a>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">object-group network ipv4 ipv4_type5_obj1</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">description network-object-group</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	host 10.20.2.3</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	10.20.20.3 255.255.255.0</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	range 10.20.20.10 10.20.20.40</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	object-group nested-object-group</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Cisco IOS-XE</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">(not yet supported by Network Mom ACL Analyzer as of July 2019)</span>
+        </p>
+        <p class="Left Custom">
+            <a href="https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_data_zbf/configuration/xe-16/sec-data-zbf-xe-16-book/sec-zbf-ogacl.html#GUID-3F83B6AB-5C9B-47D5-A837-AE3092515350">
+                <span class="Custom_link">https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_data_zbf/configuration/xe-16/sec-data-zbf-xe-16-book/sec-zbf-ogacl.html#GUID-3F83B6AB-5C9B-47D5-A837-AE3092515350</span>
+            </a>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">object-group network my-network-object-group</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	description test-engineers</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	host 209.165.200.237</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	209.165.200.225 255.255.255.224</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	group-object my-nested-object-group</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Cisco NX-OS</span>
+        </p>
+        <p class="Left Custom0">
+            <a href="https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus7000/sw/security/command/reference/n7k_sec_cmd/sec_cmd_k_to_p.html#pgfId-1243551">
+                <span class="Custom0_link">https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus7000/sw/security/command/reference/n7k_sec_cmd/sec_cmd_k_to_p.html#pgfId-1243551</span>
+            </a>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">object-group ip address ipv4-addr-group-13</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	host 10.99.32.6</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	10.99.32.0/24</span>
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">	10.99.32.0 0.0.0.255</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Cisco ASA</span>
+        </p>
+        <p class="Left Custom0">
+            <a href="https://www.cisco.com/c/en/us/td/docs/security/asa/asa98/configuration/firewall/asa-98-firewall-config/access-objects.html">
+                <span class="Custom0_link">https://www.cisco.com/c/en/us/td/docs/security/asa/asa98/configuration/firewall/asa-98-firewall-config/access-objects.html</span>
+            </a>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom1">
+            <span class="Custom1">object network email-server</span>
+        </p>
+        <p class="Left Custom1">
+            <span class="Custom1">&nbsp;&nbsp;&nbsp;&nbsp;host 10.2.2.2</span>
+        </p>
+        <p class="Left Custom1">
+            <span class="Custom1">&nbsp;&nbsp;&nbsp;&nbsp;subnet 10.0.1.0/24</span>
+        </p>
+        <p class="Left Custom1">
+            <span class="Custom1">&nbsp;&nbsp;&nbsp;&nbsp;range 10.0.2.0 10.0.2.20</span>
+        </p>
+        <p class="Left Custom1 Custom0">
+            <span class="Custom1">&nbsp;&nbsp;&nbsp;&nbsp;fqdn v4&nbsp;</span>
+            <a href="http://www.hostname.com/">
+                <span class="Custom0_link">www.hostname.com</span>
+            </a>
+            <span class="Custom1">&nbsp;&nbsp;&nbsp;! not supported by network mom ACL analyzer</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Center Normal">
+            <span class="Normal">©2019 Network Mom LLC   https://networkmom.net    feedback@networkmom.net</span>
+        </p>
+    </body>
+</html>
