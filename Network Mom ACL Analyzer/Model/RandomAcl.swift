@@ -90,7 +90,7 @@ struct RandomAcl: CustomStringConvertible {
         }
         outputString.append("\(aclAction) \(ipProtocol) \(self.sourceIp.ipv4)")
         switch self.deviceType {
-        case .ios, .iosxr:
+        case .ios, .iosxr, .iosxe:
             outputString.append(" \(sourcePrefix.dontCareBits) ")
         case .asa:
             outputString.append(" \(sourcePrefix.netmask) ")
@@ -116,7 +116,7 @@ struct RandomAcl: CustomStringConvertible {
         }//switch ipProtocol for source ports
         outputString.append(" \(self.destIp.ipv4)")
         switch self.deviceType {
-        case .ios, .iosxr:
+        case .ios, .iosxr, .iosxe:
             outputString.append(" \(destPrefix.dontCareBits) ")
         case .asa:
             outputString.append(" \(destPrefix.netmask) ")

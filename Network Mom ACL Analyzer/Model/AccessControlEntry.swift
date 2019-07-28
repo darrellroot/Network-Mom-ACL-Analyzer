@@ -249,7 +249,9 @@ struct AccessControlEntry {
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, nxos: true)
         case .iosxr:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosxr: true)
-            
+        case .iosxe:
+            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosxe: true)
+
         case .arista:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, arista: true)
 
@@ -900,6 +902,854 @@ struct AccessControlEntry {
         }
     }
     
+    //MARK: IOSXE IPV4 INIT
+    
+    //TODO change from IOSXR to IOSXE
+    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosxe: Bool) {
+        var tempSourcePortOperator: PortOperator?
+        var tempFirstSourcePort: UInt?
+        var tempDestPortOperator: PortOperator?
+        var tempFirstDestPort: UInt?
+        var linePosition: IosXrLinePosition = .beginning
+        var tempSourceIp: UInt?
+        var tempDestIp: UInt?
+        
+        self.line = line
+        self.linenum = linenum
+        
+        func reportError() {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "invalid after \(linePosition)", line: linenum, delegateWindow: delegateWindow)
+        }
+        
+        func reportUnsupported(keyword: String) {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "keyword \(keyword) for \(deviceType) after \(linePosition) not supported by ACL analyzer, not included in analysis.", line: linenum, delegateWindow: delegateWindow)
+        }
+        
+        
+        let line = line.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        let words = line.split{ $0.isWhitespace }.map{ String($0)}
+        if words.count < 1 {
+            return nil
+        }
+        
+        
+        func analyzeFirstSourcePort(firstPort: UInt) -> Bool { // true == success
+            guard firstPort >= 0 && firstPort <= 65535, let tempSourcePortOperator = tempSourcePortOperator else {
+                return false
+            }
+            switch tempSourcePortOperator {
+                
+            case .eq:
+                guard let portRange = PortRange(minPort: firstPort, maxPort: firstPort) else {
+                    return false
+                }
+                sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .gt:
+                guard let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) else {
+                    return false
+                }
+                sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .lt:
+                guard firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                    return false
+                }
+                sourcePort = [portRange]
+                linePosition = .lastSourcePort
+            case .ne:
+                var portRange1: PortRange? = nil
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                }
+                let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
+                sourcePort = [portRange1,portRange2].compactMap({ $0 })
+                linePosition = .lastSourcePort
+            case .range:
+                tempFirstSourcePort = firstPort
+                linePosition = .firstSourcePort
+            }
+            return true
+        }
+        
+        func analyzeFirstDestPort(firstPort: UInt) -> Bool { // true == success
+            guard firstPort >= 0 && firstPort <= 65535, let tempDestPortOperator = tempDestPortOperator else {
+                return false
+            }
+            switch tempDestPortOperator {
+                
+            case .eq:
+                guard let portRange = PortRange(minPort: firstPort, maxPort: firstPort) else {
+                    return false
+                }
+                destPort = [portRange]
+                linePosition = .lastDestPort
+            case .gt:
+                guard let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) else {
+                    return false
+                }
+                destPort = [portRange]
+                linePosition = .lastDestPort
+            case .lt:
+                guard firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) else {
+                    return false
+                }
+                destPort = [portRange]
+                linePosition = .lastDestPort
+            case .ne:
+                var portRange1: PortRange? = nil
+                if firstPort > 0 {
+                    portRange1 = PortRange(minPort: 0, maxPort: firstPort - 1)
+                }
+                let portRange2 = PortRange(minPort: firstPort + 1, maxPort: MAXPORT)
+                destPort = [portRange1,portRange2].compactMap({ $0 })
+                linePosition = .lastDestPort
+            case .range:
+                tempFirstDestPort = firstPort
+                linePosition = .firstDestPort
+            }
+            return true
+        }
+        
+        func validateIosXr() -> Bool { // true -> ACE validated
+            if self.aclAction == .neither { return false }
+            
+            self.ipVersion = .IPv4
+            
+            if self.sourceIp.count == 0 { return false }
+            if self.destIp.count == 0 { return false }
+            if self.ipProtocols.count != 1 { return false }
+            guard let ipProtocol = self.ipProtocols.first else { return false }
+            
+            switch ipProtocol {
+            case 6:
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
+            case 17:
+                if self.sourcePort.count == 0 {
+                    self.sourcePort.append(ANYPORTRANGE)
+                }
+                if self.destPort.count == 0 {
+                    self.destPort.append(ANYPORTRANGE)
+                }
+                if self.established == true { return false }
+            case 0...255:
+                if self.sourcePort.count > 0 || self.destPort.count > 0 {  // only protocols 6 and 17 have ports
+                    return false
+                }
+                if self.established == true { return false }
+            default:
+                // should not get here
+                return false
+            }
+            
+            var sourceAllBitAligned = true
+            var destAllBitAligned = true
+            for ipRange in self.sourceIp {
+                if ipRange.bitAligned == false {
+                    sourceAllBitAligned = false
+                }
+            }
+            for ipRange in self.destIp {
+                if ipRange.bitAligned == false {
+                    destAllBitAligned = false
+                }
+            }
+            
+            if !sourceAllBitAligned || !destAllBitAligned {
+                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            }
+            if !sourceAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+            if !destAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+            
+            return true
+        }
+        
+        
+        wordLoop: for word in words {
+            guard let token = IosXrToken(string: word) else {
+                reportError()
+                return nil
+            }
+            switch linePosition {
+            case .beginning:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action(let action):
+                    self.aclAction = action
+                    linePosition = .action
+                case .ipProtocol(_), .any, .host, .netgroup, .portgroup, .portOperator, .log, .established, .counter, .fourOctet, .cidr, .name:
+                    reportError()
+                    return nil
+                case .comment:
+                    return nil
+                case .number(let sequence):
+                    self.sequence = sequence
+                    linePosition = .sequence
+                }
+            case .sequence:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action(let action):
+                    self.aclAction = action
+                    linePosition = .action
+                case .ipProtocol(_), .any, .host, .netgroup, .portgroup, .portOperator, .log, .counter, .established, .fourOctet, .cidr, .number, .name:
+                    reportError()
+                    return nil
+                case .comment:
+                    return nil
+                }
+            case .action:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .portgroup, .portOperator, .comment, .log,.counter, .established, .name, .netgroup:
+                    reportError()
+                    return nil
+                case .ipProtocol(let ipProtocol):
+                    guard ipProtocol < 256 else {
+                        reportError()
+                        return nil
+                    }
+                    self.ipProtocols = [ipProtocol]
+                    linePosition = .ipProtocol
+                case .number(let ipProtocol):
+                    guard ipProtocol < 256 && ipProtocol > 0 else {
+                        reportError()
+                        return nil
+                    }
+                    self.ipProtocols = [ipProtocol]
+                    linePosition = .ipProtocol
+                case .fourOctet(let sourceIp):
+                    //this means this is the short "source address only" mode
+                    tempSourceIp = sourceIp
+                    linePosition = .sourceIpOnly
+                case .cidr(let sourceIpRange):
+                    //this means this is the short "source address only" mode
+                    self.sourceIp = [sourceIpRange]
+                    linePosition = .end
+                case .host:
+                    //this means this is the short "source address only" mode
+                    linePosition = .sourceIpHostOnly
+                case .any:
+                    //this means this is the short "source address only" mode with a permit any
+                    let ipRange = IpRange(minIp: 0, maxIp: MAXIP)
+                    self.sourceIp = [ipRange]
+                    self.destIp = [ipRange]
+                    self.ipProtocols = [0]
+                    linePosition = .end
+                }
+            case .sourceIpOnly:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                    
+                case .fourOctet(let dontCareBit):
+                    guard let tempSourceIp = tempSourceIp, let sourceIp = IpRange(ipv4: tempSourceIp, dontCare: dontCareBit) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.sourceIp = [sourceIp]
+                    let destIpRange = ANYIPRANGE
+                    self.destIp = [destIpRange]
+                    self.ipProtocols = [0]
+                    linePosition = .end
+                case .action(_), .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log, .established, .cidr, .counter, .number, .name:
+                    reportError()
+                    return nil
+                }
+            case .sourceIpHostOnly:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                    
+                case .fourOctet(let sourceIp):
+                    guard sourceIp <= MAXIP else {
+                        reportError()
+                        return nil
+                    }
+                    let sourceIpRange = IpRange(minIp: sourceIp, maxIp: sourceIp)
+                    self.sourceIp = [sourceIpRange]
+                    self.destIp = [ANYIPRANGE]
+                    self.ipProtocols = [0]
+                    linePosition = .end
+                case .action(_), .ipProtocol, .any, .host, .netgroup, .portgroup,.portOperator, .comment, .log, .established, .cidr, .counter, .number, .name:
+                    reportError()
+                    return nil
+                }
+            case .ipProtocol:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action(_), .ipProtocol, .portgroup, .portOperator, .comment, .log, .counter, .established, .number, .name:
+                    reportError()
+                    return nil
+                case .any:
+                    self.sourceIp = [ANYIPRANGE]
+                    linePosition = .sourceMask
+                case .host:
+                    linePosition = .sourceIpHost
+                case .netgroup:
+                    linePosition = .sourceNetgroup
+                case .fourOctet(let sourceIp):
+                    tempSourceIp = sourceIp
+                    linePosition = .sourceIp
+                case .cidr(let sourceIpRange):
+                    self.sourceIp = [sourceIpRange]
+                    linePosition = .sourceMask
+                }
+            case .sourceIp:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .counter, .portOperator, .comment,.log,.established,.cidr,.number,.name:
+                    reportError()
+                    return nil
+                case .fourOctet(let dontCareBit):
+                    guard let tempSourceIp = tempSourceIp, let sourceIp = IpRange(ipv4: tempSourceIp, dontCare: dontCareBit) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.sourceIp = [sourceIp]
+                    linePosition = .sourceMask
+                }
+            case .sourceIpHost:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action(_), .ipProtocol, .any, .host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.cidr,.number,.name:
+                    reportError()
+                    return nil
+                case .fourOctet(let ipHost):
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    self.sourceIp = [ipRange]
+                    linePosition = .sourceMask
+                }
+            case .sourceNetgroup:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action(_),.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr,.number:
+                    reportError()
+                    return nil
+                case .name(let objectName):
+                    guard let sourceObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.sourceIp = sourceObjectGroup.ipRanges
+                    linePosition = .sourceMask
+                }
+            case .sourceMask:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action,.ipProtocol,.comment,.log,.counter, .established,.number,.name:
+                    reportError()
+                    return nil
+                case .any:
+                    self.destIp = [ANYIPRANGE]
+                    linePosition = .destMask
+                case .host:
+                    linePosition = .destIpHost
+                case .netgroup:
+                    linePosition = .destNetgroup
+                case .portgroup:
+                    linePosition = .sourcePortgroup
+                case .portOperator(let sourcePortOperator):
+                    tempSourcePortOperator = sourcePortOperator
+                    linePosition = .sourcePortOperator
+                case .fourOctet(let destIp):
+                    tempDestIp = destIp
+                    linePosition = .destIp
+                case .cidr(let destIpRange):
+                    self.destIp = [destIpRange]
+                    linePosition = .destMask
+                }
+            case .sourcePortOperator:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr:
+                    reportError()
+                    return nil
+                case .number(let firstPort):
+                    guard analyzeFirstSourcePort(firstPort: firstPort) else {
+                        reportError()
+                        return nil
+                    }
+                // line position set in analyzeFirstSourcePort
+                case .name(let firstStringPort):
+                    guard let ipProtocol = self.ipProtocols.first else {
+                        reportError()
+                        return nil
+                    }
+                    switch ipProtocol {
+                    case 6:
+                        guard let firstPort = firstStringPort.iosXrTcpPort, analyzeFirstSourcePort(firstPort: firstPort) else {
+                            reportError()
+                            return nil
+                        }
+                    case 17:
+                        guard let firstPort = firstStringPort.iosXrUdpPort, analyzeFirstSourcePort(firstPort: firstPort) else {
+                            reportError()
+                            return nil
+                        }
+                    default:
+                        reportError()
+                        return nil
+                    }
+                    // line position set in analyzeFirstSourcePort
+                }
+            case .firstSourcePort:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr:
+                    reportError()
+                    return nil
+                case .number(let port):
+                    guard let tempFirstSourcePort = tempFirstSourcePort, port <= MAXPORT, tempSourcePortOperator == .range, let sourcePort = PortRange(minPort: tempFirstSourcePort, maxPort: port) else {
+                        reportError()
+                        return nil
+                    }
+                    self.sourcePort.append(sourcePort)
+                    linePosition = .lastSourcePort
+                case .name(let name):
+                    var possiblePort: UInt?
+                    if self.ipProtocols.count > 1 {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .warning, message: "Unexpectedly found multiple ipProtocols for \(deviceType) after \(linePosition).  Please send this case to feedback@networkmom.net.  Analysis of this line may not be accurate.", line: linenum, delegateWindow: delegateWindow)
+                    }
+                    guard let ipProtocol = self.ipProtocols.first else {
+                        reportError()
+                        return nil
+                    }
+                    switch ipProtocol {
+                    case 6:
+                        if let tempPort = name.iosXrTcpPort {
+                            possiblePort = tempPort
+                        }
+                    case 17:
+                        if let tempPort = name.iosXrUdpPort {
+                            possiblePort = tempPort
+                        }
+                    default:
+                        break // error dealt with with next test since possiblePort is still nil
+                    }
+                    guard let port = possiblePort, let tempFirstSourcePort = tempFirstSourcePort, let sourcePort = PortRange(minPort: tempFirstSourcePort, maxPort: port) else {
+                        reportError()
+                        return nil
+                    }
+                    self.sourcePort.append(sourcePort)
+                    linePosition = .lastSourcePort
+                }
+            case .sourcePortgroup:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr,.number:
+                    reportError()
+                    return nil
+                //TODO: could a number or fourOctet be valid portgroup names?  If yes need to add some cases
+                case .name(let objectName):
+                    guard let serviceObjectGroup = aclDelegate?.getObjectGroupService(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown port-group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    guard serviceObjectGroup.portRanges.count > 0 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Cannot use empty port-group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.sourcePort = serviceObjectGroup.portRanges
+                    linePosition = .lastSourcePort
+                }
+            case .lastSourcePort:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action,.ipProtocol,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
+                    reportError()
+                    return nil
+                case .any:
+                    self.destIp = [ANYIPRANGE]
+                    linePosition = .destMask
+                case .host:
+                    linePosition = .destIpHost
+                case .netgroup:
+                    linePosition = .destNetgroup
+                case .fourOctet(let ipNumber):
+                    tempDestIp = ipNumber
+                    linePosition = .destIp
+                }
+            case .destIp:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
+                    reportError()
+                    return nil
+                case .fourOctet(let dontCareBit):
+                    guard let tempDestIp = tempDestIp, let destIp = IpRange(ipv4: tempDestIp, dontCare: dontCareBit) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.destIp = [destIp]
+                    linePosition = .destMask
+                }
+            case .destIpHost:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
+                    reportError()
+                    return nil
+                case .fourOctet(let ipHost):
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    self.destIp = [ipRange]
+                    linePosition = .destMask
+                }
+            case .destNetgroup:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup,.portOperator,.comment,.log,.counter,.established,.fourOctet,.cidr,.number:
+                    reportError()
+                    return nil
+                case .name(let objectName):
+                    guard let destObjectGroup = aclDelegate?.getObjectGroupNetwork(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.destIp = destObjectGroup.ipRanges
+                    linePosition = .destMask
+                }
+            case .destMask:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .fourOctet,.cidr:
+                    reportError()
+                    return nil
+                case .name(let possibleIcmpMessage):
+                    guard self.ipProtocols.first == 1, let icmpMessage = IcmpMessage(deviceType: deviceType, message: possibleIcmpMessage) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages = [icmpMessage]
+                    linePosition = .end
+                case .number(let possibleIcmpType):
+                    guard self.ipProtocols.first == 1, possibleIcmpType < 256, let icmpMessage = IcmpMessage(type: possibleIcmpType, code: nil) else {
+                        reportError()
+                        return nil
+                    }
+                    // temporarly assume icmp code is 0 and save it.  if we get a code we will rewrite
+                    // this only works if one and only one icmp message can come in on a config line
+                    self.icmpMessages = [icmpMessage]
+                    linePosition = .icmpType
+                case .portgroup:
+                    linePosition = .destPortgroup
+                case .portOperator(let portOperator):
+                    tempDestPortOperator = portOperator
+                    linePosition = .destPortOperator
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    guard self.log == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.log = true
+                    linePosition = .end
+                case .counter:
+                    linePosition = .counter
+                case .established:
+                    guard self.ipProtocols.count == 1, let ipProtocol = self.ipProtocols.first, ipProtocol == 6 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Established only has meaning when IP Protocol is tcp", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.established = true
+                    linePosition = .flags
+                }
+            case .icmpType:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.established,.fourOctet,.cidr,.name:
+                    reportError()
+                    return nil
+                case .number(let possibleIcmpCode):
+                    guard possibleIcmpCode < 256, let placeholderIcmp = self.icmpMessages.first, let newIcmp = IcmpMessage(type: placeholderIcmp.type, code: possibleIcmpCode) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages = [newIcmp]  // assumes only one icmp message per line
+                case .counter:
+                    guard self.counter == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.counter = true
+                    linePosition = .counter
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    guard self.log == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.log = true
+                    linePosition = .end
+                }
+            case .destPortOperator:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr:
+                    reportError()
+                    return nil
+                case .number(let firstPort):
+                    guard analyzeFirstDestPort(firstPort: firstPort) else {
+                        reportError()
+                        return nil
+                    }
+                // line position set in analyzeFirstDestPort
+                case .name(let firstStringPort):
+                    guard let ipProtocol = self.ipProtocols.first else {
+                        reportError()
+                        return nil
+                    }
+                    switch ipProtocol {
+                    case 6:
+                        guard let firstPort = firstStringPort.iosXrTcpPort, analyzeFirstDestPort(firstPort: firstPort) else {
+                            reportError()
+                            return nil
+                        }
+                    case 17:
+                        guard let firstPort = firstStringPort.iosXrUdpPort, analyzeFirstDestPort(firstPort: firstPort) else {
+                            reportError()
+                            return nil
+                        }
+                    default:
+                        reportError()
+                        return nil
+                    }
+                    // line position set in analyzeFirstDestPort
+                }
+            case .destPortgroup:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr, .number:
+                    reportError()
+                    return nil
+                case .name(let objectName):
+                    guard let destObjectGroup = aclDelegate?.getObjectGroupService(objectName) else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.destPort = destObjectGroup.portRanges
+                    linePosition = .lastDestPort
+                }
+            case .firstDestPort:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr:
+                    reportError()
+                    return nil
+                case .number(let secondDestPort):
+                    guard let tempFirstDestPort = tempFirstDestPort, secondDestPort <= MAXPORT, tempDestPortOperator == .range, let destPort = PortRange(minPort: tempFirstDestPort, maxPort: secondDestPort) else {
+                        reportError()
+                        return nil
+                    }
+                    self.destPort.append(destPort)
+                    linePosition = .lastDestPort
+                case .name(let secondPortString):
+                    var possiblePort: UInt?
+                    if self.ipProtocols.count > 1 {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .warning, message: "Unexpectedly found multiple ipProtocols for \(deviceType) after \(linePosition).  Please send this case to feedback@networkmom.net.  Analysis of this line may not be accurate.", line: linenum, delegateWindow: delegateWindow)
+                    }
+                    guard let ipProtocol = self.ipProtocols.first else {
+                        reportError()
+                        return nil
+                    }
+                    switch ipProtocol {
+                    case 6:
+                        if let tempPort = secondPortString.iosXrTcpPort {
+                            possiblePort = tempPort
+                        }
+                    case 17:
+                        if let tempPort = secondPortString.iosXrUdpPort {
+                            possiblePort = tempPort
+                        }
+                    default:
+                        break // error dealt with with next test since possiblePort is still nil
+                    }
+                    guard let port = possiblePort, let tempFirstDestPort = tempFirstDestPort, let destPort = PortRange(minPort: tempFirstDestPort, maxPort: port) else {
+                        reportError()
+                        return nil
+                    }
+                    self.destPort.append(destPort)
+                    linePosition = .lastDestPort
+                }
+            case .lastDestPort:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .fourOctet, .cidr, .number, .name:
+                    reportError()
+                    return nil
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    guard self.log == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.log = true
+                    linePosition = .end
+                case .counter:
+                    linePosition = .counter
+                case .established:
+                    guard self.established == false else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Error: found established keyword twice", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    guard self.ipProtocols.count == 1, let ipProtocol = self.ipProtocols.first, ipProtocol == 6 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Established only has meaning when IP Protocol is tcp", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.established = true
+                    linePosition = .flags
+                }
+            case .flags:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .fourOctet, .cidr, .number, .name:
+                    reportError()
+                    return nil
+                case .comment:
+                    linePosition = .comment
+                case .counter:
+                    linePosition = .counter
+                case .log:
+                    guard self.log == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.log = true
+                    linePosition = .end
+                case .established:
+                    guard self.established == false else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Error: found established keyword twice", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    guard self.ipProtocols.count == 1, let ipProtocol = self.ipProtocols.first, ipProtocol == 6 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Established only has meaning when IP Protocol is tcp", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.established = true
+                    linePosition = .flags
+                }
+            case .counter:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol,.any,.host,.netgroup,.counter,.portgroup,.portOperator,.comment,.log,.established,.fourOctet,.cidr,.number:
+                    reportError()
+                    return nil
+                case .name(_):
+                    linePosition = .end
+                }
+            case .comment:
+                linePosition = .comment
+            case .end:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.established,.fourOctet,.cidr,.number,.name:
+                    reportError()
+                    return nil
+                case .counter:
+                    guard self.counter == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.counter = true
+                    linePosition = .counter
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    guard self.log == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.log = true
+                    linePosition = .end
+                }
+            }
+        }// wordLoop
+        if validateIosXr() == false {
+            errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
+            return nil
+        }//Init IOS-XR
+    }
+
     //MARK: IOSXR IPV4 INIT
     
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosxr: Bool) {
