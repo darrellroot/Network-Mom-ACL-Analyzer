@@ -120,6 +120,33 @@ struct AccessControlEntry {
         case end  // includes capture session 3
     }
     
+    enum IosXeLinePosition {
+        case beginning
+        case sequence
+        case accessList
+        case listName
+        case action
+        case ipProtocol
+        case sourceIp
+        case sourceIpHost
+        case sourceMask
+        case sourceNetgroup
+        case sourcePortOperator
+        case firstSourcePort
+        case lastSourcePort
+        case destIp
+        case destIpHost
+        case destMask
+        case destNetgroup
+        case destPortOperator
+        case firstDestPort
+        case lastDestPort
+        case flags
+        case icmpType
+        case comment // comment spotted, can ignore everything from here on
+        case end // end without comment, still need to check syntax
+    }
+
     enum IosXrLinePosition {
         case beginning
         case sequence
@@ -910,7 +937,7 @@ struct AccessControlEntry {
         var tempFirstSourcePort: UInt?
         var tempDestPortOperator: PortOperator?
         var tempFirstDestPort: UInt?
-        var linePosition: IosXrLinePosition = .beginning
+        var linePosition: IosXeLinePosition = .beginning
         var tempSourceIp: UInt?
         var tempDestIp: UInt?
         
@@ -1013,7 +1040,7 @@ struct AccessControlEntry {
             return true
         }
         
-        func validateIosXr() -> Bool { // true -> ACE validated
+        func validateIosXe() -> Bool { // true -> ACE validated
             if self.aclAction == .neither { return false }
             
             self.ipVersion = .IPv4
@@ -1071,13 +1098,12 @@ struct AccessControlEntry {
             if !destAllBitAligned {
                 errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
             }
-            
             return true
         }
         
         
         wordLoop: for word in words {
-            guard let token = IosXrToken(string: word) else {
+            guard let token = IosXeToken(string: word) else {
                 reportError()
                 return nil
             }
@@ -1090,7 +1116,7 @@ struct AccessControlEntry {
                 case .action(let action):
                     self.aclAction = action
                     linePosition = .action
-                case .ipProtocol(_), .any, .host, .netgroup, .portgroup, .portOperator, .log, .established, .counter, .fourOctet, .cidr, .name:
+                case .ipProtocol(_), .any, .host, .portOperator, .log, .established, .fourOctet, .name,.objectGroup:
                     reportError()
                     return nil
                 case .comment:
@@ -1098,6 +1124,8 @@ struct AccessControlEntry {
                 case .number(let sequence):
                     self.sequence = sequence
                     linePosition = .sequence
+                case .accessList:
+                    linePosition = .accessList
                 }
             case .sequence:
                 switch token {
@@ -1107,7 +1135,38 @@ struct AccessControlEntry {
                 case .action(let action):
                     self.aclAction = action
                     linePosition = .action
-                case .ipProtocol(_), .any, .host, .netgroup, .portgroup, .portOperator, .log, .counter, .established, .fourOctet, .cidr, .number, .name:
+                case .ipProtocol(_), .any, .host, .portOperator, .log, .established, .fourOctet, .number, .name,.objectGroup:
+                    reportError()
+                    return nil
+                case .comment:
+                    return nil
+                case .accessList:
+                    linePosition = .accessList
+                }
+            case .accessList:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .accessList, .action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.established,.fourOctet:
+                    reportError()
+                    return nil
+                case .number(let number):
+                    self.listName = String(number)
+                    linePosition = .listName
+                case .name(let name):
+                    self.listName = name
+                    linePosition = .listName
+                }
+            case .listName:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action(let action):
+                    self.aclAction = action
+                    linePosition = .action
+                case .ipProtocol(_), .any, .host, .portOperator, .log, .established, .fourOctet, .name,.objectGroup,.accessList,.number:
                     reportError()
                     return nil
                 case .comment:
@@ -1118,7 +1177,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .portgroup, .portOperator, .comment, .log,.counter, .established, .name, .netgroup:
+                case .action, .portOperator, .comment, .log, .established, .name,.fourOctet,.host,.any,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .ipProtocol(let ipProtocol):
@@ -1135,72 +1194,13 @@ struct AccessControlEntry {
                     }
                     self.ipProtocols = [ipProtocol]
                     linePosition = .ipProtocol
-                case .fourOctet(let sourceIp):
-                    //this means this is the short "source address only" mode
-                    tempSourceIp = sourceIp
-                    linePosition = .sourceIpOnly
-                case .cidr(let sourceIpRange):
-                    //this means this is the short "source address only" mode
-                    self.sourceIp = [sourceIpRange]
-                    linePosition = .end
-                case .host:
-                    //this means this is the short "source address only" mode
-                    linePosition = .sourceIpHostOnly
-                case .any:
-                    //this means this is the short "source address only" mode with a permit any
-                    let ipRange = IpRange(minIp: 0, maxIp: MAXIP)
-                    self.sourceIp = [ipRange]
-                    self.destIp = [ipRange]
-                    self.ipProtocols = [0]
-                    linePosition = .end
-                }
-            case .sourceIpOnly:
-                switch token {
-                case .unsupported(let keyword):
-                    reportUnsupported(keyword: keyword)
-                    return nil
-                    
-                case .fourOctet(let dontCareBit):
-                    guard let tempSourceIp = tempSourceIp, let sourceIp = IpRange(ipv4: tempSourceIp, dontCare: dontCareBit) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Possible discontiguous do-not-care-bits after \(linePosition) THIS LINE WILL NOT BE INCLUDED IN ANALYSIS", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.sourceIp = [sourceIp]
-                    let destIpRange = ANYIPRANGE
-                    self.destIp = [destIpRange]
-                    self.ipProtocols = [0]
-                    linePosition = .end
-                case .action(_), .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log, .established, .cidr, .counter, .number, .name:
-                    reportError()
-                    return nil
-                }
-            case .sourceIpHostOnly:
-                switch token {
-                case .unsupported(let keyword):
-                    reportUnsupported(keyword: keyword)
-                    return nil
-                    
-                case .fourOctet(let sourceIp):
-                    guard sourceIp <= MAXIP else {
-                        reportError()
-                        return nil
-                    }
-                    let sourceIpRange = IpRange(minIp: sourceIp, maxIp: sourceIp)
-                    self.sourceIp = [sourceIpRange]
-                    self.destIp = [ANYIPRANGE]
-                    self.ipProtocols = [0]
-                    linePosition = .end
-                case .action(_), .ipProtocol, .any, .host, .netgroup, .portgroup,.portOperator, .comment, .log, .established, .cidr, .counter, .number, .name:
-                    reportError()
-                    return nil
                 }
             case .ipProtocol:
                 switch token {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action(_), .ipProtocol, .portgroup, .portOperator, .comment, .log, .counter, .established, .number, .name:
+                case .action(_), .ipProtocol, .portOperator, .comment, .log, .established, .number, .name,.accessList:
                     reportError()
                     return nil
                 case .any:
@@ -1208,21 +1208,18 @@ struct AccessControlEntry {
                     linePosition = .sourceMask
                 case .host:
                     linePosition = .sourceIpHost
-                case .netgroup:
-                    linePosition = .sourceNetgroup
                 case .fourOctet(let sourceIp):
                     tempSourceIp = sourceIp
                     linePosition = .sourceIp
-                case .cidr(let sourceIpRange):
-                    self.sourceIp = [sourceIpRange]
-                    linePosition = .sourceMask
+                case .objectGroup:
+                    linePosition = .sourceNetgroup
                 }
             case .sourceIp:
                 switch token {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .counter, .portOperator, .comment,.log,.established,.cidr,.number,.name:
+                case .action, .ipProtocol, .any, .host, .portOperator, .comment,.log,.established,.number,.name,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .fourOctet(let dontCareBit):
@@ -1239,7 +1236,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action(_), .ipProtocol, .any, .host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.cidr,.number,.name:
+                case .action(_), .ipProtocol, .any, .host,.portOperator,.comment,.log, .established,.number,.name,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
@@ -1252,7 +1249,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action(_),.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr,.number:
+                case .action(_),.ipProtocol,.any,.host,.portOperator,.comment,.log, .established,.fourOctet,.number,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .name(let objectName):
@@ -1269,7 +1266,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.comment,.log,.counter, .established,.number,.name:
+                case .action,.ipProtocol,.comment,.log, .established,.number,.name,.accessList:
                     reportError()
                     return nil
                 case .any:
@@ -1277,26 +1274,21 @@ struct AccessControlEntry {
                     linePosition = .destMask
                 case .host:
                     linePosition = .destIpHost
-                case .netgroup:
-                    linePosition = .destNetgroup
-                case .portgroup:
-                    linePosition = .sourcePortgroup
                 case .portOperator(let sourcePortOperator):
                     tempSourcePortOperator = sourcePortOperator
                     linePosition = .sourcePortOperator
                 case .fourOctet(let destIp):
                     tempDestIp = destIp
                     linePosition = .destIp
-                case .cidr(let destIpRange):
-                    self.destIp = [destIpRange]
-                    linePosition = .destMask
+                case .objectGroup:
+                    linePosition = .destNetgroup
                 }
             case .sourcePortOperator:
                 switch token {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr:
+                case .action, .ipProtocol, .any, .host,.portOperator,.comment,.log, .established,.fourOctet,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .number(let firstPort):
@@ -1332,7 +1324,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log, .established,.fourOctet,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .number(let port):
@@ -1371,35 +1363,12 @@ struct AccessControlEntry {
                     self.sourcePort.append(sourcePort)
                     linePosition = .lastSourcePort
                 }
-            case .sourcePortgroup:
-                switch token {
-                case .unsupported(let keyword):
-                    reportUnsupported(keyword: keyword)
-                    return nil
-                case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter, .established,.fourOctet,.cidr,.number:
-                    reportError()
-                    return nil
-                //TODO: could a number or fourOctet be valid portgroup names?  If yes need to add some cases
-                case .name(let objectName):
-                    guard let serviceObjectGroup = aclDelegate?.getObjectGroupService(objectName) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Unknown port-group \(objectName)", delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    guard serviceObjectGroup.portRanges.count > 0 else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Cannot use empty port-group \(objectName)", delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.sourcePort = serviceObjectGroup.portRanges
-                    linePosition = .lastSourcePort
-                }
             case .lastSourcePort:
                 switch token {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
+                case .action,.ipProtocol,.portOperator,.comment,.log,.established,.number,.name,.accessList:
                     reportError()
                     return nil
                 case .any:
@@ -1407,7 +1376,7 @@ struct AccessControlEntry {
                     linePosition = .destMask
                 case .host:
                     linePosition = .destIpHost
-                case .netgroup:
+                case .objectGroup:
                     linePosition = .destNetgroup
                 case .fourOctet(let ipNumber):
                     tempDestIp = ipNumber
@@ -1418,7 +1387,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.number,.name,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .fourOctet(let dontCareBit):
@@ -1435,7 +1404,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.comment,.log,.counter,.established,.cidr,.number,.name:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.number,.name,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
@@ -1448,7 +1417,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup,.portOperator,.comment,.log,.counter,.established,.fourOctet,.cidr,.number:
+                case .action, .ipProtocol, .any, .host, .portOperator,.comment,.log,.established,.fourOctet,.number,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .name(let objectName):
@@ -1465,7 +1434,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .fourOctet,.cidr:
+                case .action, .ipProtocol, .any, .host, .fourOctet,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .name(let possibleIcmpMessage):
@@ -1484,8 +1453,6 @@ struct AccessControlEntry {
                     // this only works if one and only one icmp message can come in on a config line
                     self.icmpMessages = [icmpMessage]
                     linePosition = .icmpType
-                case .portgroup:
-                    linePosition = .destPortgroup
                 case .portOperator(let portOperator):
                     tempDestPortOperator = portOperator
                     linePosition = .destPortOperator
@@ -1498,8 +1465,6 @@ struct AccessControlEntry {
                     }
                     self.log = true
                     linePosition = .end
-                case .counter:
-                    linePosition = .counter
                 case .established:
                     guard self.ipProtocols.count == 1, let ipProtocol = self.ipProtocols.first, ipProtocol == 6 else {
                         errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
@@ -1514,7 +1479,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.established,.fourOctet,.cidr,.name:
+                case .action, .ipProtocol,.any,.host,.portOperator,.established,.fourOctet,.name,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .number(let possibleIcmpCode):
@@ -1523,13 +1488,6 @@ struct AccessControlEntry {
                         return nil
                     }
                     self.icmpMessages = [newIcmp]  // assumes only one icmp message per line
-                case .counter:
-                    guard self.counter == false else {
-                        reportError()
-                        return nil
-                    }
-                    self.counter = true
-                    linePosition = .counter
                 case .comment:
                     linePosition = .comment
                 case .log:
@@ -1545,7 +1503,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr:
+                case .action, .ipProtocol, .any, .host, .portOperator, .comment, .log, .established, .fourOctet, .objectGroup,.accessList:
                     reportError()
                     return nil
                 case .number(let firstPort):
@@ -1576,29 +1534,12 @@ struct AccessControlEntry {
                     }
                     // line position set in analyzeFirstDestPort
                 }
-            case .destPortgroup:
-                switch token {
-                case .unsupported(let keyword):
-                    reportUnsupported(keyword: keyword)
-                    return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr, .number:
-                    reportError()
-                    return nil
-                case .name(let objectName):
-                    guard let destObjectGroup = aclDelegate?.getObjectGroupService(objectName) else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Unknown object group \(objectName)", delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.destPort = destObjectGroup.portRanges
-                    linePosition = .lastDestPort
-                }
             case .firstDestPort:
                 switch token {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .comment, .log,.counter, .established, .fourOctet, .cidr:
+                case .action, .ipProtocol, .any, .host, .portOperator, .comment, .log, .established, .fourOctet,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .number(let secondDestPort):
@@ -1642,46 +1583,11 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .fourOctet, .cidr, .number, .name:
+                case .action, .ipProtocol, .any, .host, .portOperator, .fourOctet, .number, .name,.accessList,.objectGroup:
                     reportError()
                     return nil
                 case .comment:
                     linePosition = .comment
-                case .log:
-                    guard self.log == false else {
-                        reportError()
-                        return nil
-                    }
-                    self.log = true
-                    linePosition = .end
-                case .counter:
-                    linePosition = .counter
-                case .established:
-                    guard self.established == false else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Error: found established keyword twice", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    guard self.ipProtocols.count == 1, let ipProtocol = self.ipProtocols.first, ipProtocol == 6 else {
-                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                        errorDelegate?.report(severity: .error, message: "Established only has meaning when IP Protocol is tcp", line: linenum, delegateWindow: delegateWindow)
-                        return nil
-                    }
-                    self.established = true
-                    linePosition = .flags
-                }
-            case .flags:
-                switch token {
-                case .unsupported(let keyword):
-                    reportUnsupported(keyword: keyword)
-                    return nil
-                case .action, .ipProtocol, .any, .host, .netgroup, .portgroup, .portOperator, .fourOctet, .cidr, .number, .name:
-                    reportError()
-                    return nil
-                case .comment:
-                    linePosition = .comment
-                case .counter:
-                    linePosition = .counter
                 case .log:
                     guard self.log == false else {
                         reportError()
@@ -1703,16 +1609,36 @@ struct AccessControlEntry {
                     self.established = true
                     linePosition = .flags
                 }
-            case .counter:
+            case .flags:
                 switch token {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol,.any,.host,.netgroup,.counter,.portgroup,.portOperator,.comment,.log,.established,.fourOctet,.cidr,.number:
+                case .action, .ipProtocol, .any, .host, .portOperator, .fourOctet, .number, .name,.objectGroup,.accessList:
                     reportError()
                     return nil
-                case .name(_):
+                case .comment:
+                    linePosition = .comment
+                case .log:
+                    guard self.log == false else {
+                        reportError()
+                        return nil
+                    }
+                    self.log = true
                     linePosition = .end
+                case .established:
+                    guard self.established == false else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Error: found established keyword twice", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    guard self.ipProtocols.count == 1, let ipProtocol = self.ipProtocols.first, ipProtocol == 6 else {
+                        errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        errorDelegate?.report(severity: .error, message: "Established only has meaning when IP Protocol is tcp", line: linenum, delegateWindow: delegateWindow)
+                        return nil
+                    }
+                    self.established = true
+                    linePosition = .flags
                 }
             case .comment:
                 linePosition = .comment
@@ -1721,16 +1647,9 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action, .ipProtocol,.any,.host,.netgroup,.portgroup,.portOperator,.established,.fourOctet,.cidr,.number,.name:
+                case .action, .ipProtocol,.any,.host,.portOperator,.established,.fourOctet,.number,.name,.accessList,.objectGroup:
                     reportError()
                     return nil
-                case .counter:
-                    guard self.counter == false else {
-                        reportError()
-                        return nil
-                    }
-                    self.counter = true
-                    linePosition = .counter
                 case .comment:
                     linePosition = .comment
                 case .log:
@@ -1743,11 +1662,11 @@ struct AccessControlEntry {
                 }
             }
         }// wordLoop
-        if validateIosXr() == false {
+        if validateIosXe() == false {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
             errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
             return nil
-        }//Init IOS-XR
+        }//Init IOS-XE
     }
 
     //MARK: IOSXR IPV4 INIT

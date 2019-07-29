@@ -219,11 +219,11 @@ class TestIosXE: XCTestCase {
         let sample = """
         ip access-list extended no-web
          remark Do not allow w1 to browse the web
-         deny host 172.20.3.85 any eq http
+         deny tcp host 172.20.3.85 any eq www
          remark Do not allow w2 to browse the web
-         deny host 172.20.3.13 any eq http
+         deny tcp host 172.20.3.13 any eq www
          remark Allow others on our network to browse the web
-         permit 172.20.0.0 0.0.255.255 any eq http
+         permit tcp 172.20.0.0 0.0.255.255 any eq www
         """
         let acl = AccessList(sourceText: sample, deviceType: .iosxe, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.accessControlEntries.count == 3)
@@ -238,6 +238,8 @@ class TestIosXE: XCTestCase {
             XCTAssert(result == .permit)
         }
     }
+    
+    
     func testIosXeObject1() {
         let sample = """
         object-group my-nested-object-group

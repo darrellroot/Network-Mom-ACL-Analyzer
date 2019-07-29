@@ -46,6 +46,8 @@
 		2F5D690622E7A002002D7E41 /* FindDuplicateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */; };
 		2F5D690822E7A6D8002D7E41 /* FindDuplicateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */; };
 		2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */; };
+		2F6A992722EE058E005A32D1 /* IosXeToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F6A992622EE058E005A32D1 /* IosXeToken.swift */; };
+		2F6A992822EE058E005A32D1 /* IosXeToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F6A992622EE058E005A32D1 /* IosXeToken.swift */; };
 		2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */; };
 		2F7D69AF22C9576D0024348B /* AclDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7D69AE22C9576D0024348B /* AclDelegate.swift */; };
@@ -124,6 +126,7 @@
 		2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FindDuplicateController.xib; sourceTree = "<group>"; };
 		2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindDuplicateController.swift; sourceTree = "<group>"; };
 		2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedFeatureTests.swift; sourceTree = "<group>"; };
+		2F6A992622EE058E005A32D1 /* IosXeToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IosXeToken.swift; sourceTree = "<group>"; };
 		2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IcmpMessage.swift; sourceTree = "<group>"; };
 		2F7D69AE22C9576D0024348B /* AclDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AclDelegate.swift; sourceTree = "<group>"; };
 		2F928A4522EC90910030C4FF /* TestIosXE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestIosXE.swift; sourceTree = "<group>"; };
@@ -299,6 +302,7 @@
 				2F1FD8AE22B9DBB3008ADBC7 /* DeviceType.swift */,
 				2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */,
 				2FF8F3F722E41395007EECFC /* IosToken.swift */,
+				2F6A992622EE058E005A32D1 /* IosXeToken.swift */,
 				2FFE3B6522DE384500718B4E /* IosXrToken.swift */,
 				2FC3F4FA22E91A7D0043F92D /* Ipv4Prefix.swift */,
 				2FBAA07E228A399300B53113 /* IpVersion.swift */,
@@ -458,6 +462,7 @@
 				2FCE6AA422A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
 				2F49B71822C6DAED001F0DB5 /* PortRange.swift in Sources */,
 				2F49B71522C6AC86001F0DB5 /* IpRange.swift in Sources */,
+				2F6A992822EE058E005A32D1 /* IosXeToken.swift in Sources */,
 				2FD50F5F22D96E8C0016FC95 /* NxAclToken.swift in Sources */,
 				2FFE3B6422DE370100718B4E /* TestIosXR.swift in Sources */,
 				2FF8F3FC22E543A1007EECFC /* AsaToken.swift in Sources */,
@@ -483,6 +488,7 @@
 				2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */,
 				2F4B852222B555F200927DD2 /* Socket.swift in Sources */,
 				2F1FD8B222B9EE26008ADBC7 /* Collection+extensions.swift in Sources */,
+				2F6A992722EE058E005A32D1 /* IosXeToken.swift in Sources */,
 				2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
 				2FBAA07D228A392B00B53113 /* AclAction.swift in Sources */,
