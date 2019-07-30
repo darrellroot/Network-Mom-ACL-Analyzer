@@ -281,7 +281,7 @@ extension String {
         }
     }
 
-    func tcpPort(deviceType: DeviceType, delegate: ErrorDelegate?) -> UInt? {
+    func tcpPort(deviceType: DeviceType, delegate: ErrorDelegate?, delegateWindow: DelegateWindow?) -> UInt? {
         switch (deviceType,self) {
         case (.asa,"aol"):
             return 5190
@@ -383,40 +383,7 @@ extension String {
             return nil
         }
     }
-/*    var asaTcpPort: UInt? {   //TODO check list
-        switch self {
-        case "bgp":
-            return 179
-        case "cmd":
-            return 514
-        case "domain":
-            return 53
-        case "exec":
-            return 512
-        case "ftp":
-            return 21
-        case "ftp-data":
-            return 20
-        case "https":
-            return 443
-        case "mms":
-            return 1755
-        case "nfs":
-            return 2049
-        case "smtp":
-            return 25
-        case "ssh":
-            return 22
-        case "tacacs":
-            return 49
-        case "telnet":
-            return 23
-        case "www":
-            return 80
-        default:
-            return nil
-        }
-    }*/
+    
     var asaIcmpType: UInt? {
         switch self {
         case "echo-reply":
@@ -459,7 +426,86 @@ extension String {
             return nil
         }
     }
-    var asaUdpPort: UInt? {  //TODO check list
+    func udpPort(deviceType: DeviceType, delegate: ErrorDelegate?, delegateWindow: DelegateWindow?) -> UInt? {
+        switch (deviceType, self) {
+        case (.asa,"biff"):
+            return 512
+        case (_,"bootpc"):
+            return 68
+        case (_,"bootps"):
+            return 67
+        case (.asa,"discard"):
+            return 9
+        case (.asa,"dnsix"):
+            return 195
+        case (.asa,"dns"):
+            delegate?.report(severity: .warning, message: "ASA dns port is short for dnsix which is UDP/195, this is probably not what you want", delegateWindow: delegateWindow)
+            return 195
+        case (_,"domain"):
+            return 53
+        case (.asa,"echo"):
+            return 7
+        case (_,"isakmp"):    //TODO only on some platforms
+            return 500
+        case (.asa,"kerberos"):
+            return 750
+        //case (_,"ldap"):
+            //return 389
+        //case (_,"mms"):
+            //return 1755
+        case (_,"netbios-dgm"):
+            return 138
+        case (_,"netbios-ns"):
+            return 137
+        //case (_,"netbios-ss"):
+            //return 139
+        case (.ios,"non500-isakmp"), (.iosxe,"non500-isakmp"):   //TODO only on some platforms
+            delegate?.report(severity: .warning, message: "non500-isakmp is only supported on some IOS platforms", delegateWindow: delegateWindow)
+            return 4500
+        case (.ios,"nfs"), (.iosxe,"nfs"),(.iosxr,"nfs"),(.nxos,"nfs"):
+            return 2049
+        case (_,"ntp"):
+            return 123
+        case (.asa,"pcanywhere-status"):
+            return 5632
+        case (.asa,"pim-auto-rp"):
+            return 496
+        case (.asa,"radius"):
+            return 1645
+        case (.asa,"radius-acct"):
+            return 1646
+        case (.asa,"rip"):
+            return 520
+        case (.asa,"secureid-udp"):
+            return 5510
+
+        case (_,"snmp"):
+            return 161
+        case (_,"snmptrap"):
+            return 162
+        case (.asa,"sunrpc"):
+            return 111
+        case (_,"syslog"):
+            return 514
+        case (_,"tacacs"):
+            return 49
+        case (.asa,"talk"):
+            return 517
+        case (.asa,"time"):
+            return 37
+        case (_,"tftp"):
+            return 69
+        case (_,"wccp"):
+            return 2048
+        case (.asa,"who"):
+            return 513
+        case (.asa,"xdmcp"):
+            return 177
+        default:
+            return nil
+        }
+    }
+/*    var asaUdpPort: UInt? {  //TODO check list
         switch self {
         case "bootpc":
             return 68
@@ -500,7 +546,7 @@ extension String {
         default:
             return nil
         }
-    }
+    }*/
 
     var iosXrIpProtocol: UInt? {
         switch self {
@@ -789,9 +835,9 @@ extension String {
                 return nil
             }
         } else {
-            if let portNumber = self.tcpPort(deviceType: .asa, delegate: nil) {
+            if let portNumber = self.tcpPort(deviceType: .asa, delegate: nil, delegateWindow: nil) {
                 return portNumber
-            } else if let portNumber = self.asaUdpPort {
+            } else if let portNumber = self.udpPort(deviceType: .asa, delegate: nil, delegateWindow: nil) {
                 return portNumber
             } else {
                 return nil

@@ -3604,12 +3604,12 @@ struct AccessControlEntry {
                 case .name(let firstSourcePortString):
                     var possiblePort: UInt? = nil
                     if self.ipProtocols.contains(6) {
-                        if let tcpPort = firstSourcePortString.tcpPort(deviceType: .asa, delegate: errorDelegate) {
+                        if let tcpPort = firstSourcePortString.tcpPort(deviceType: .asa, delegate: errorDelegate,delegateWindow: delegateWindow) {
                             possiblePort = tcpPort
                         }
                     }
                     if self.ipProtocols.contains(17) {
-                        if let tcpPort = firstSourcePortString.asaUdpPort {
+                        if let tcpPort = firstSourcePortString.udpPort(deviceType: .asa, delegate: nil, delegateWindow: nil) {
                             possiblePort = tcpPort
                         }
                     }
@@ -3641,12 +3641,12 @@ struct AccessControlEntry {
                 case .name(let secondSourcePortString):
                     var possiblePort: UInt? = nil
                     if self.ipProtocols.contains(6) {
-                        if let tcpPort = secondSourcePortString.tcpPort(deviceType: .asa, delegate: errorDelegate) {
+                        if let tcpPort = secondSourcePortString.tcpPort(deviceType: .asa, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tcpPort
                         }
                     }
                     if self.ipProtocols.contains(17) {
-                        if let tcpPort = secondSourcePortString.asaUdpPort {
+                        if let tcpPort = secondSourcePortString.udpPort(deviceType: .asa, delegate: nil, delegateWindow: nil) {
                             possiblePort = tcpPort
                         }
                     }
@@ -3834,12 +3834,12 @@ struct AccessControlEntry {
                 case .name(let destPortString):
                     var possibleDestPort: UInt? = nil
                     if self.ipProtocols.contains(6) {
-                        if let port = destPortString.tcpPort(deviceType: .asa, delegate: errorDelegate) {
+                        if let port = destPortString.tcpPort(deviceType: .asa, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possibleDestPort = port
                         }
                     }
                     if self.ipProtocols.contains(17) {
-                        if let port = destPortString.asaUdpPort {
+                        if let port = destPortString.udpPort(deviceType: .asa, delegate: nil, delegateWindow: nil) {
                             possibleDestPort = port
                         }
                     }
@@ -3871,12 +3871,12 @@ struct AccessControlEntry {
                 case .name(let secondDestPortString):
                     var possibleSecondDestPort: UInt? = nil
                     if self.ipProtocols.contains(6) {
-                        if let port = secondDestPortString.tcpPort(deviceType: .asa, delegate: errorDelegate) {
+                        if let port = secondDestPortString.tcpPort(deviceType: .asa, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possibleSecondDestPort = port
                         }
                     }
                     if self.ipProtocols.contains(17) {
-                        if let port = secondDestPortString.asaUdpPort {
+                        if let port = secondDestPortString.udpPort(deviceType: .asa, delegate: nil, delegateWindow: nil) {
                             possibleSecondDestPort = port
                         }
                     }
