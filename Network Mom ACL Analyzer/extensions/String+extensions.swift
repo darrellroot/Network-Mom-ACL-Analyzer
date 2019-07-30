@@ -281,7 +281,109 @@ extension String {
         }
     }
 
-    var asaTcpPort: UInt? {   //TODO check list
+    func tcpPort(deviceType: DeviceType, delegate: ErrorDelegate?) -> UInt? {
+        switch (deviceType,self) {
+        case (.asa,"aol"):
+            return 5190
+        case (_,"bgp"):
+            return 179
+        case (.asa,"chargen"):
+            return 19
+        case (.asa,"citrix-ica"):
+            return 1494
+        case (_,"cmd"):
+            return 514
+        case (.asa,"ctiqbe"):
+            return 2748
+        case (.asa,"daytime"):
+            return 13
+        case (.asa,"discard"):
+            return 9
+        case (_,"domain"):
+            return 53
+        case (.asa,"echo"):
+            return 7
+        case (_,"exec"):
+            return 512
+        case (.asa,"finger"):
+            return 79
+        case (_,"ftp"):
+            return 21
+        case (_,"ftp-data"):
+            return 20
+        case (.asa,"gopher"):
+            return 70
+        case (.asa,"h323"):
+            return 1720
+        case (.asa,"hostname"):
+            return 101
+        case (_,"https"):
+            return 443
+        case (.asa,"ident"):
+            return 113
+        case (.asa,"imap4"):
+            return 143
+        case (.asa,"irc"):
+            return 194
+        case (.asa,"kerberos"):
+            return 750
+        case (.asa,"klogin"):
+            return 543
+        case (.asa,"ksh"):
+            return 544
+        case (.asa,"ldap"):
+            return 389
+        case (.asa,"ldaps"):
+            return 636
+        case (.asa,"lpd"):
+            return 515
+        case (.asa,"login"):
+            return 513
+        case (.asa,"lotusnotes"):
+            return 1352
+        case (_,"mms"):
+            return 1755
+        case (.asa,"netbios-ssn"):
+            return 139
+        case (.asa,"nntp"):
+            return 119
+        case (_,"nfs"):
+            return 2049
+        case (.asa,"pcanywhere-data"):
+            return 5631
+        case (.asa,"pim-auto-rp"):
+            return 496
+        case (.asa,"pop2"):
+            return 109
+        case (.asa,"pop3"):
+            return 110
+        case (.asa,"pptp"):
+            return 1723
+        case (_,"smtp"):
+            return 25
+        case (.asa,"sqlnet"):
+            return 1521
+        case (_,"ssh"):
+            return 22
+        case (.asa,"sunrpc"):
+            return 111
+        case (_,"tacacs"):
+            return 49
+        case (.asa,"talk"):
+            return 517
+        case (_,"telnet"):
+            return 23
+        case (.asa,"uucp"):
+            return 540
+        case (.asa,"whois"):
+            return 43
+        case (_,"www"):
+            return 80
+        default:
+            return nil
+        }
+    }
+/*    var asaTcpPort: UInt? {   //TODO check list
         switch self {
         case "bgp":
             return 179
@@ -314,7 +416,7 @@ extension String {
         default:
             return nil
         }
-    }
+    }*/
     var asaIcmpType: UInt? {
         switch self {
         case "echo-reply":
@@ -687,7 +789,7 @@ extension String {
                 return nil
             }
         } else {
-            if let portNumber = self.asaTcpPort {
+            if let portNumber = self.tcpPort(deviceType: .asa, delegate: nil) {
                 return portNumber
             } else if let portNumber = self.asaUdpPort {
                 return portNumber
