@@ -50,7 +50,7 @@ enum IosToken: Equatable {
         case "established","est":
             self = .established
         case "ahp","eigrp","esp","gre","icmp","igmp","igrp","ip","ipv4","ipinip","nos","ospf","pcp","pim","tcp","udp":
-            if let ipProtocol = string.iosIpProtocol {
+            if let ipProtocol = string.ipProtocol(deviceType: .ios, delegate: nil, delegateWindow: nil) {
                 self = .ipProtocol(ipProtocol)
             } else {
                 return nil

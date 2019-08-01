@@ -107,17 +107,17 @@ class AccessList {
                     case "description":
                         break
                     case "eq":
-                        if let firstPort = UInt(secondWord) ?? secondWord.iosXrTcpPort ?? secondWord.iosXrUdpPort , let portRange = PortRange(minPort: firstPort, maxPort: firstPort) {
+                        if let firstPort = UInt(secondWord) ?? secondWord.tcpPort(deviceType: .iosxr, delegate: delegate, delegateWindow: delegateWindow) ?? secondWord.udpPort(deviceType: .iosxr, delegate: delegate, delegateWindow: delegateWindow) , let portRange = PortRange(minPort: firstPort, maxPort: firstPort) {
                             objectGroup.portRanges.append(portRange)
                             continue lineLoop
                         }
                     case "lt":
-                        if let firstPort = UInt(secondWord) ?? secondWord.iosXrTcpPort ?? secondWord.iosXrUdpPort, firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) {
+                        if let firstPort = UInt(secondWord) ?? secondWord.tcpPort(deviceType: .iosxr, delegate: delegate, delegateWindow: delegateWindow) ?? secondWord.udpPort(deviceType: .iosxr, delegate: delegate, delegateWindow: delegateWindow), firstPort > 0, let portRange = PortRange(minPort: 0, maxPort: firstPort - 1) {
                             objectGroup.portRanges.append(portRange)
                             continue lineLoop
                         }
                     case "gt":
-                        if let firstPort = UInt(secondWord) ?? secondWord.iosXrTcpPort ?? secondWord.iosXrUdpPort, firstPort < MAXPORT, let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) {
+                        if let firstPort = UInt(secondWord) ?? secondWord.tcpPort(deviceType: .iosxr, delegate: delegate, delegateWindow: delegateWindow) ?? secondWord.udpPort(deviceType: .iosxr, delegate: delegate, delegateWindow: delegateWindow), firstPort < MAXPORT, let portRange = PortRange(minPort: firstPort + 1, maxPort: MAXPORT) {
                             objectGroup.portRanges.append(portRange)
                             continue lineLoop
                         }
@@ -265,7 +265,7 @@ class AccessList {
                         break
                         //do nothing and proceed to ACE analysis
                     case .portOperator(let portOperator):
-                        guard let firstPortString = localwords[safe: 1], let firstPort = UInt(firstPortString) ?? firstPortString.nxosTcpPort ?? firstPortString.nxosUdpPort, firstPort >= 0, firstPort <= MAXPORT else {
+                        guard let firstPortString = localwords[safe: 1], let firstPort = UInt(firstPortString) ?? firstPortString.tcpPort(deviceType: .nxos, delegate: delegate, delegateWindow: delegateWindow) ?? firstPortString.udpPort(deviceType: .nxos, delegate: delegate, delegateWindow: delegateWindow), firstPort >= 0, firstPort <= MAXPORT else {
                             delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                             delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
                             continue lineLoop
@@ -307,7 +307,7 @@ class AccessList {
                             }
                             continue lineLoop
                         case .range:
-                            if let secondPortString = localwords[safe: 2], let secondPort = UInt(secondPortString) ?? secondPortString.nxosTcpPort ?? secondPortString.nxosUdpPort, secondPort >= 0, secondPort <= MAXPORT, let portRange = PortRange(minPort: firstPort, maxPort: secondPort) {
+                            if let secondPortString = localwords[safe: 2], let secondPort = UInt(secondPortString) ?? secondPortString.tcpPort(deviceType: .nxos, delegate: delegate, delegateWindow: delegateWindow) ?? secondPortString.udpPort(deviceType: .nxos, delegate: delegate, delegateWindow: delegateWindow), secondPort >= 0, secondPort <= MAXPORT, let portRange = PortRange(minPort: firstPort, maxPort: secondPort) {
                                 currentObjectGroup.append(portRange: portRange)
                                 continue lineLoop
                             } else {
@@ -517,7 +517,7 @@ class AccessList {
                             continue lineLoop
                         }
                     } else {
-                        if let protocolNumber = term1.asaIpProtocol {
+                        if let protocolNumber = term1.ipProtocol(deviceType: .asa, delegate: delegate, delegateWindow: delegateWindow) {
                             ipProtocol = protocolNumber
                         } else {
                             delegate?.report(severity: .error, message: "Unable to identify IP protocol", line: linenum, delegateWindow: delegateWindow)

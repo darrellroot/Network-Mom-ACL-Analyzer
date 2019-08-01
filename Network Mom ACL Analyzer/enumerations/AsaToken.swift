@@ -54,7 +54,7 @@ enum AsaToken: Equatable {
                 return nil
             }
         case "ahp","eigrp","esp","gre","icmp","igmp","igrp","ip","ipv4","ipinip","nos","ospf","pcp","pim","sctp","tcp","udp":
-            if let ipProtocol = string.asaIpProtocol {
+            if let ipProtocol = string.ipProtocol(deviceType: .asa, delegate: nil, delegateWindow: nil) {
                 self = .ipProtocol(ipProtocol)
             } else {
                 debugPrint("Error decoding asaIpProtocol from \(string) DEVELOPER MUST FIX")

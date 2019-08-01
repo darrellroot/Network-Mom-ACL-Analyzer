@@ -545,14 +545,14 @@ permit ip host 10.0.0.2 any
     }
 
     func testIosNe1() {
-        let line = "access-list 101 permit tcp host 1.1.1.1 any neq ssh"
+        let line = "access-list 101 permit tcp host 1.1.1.1 any neq www"
         let ace = AccessControlEntry(line: line, deviceType: .ios, linenum: 1, errorDelegate: nil, delegateWindow: nil)
         
         let socket1 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 40, established: false)!
         XCTAssert(ace != nil)
         let result1 = ace?.analyze(socket: socket1)
         XCTAssert(result1 == .permit)
-        let socket2 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 22, established: false)!
+        let socket2 = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "2.2.2.2".ipv4address!, sourcePort: 33, destinationPort: 80, established: false)!
         let result2 = ace?.analyze(socket: socket2)
         XCTAssert(result2 == .neither)
     }
@@ -675,9 +675,9 @@ permit ip host 10.0.0.2 any
     }
 
     func testTcpNamedPort() {
-        let ace = AccessControlEntry(line: "permit tcp 1.1.1.0 0.0.0.255 eq domain 2.2.2.128 0.0.0.63 eq nfs", deviceType: .ios, linenum: 5, errorDelegate: nil, delegateWindow: nil)
+        let ace = AccessControlEntry(line: "permit tcp 1.1.1.0 0.0.0.255 eq domain 2.2.2.128 0.0.0.63 eq www", deviceType: .ios, linenum: 5, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace?.sourcePort[0].maxPort == 53)
-        XCTAssert(ace?.destPort[0].minPort == 2049)
+        XCTAssert(ace?.destPort[0].minPort == 80)
     }
     func testIcmpName() {
         let ace = AccessControlEntry(line: "access-list 102 permit icmp host 10.1.1.1 host 172.16.1.1 timestamp-reply", deviceType: .ios, linenum: 6, errorDelegate: nil, delegateWindow: nil)

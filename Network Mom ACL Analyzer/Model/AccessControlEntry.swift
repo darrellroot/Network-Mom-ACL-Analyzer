@@ -626,12 +626,12 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstPort = firstStringPort.nxosTcpPort, analyzeFirstSourcePort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.tcpPort(deviceType: .nxos, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.nxosUdpPort, analyzeFirstSourcePort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .nxos, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -668,13 +668,13 @@ struct AccessControlEntry {
                     let secondSourcePort: UInt
                     switch ipProtocol {
                     case 6:
-                        guard let secondPortOptional = secondPortString.nxosTcpPort else {
+                        guard let secondPortOptional = secondPortString.tcpPort(deviceType: .nxos, delegate: errorDelegate, delegateWindow: delegateWindow) else {
                             reportError()
                             return nil
                         }
                         secondSourcePort = secondPortOptional
                     case 17:
-                        guard let secondPortOptional = secondPortString.nxosUdpPort else {
+                        guard let secondPortOptional = secondPortString.udpPort(deviceType: .nxos, delegate: errorDelegate, delegateWindow: delegateWindow) else {
                             reportError()
                             return nil
                         }
@@ -784,12 +784,12 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstPort = firstStringPort.nxosTcpPort, analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.tcpPort(deviceType: .nxos, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.nxosUdpPort, analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .nxos, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -842,13 +842,13 @@ struct AccessControlEntry {
                     let secondDestPort: UInt
                     switch ipProtocol {
                     case 6:
-                        guard let secondPortOptional = secondPortString.nxosTcpPort else {
+                        guard let secondPortOptional = secondPortString.tcpPort(deviceType: .nxos, delegate: errorDelegate, delegateWindow: delegateWindow) else {
                             reportError()
                             return nil
                         }
                         secondDestPort = secondPortOptional
                     case 17:
-                        guard let secondPortOptional = secondPortString.nxosUdpPort else {
+                        guard let secondPortOptional = secondPortString.udpPort(deviceType: .nxos, delegate: errorDelegate, delegateWindow: delegateWindow) else {
                             reportError()
                             return nil
                         }
@@ -1304,12 +1304,12 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstPort = firstStringPort.iosXrTcpPort, analyzeFirstSourcePort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.iosXrUdpPort, analyzeFirstSourcePort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -1346,11 +1346,11 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        if let tempPort = name.iosXrTcpPort {
+                        if let tempPort = name.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     case 17:
-                        if let tempPort = name.iosXrUdpPort {
+                        if let tempPort = name.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     default:
@@ -1519,12 +1519,12 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstPort = firstStringPort.iosXrTcpPort, analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.iosXrUdpPort, analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -1561,11 +1561,11 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        if let tempPort = secondPortString.iosXrTcpPort {
+                        if let tempPort = secondPortString.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     case 17:
-                        if let tempPort = secondPortString.iosXrUdpPort {
+                        if let tempPort = secondPortString.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     default:
@@ -2078,12 +2078,12 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstPort = firstStringPort.iosXrTcpPort, analyzeFirstSourcePort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.iosXrUdpPort, analyzeFirstSourcePort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -2120,11 +2120,11 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        if let tempPort = name.iosXrTcpPort {
+                        if let tempPort = name.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     case 17:
-                        if let tempPort = name.iosXrUdpPort {
+                        if let tempPort = name.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     default:
@@ -2327,12 +2327,12 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstPort = firstStringPort.iosXrTcpPort, analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.iosXrUdpPort, analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -2386,11 +2386,11 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        if let tempPort = secondPortString.iosXrTcpPort {
+                        if let tempPort = secondPortString.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     case 17:
-                        if let tempPort = secondPortString.iosXrUdpPort {
+                        if let tempPort = secondPortString.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     default:
@@ -2881,14 +2881,14 @@ struct AccessControlEntry {
                     let port: UInt
                     switch ipProtocol {
                     case 6:
-                        guard let possiblePort = possiblePortName.iosTcpPort else {
+                        guard let possiblePort = possiblePortName.tcpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) else {
                             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                             errorDelegate?.report(severity: .error, message: "invalid source port \(possiblePortName) for protocol \(ipProtocol)", line: linenum, delegateWindow: delegateWindow)
                             return nil
                         }
                         port = possiblePort
                     case 17:
-                        guard let possiblePort = possiblePortName.iosUdpPort else {
+                        guard let possiblePort = possiblePortName.udpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) else {
                             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                             errorDelegate?.report(severity: .error, message: "invalid source port \(possiblePortName) for protocol \(ipProtocol)", line: linenum, delegateWindow: delegateWindow)
                             return nil
@@ -2929,13 +2929,13 @@ struct AccessControlEntry {
                     let secondSourcePort: UInt
                     switch ipProtocol {
                     case 6:
-                        guard let secondPortOptional = secondPortString.iosTcpPort else {
+                        guard let secondPortOptional = secondPortString.tcpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) else {
                             reportError()
                             return nil
                         }
                         secondSourcePort = secondPortOptional
                     case 17:
-                        guard let secondPortOptional = secondPortString.iosUdpPort else {
+                        guard let secondPortOptional = secondPortString.udpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) else {
                             reportError()
                             return nil
                         }
@@ -3062,12 +3062,12 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstDestPort = firstDestPortString.iosTcpPort, analyzeFirstDestPort(firstDestPort: firstDestPort) else {
+                        guard let firstDestPort = firstDestPortString.tcpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstDestPort: firstDestPort) else {
                             reportError()
                             return nil
                         }
                     case 17:
-                        guard let firstDestPort = firstDestPortString.iosUdpPort, analyzeFirstDestPort(firstDestPort: firstDestPort) else {
+                        guard let firstDestPort = firstDestPortString.udpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstDestPort: firstDestPort) else {
                             reportError()
                             return nil
                         }
@@ -3104,11 +3104,11 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        if let tempPort = secondDestPortString.iosTcpPort {
+                        if let tempPort = secondDestPortString.tcpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possibleDestPort = tempPort
                         }
                     case 17:
-                        if let tempPort = secondDestPortString.iosUdpPort {
+                        if let tempPort = secondDestPortString.udpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possibleDestPort = tempPort
                         }
                     default:
