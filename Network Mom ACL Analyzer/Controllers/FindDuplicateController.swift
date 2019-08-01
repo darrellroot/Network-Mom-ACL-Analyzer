@@ -72,6 +72,8 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
         switch deviceTypeString {
         case "IOS":
             self.deviceType = .ios
+        case "IOS-XE":
+            self.deviceType = .iosxe
         case "IOS-XR":
             self.deviceType = .iosxr
         case "ASA":

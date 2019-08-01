@@ -31,13 +31,11 @@ class AccessList {
     
     enum ConfigurationMode {
         case objectGroupNetwork
-        case iosXrObjectGroupNetwork
-        case iosXrObjectGroupService
+        case objectGroupService
         case asaObjectNetwork  // only moves into this mode for one subnet command
         case nxosObjectGroupAddress
         case nxosObjectGroupPort
         case objectGroupProtocol
-        case objectGroupService
         case accessListExtended
         case accessControlEntry  // default
     }
@@ -66,11 +64,33 @@ class AccessList {
             }
             
             let words = line.split{ $0.isWhitespace }.map{ String($0)}
+            
+            if self.deviceType == .iosxe && words[safe: 0] == "object-group" && words[safe: 1] == "service" {
+                delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                delegate?.report(severity: .error, message: "ACL Analyzer does not support service object-groups for IOSXE. ACL ANALYSIS WILL NOT BE COMPLETE. Email acl sample to feedback@networkmom.net if this is a major problem", line: linenum, delegateWindow: delegateWindow)
+                continue lineLoop
+            }
+            
+            if self.deviceType == .iosxe && words[safe: 0] == "object-group" && words[safe: 1] == "network", let objectNameTemp = words[safe: 2] {
+                if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
+                    self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
+                    configurationMode = .objectGroupNetwork
+                    lastSequenceSeen = 0
+                    objectName = objectNameTemp
+                } else {
+                    reportError()
+                    delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
+                    configurationMode = .accessControlEntry
+                    lastSequenceSeen = 0
+                    objectName = nil
+                }
+                continue lineLoop
+            }
 
             if self.deviceType == .iosxr && words[safe: 0] == "object-group" && words[safe: 1] == "network" && words[safe: 2] == "ipv4", let objectNameTemp = words[safe: 3]  {
                 if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
                     self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
-                    configurationMode = .iosXrObjectGroupNetwork
+                    configurationMode = .objectGroupNetwork
                     lastSequenceSeen = 0
                     objectName = objectNameTemp
                 } else {
@@ -86,7 +106,7 @@ class AccessList {
             if self.deviceType == .iosxr && words[safe: 0] == "object-group" && words[safe: 1] == "port", let objectNameTemp = words[safe: 2]  {
                 if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
                     self.objectGroupServices[objectNameTemp] = ObjectGroupService(type: .tcpAndUdp)
-                    configurationMode = .iosXrObjectGroupService
+                    configurationMode = .objectGroupService
                     lastSequenceSeen = 0
                     objectName = objectNameTemp
                     continue lineLoop
@@ -97,7 +117,7 @@ class AccessList {
                     objectName = nil
                 }
             }
-            if self.deviceType == .iosxr && configurationMode == .iosXrObjectGroupService, let objectName = objectName, let objectGroup = objectGroupServices[objectName], let possibleSequence = words[safe: 0] {
+            if self.deviceType == .iosxr && configurationMode == .objectGroupService, let objectName = objectName, let objectGroup = objectGroupServices[objectName], let possibleSequence = words[safe: 0] {
                 var myWords = words
                 if let _ = UInt(possibleSequence) {
                     myWords.removeFirst()
@@ -194,7 +214,7 @@ class AccessList {
                 continue lineLoop
             }
             
-            if words[safe: 0] == "object-group" && words[safe: 1] == "ip" && words[safe: 2] == "port" && deviceType == .nxos, let objectNameTemp = words[safe: 3] {
+            if deviceType == .nxos && words[safe: 0] == "object-group" && words[safe: 1] == "ip" && words[safe: 2] == "port", let objectNameTemp = words[safe: 3] {
                 guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "Duplicate object-group service \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
@@ -210,7 +230,8 @@ class AccessList {
                 objectName = objectNameTemp
                 continue lineLoop
             }
-            if deviceType == .iosxr && configurationMode == .iosXrObjectGroupNetwork, let objectName = objectName, let objectGroup = objectGroupNetworks[objectName] {
+            
+            if (deviceType == .iosxr || deviceType == .iosxe) && configurationMode == .objectGroupNetwork, let objectName = objectName, let objectGroup = objectGroupNetworks[objectName] {
                 if words[safe: 0] == "description" {
                     continue lineLoop
                 }
@@ -225,7 +246,9 @@ class AccessList {
                     objectGroup.append(ipRange: hostIpRange)
                     continue lineLoop
                 }
-                if words[safe: 0] == "range", let firstIpString = words[safe: 1], let firstIp = firstIpString.ipv4address, let secondIpString = words[safe: 2], let secondIp = secondIpString.ipv4address, firstIp <= secondIp {
+                
+                //range x.x.x.x x.x.x.y only applied to IOS-XR
+                if deviceType == .iosxr && words[safe: 0] == "range", let firstIpString = words[safe: 1], let firstIp = firstIpString.ipv4address, let secondIpString = words[safe: 2], let secondIp = secondIpString.ipv4address, firstIp <= secondIp {
                     let ipRange = IpRange(minIp: firstIp, maxIp: secondIp)
                     objectGroup.append(ipRange: ipRange)
                     continue lineLoop
@@ -238,7 +261,11 @@ class AccessList {
                     objectGroup.append(ipRange: ipRange)
                     continue lineLoop
                 }
-                if words[safe: 0] == "object-group", let possibleObjectName = words[safe: 1], let nestedObjectGroup = self.objectGroupNetworks[possibleObjectName] {
+                if deviceType == .iosxr && words[safe: 0] == "object-group", let possibleObjectName = words[safe: 1], let nestedObjectGroup = self.objectGroupNetworks[possibleObjectName] {
+                    objectGroup.ipRanges.append(contentsOf: nestedObjectGroup.ipRanges)
+                    continue lineLoop
+                }
+                if deviceType == .iosxe && words[safe: 0] == "group-object", let possibleObjectName = words[safe: 1], let nestedObjectGroup = self.objectGroupNetworks[possibleObjectName] {
                     objectGroup.ipRanges.append(contentsOf: nestedObjectGroup.ipRanges)
                     continue lineLoop
                 }
@@ -487,7 +514,7 @@ class AccessList {
                         }
                         continue lineLoop
                     }
-                case .accessListExtended, .accessControlEntry, .nxosObjectGroupPort, .nxosObjectGroupAddress, .iosXrObjectGroupNetwork, .iosXrObjectGroupService, .asaObjectNetwork:
+                case .accessListExtended, .accessControlEntry, .nxosObjectGroupPort, .nxosObjectGroupAddress, .asaObjectNetwork:
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "unexpected group-object", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
@@ -607,7 +634,7 @@ class AccessList {
                     }
                 }
             }
-            if deviceType == .ios && words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
+            if (deviceType == .ios || deviceType == .iosxe) && words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
             //if line.starts(with: "ip access-list extended") {
                 objectName = nil
                 configurationMode = .accessListExtended
@@ -678,7 +705,7 @@ class AccessList {
 
             if words[safe: 0] == "description" {
             //if line.starts(with: "description") {
-                if configurationMode == .objectGroupNetwork || configurationMode == .objectGroupService || configurationMode == .objectGroupProtocol || configurationMode == .iosXrObjectGroupNetwork || configurationMode == .iosXrObjectGroupService {
+                if configurationMode == .objectGroupNetwork || configurationMode == .objectGroupService || configurationMode == .objectGroupProtocol {
                     continue lineLoop
                 } else {
                     delegate?.report(severity: .linetext, message: "\(line)", line: linenum, delegateWindow: delegateWindow)

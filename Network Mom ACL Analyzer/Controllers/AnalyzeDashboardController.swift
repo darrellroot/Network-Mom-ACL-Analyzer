@@ -57,13 +57,6 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
     override func windowDidLoad() {
         super.windowDidLoad()
         
-        /*ingressAclTextView.substituteFontName = "Courier"
-        egressAclTextView.substituteFontName = "Courier"
-        ingressAclValidation.substituteFontName = "Courier"
-        egressAclValidation.substituteFontName = "Courier"
-        ingressAclAnalysis.substituteFontName = "Courier"
-        egressAclAnalysis.substituteFontName = "Courier"*/
-
         self.fontManager = NSFontManager.shared
         if let newFont = fontManager.selectedFont {
             ingressAclTextView.font = newFont
@@ -208,6 +201,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         switch ingressDeviceTypeString {
         case "IOS":
             self.ingressDeviceType = .ios
+        case "IOS-XE":
+            self.ingressDeviceType = .iosxe
         case "IOS-XR":
             self.ingressDeviceType = .iosxr
         case "ASA":
@@ -223,6 +218,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         switch egressDeviceTypeString {
         case "IOS":
             self.egressDeviceType = .ios
+        case "IOS-XE":
+            self.egressDeviceType = .iosxe
         case "IOS-XR":
             self.egressDeviceType = .iosxr
         case "NX-OS":

@@ -240,7 +240,7 @@ class TestIosXE: XCTestCase {
     }
     
     
-    func testIosXeObject1() {
+/*    func testIosXeObject1() {
         let sample = """
         object-group my-nested-object-group
           host 1.1.1.1
@@ -280,8 +280,8 @@ class TestIosXE: XCTestCase {
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
-    }
-    func testIosXeObject2() {
+    }*/
+/*    func testIosXeObject2() {
         let sample = """
         object-group network my-network-object-group
             description test engineers
@@ -324,6 +324,97 @@ class TestIosXE: XCTestCase {
         }
         do {
             let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.241".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 50, destinationPort: 23, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+    }*/
+    func testIosXeObject1() {
+        let sample = """
+     object-group network my-nested-object-group
+        host 1.1.1.1
+     object-group network my-network-object-group
+        description test engineers
+        host 209.165.200.237
+        209.165.200.241 255.255.255.224
+        group-object my-nested-object-group
+     ip access-list extended nomarketing
+        remark protect server by denying access from the Marketing network
+        permit tcp object-group my-network-object-group range 10 20 host 1.1.1.1 eq 30 log
+     """
+        let acl = AccessList(sourceText: sample, deviceType: .iosxe, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.245".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 20, destinationPort: 30, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.237".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 10, destinationPort: 30, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 10, destinationPort: 30, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "1.1.1.2".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 10, destinationPort: 30, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 9, destinationPort: 30, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+
+
+    }
+    func testIosXeObject2() {
+        let sample = """
+     object-group network my-network-object-group
+     description test engineers
+        host 209.165.200.237
+        host 209.165.200.238
+        209.165.200.241 255.255.255.224
+     object-group network my-company-network
+        host 209.165.200.242
+        209.165.200.225 255.255.255.224
+        group-object my-network-object-group
+     ip access-list extended my-ogacl-policy
+     permit tcp object-group my-network-object-group any
+     deny tcp any any
+     """
+        let acl = AccessList(sourceText: sample, deviceType: .iosxe, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 2)
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.237".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 30, destinationPort: 25, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.236".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 30, destinationPort: 25, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.237".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 30, destinationPort: 26, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.241".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 50, destinationPort: 23, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.223".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 50, destinationPort: 23, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "209.165.200.224".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 50, destinationPort: 23, established: false)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }

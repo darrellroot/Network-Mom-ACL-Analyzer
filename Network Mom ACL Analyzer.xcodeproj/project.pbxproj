@@ -268,8 +268,8 @@
 			children = (
 				2F4B851622B16C8E00927DD2 /* AnalyzeDashboardController.swift */,
 				2F4B851722B16C8E00927DD2 /* AnalyzeDashboardController.xib */,
-				2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */,
 				2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */,
+				2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */,
 				2FC3F4F322E90D230043F92D /* RandomAclController.swift */,
 				2FC3F4F422E90D230043F92D /* RandomAclController.xib */,
 			);
