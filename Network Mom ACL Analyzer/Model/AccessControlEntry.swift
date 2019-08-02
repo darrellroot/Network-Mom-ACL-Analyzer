@@ -269,7 +269,7 @@ struct AccessControlEntry {
         
         switch deviceType {
         case .ios:
-            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, ios: true)
+            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosxe: true)
         case .asa:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, asa: true)
         case .nxos:
@@ -1153,6 +1153,7 @@ struct AccessControlEntry {
                     return nil
                 case .number(let number):
                     self.listName = String(number)
+                    aclDelegate?.foundName(String(number), delegateWindow: delegateWindow)
                     linePosition = .listName
                 case .name(let name):
                     self.listName = name
@@ -1524,7 +1525,7 @@ struct AccessControlEntry {
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .iosxe, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
