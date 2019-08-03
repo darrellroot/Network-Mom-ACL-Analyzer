@@ -199,10 +199,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             return false
         }
         switch ingressDeviceTypeString {
-        case "IOS":
+        case "IOS or IOS-XE":
             self.ingressDeviceType = .ios
-        case "IOS-XE":
-            self.ingressDeviceType = .iosxe
         case "IOS-XR":
             self.ingressDeviceType = .iosxr
         case "ASA":
@@ -216,10 +214,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             return false
         }
         switch egressDeviceTypeString {
-        case "IOS":
+        case "IOS or IOS-XE":
             self.egressDeviceType = .ios
-        case "IOS-XE":
-            self.egressDeviceType = .iosxe
         case "IOS-XR":
             self.egressDeviceType = .iosxr
         case "NX-OS":

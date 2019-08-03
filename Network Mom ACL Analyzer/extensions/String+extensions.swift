@@ -40,7 +40,7 @@ extension String {
             return 9
         case (_,"domain"):
             return 53
-        case (.ios,"drip"),(.iosxe,"drip"),(.nxos,"drip"):
+        case (.ios,"drip"),(.nxos,"drip"):
             return 3949
         case (_,"echo"):
             return 7
@@ -74,7 +74,7 @@ extension String {
             return 543
         case (.asa,"ksh"):
             return 544
-        case (.ios,"kshell"),(.iosxr,"kshell"),(.iosxe,"kshell"),(.nxos,"kshell"):
+        case (.ios,"kshell"),(.iosxr,"kshell"),(.nxos,"kshell"):
             return 544
         case (.asa,"ldap"):
             return 389
@@ -114,18 +114,18 @@ extension String {
             return 22
         case (_,"sunrpc"):
             return 111
-        case (.ios,"syslog"),(.iosxe,"syslog"):
+        case (.ios,"syslog"):
             return 514
         case (.asa,"tacacs"),(.nxos,"tacacs"),(.iosxr,"tacacs"):
             return 49
         // some ios versions support tacacs
-        case (.ios,"tacacs-ds"),(.iosxe,"tacacs-ds"):
+        case (.ios,"tacacs-ds"):
             return 49
         case (_,"talk"):
             return 517
         case (_,"telnet"):
             return 23
-        case (.ios,"time"),(.iosxe,"time"),(.iosxr,"time"),(.nxos,"time"):
+        case (.ios,"time"),(.iosxr,"time"),(.nxos,"time"):
             return 37
         case (_,"uucp"):
             return 540
@@ -203,7 +203,7 @@ extension String {
             switch deviceType {
             case .asa, .nxos, .arista, .iosxr:
                 break
-            case .ios, .iosxe:
+            case .ios:
                 delegate?.report(severity: .warning, message: "isakmp port label is only supported on some ios platforms", delegateWindow: delegateWindow)
             }
             return 500
@@ -213,9 +213,9 @@ extension String {
             //return 389
         //case (_,"mms"):
             //return 1755
-        case (.ios,"mobile-ip"),(.iosxe,"mobile-ip"),(.iosxr,"mobile-ip"),(.nxos,"mobile-ip"):
+        case (.ios,"mobile-ip"),(.iosxr,"mobile-ip"),(.nxos,"mobile-ip"):
             return 434
-        case (.ios,"nameserver"),(.iosxe,"nameserver"),(.iosxr,"nameserver"),(.nxos,"nameserver"):
+        case (.ios,"nameserver"),(.iosxr,"nameserver"),(.nxos,"nameserver"):
             return 42
         case (_,"netbios-dgm"):
             return 138
@@ -223,7 +223,7 @@ extension String {
             return 137
         case (.nxos,"netbios-ss"):
             return 139
-        case (.ios,"non500-isakmp"), (.iosxe,"non500-isakmp"),(.nxos,"non500-isakmp"):
+        case (.ios,"non500-isakmp"),(.nxos,"non500-isakmp"):
             return 4500
         //case (.ios,"nfs"), (.iosxe,"nfs"),(.iosxr,"nfs"),(.nxos,"nfs"):
         //    return 2049
@@ -251,7 +251,7 @@ extension String {
             return 514
         case (.asa,"tacacs"),(.nxos,"tacacs"),(.iosxr,"tacacs"):
             return 49
-        case (.ios,"tacacs-ds"),(.iosxe,"tacacs-ds"),(.iosxr,"tacacs-ds"):
+        case (.ios,"tacacs-ds"),(.iosxr,"tacacs-ds"):
             return 49
         case (_,"talk"):
             return 517
@@ -279,7 +279,7 @@ extension String {
             return 88
         case (.asa,"esp"),(.iosxr,"esp"),(.nxos,"esp"):
             return 50
-        case (.ios,"esp"),(.iosxe,"esp"):
+        case (.ios,"esp"):
             delegate?.report(severity: .warning, message: "esp port label is only supported on some ios platforms", delegateWindow: delegateWindow)
             return 50
         case (_,"gre"):

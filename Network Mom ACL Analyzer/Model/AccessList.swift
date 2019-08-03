@@ -65,13 +65,13 @@ class AccessList {
             
             let words = line.split{ $0.isWhitespace }.map{ String($0)}
             
-            if self.deviceType == .iosxe && words[safe: 0] == "object-group" && words[safe: 1] == "service" {
+            if self.deviceType == .ios && words[safe: 0] == "object-group" && words[safe: 1] == "service" {
                 delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                 delegate?.report(severity: .error, message: "ACL Analyzer does not support service object-groups for IOSXE. ACL ANALYSIS WILL NOT BE COMPLETE. Email acl sample to feedback@networkmom.net if this is a major problem", line: linenum, delegateWindow: delegateWindow)
                 continue lineLoop
             }
             
-            if self.deviceType == .iosxe && words[safe: 0] == "object-group" && words[safe: 1] == "network", let objectNameTemp = words[safe: 2] {
+            if self.deviceType == .ios && words[safe: 0] == "object-group" && words[safe: 1] == "network", let objectNameTemp = words[safe: 2] {
                 if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
                     self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
                     configurationMode = .objectGroupNetwork
@@ -231,7 +231,7 @@ class AccessList {
                 continue lineLoop
             }
             
-            if (deviceType == .iosxr || deviceType == .iosxe) && configurationMode == .objectGroupNetwork, let objectName = objectName, let objectGroup = objectGroupNetworks[objectName] {
+            if (deviceType == .iosxr || deviceType == .ios) && configurationMode == .objectGroupNetwork, let objectName = objectName, let objectGroup = objectGroupNetworks[objectName] {
                 if words[safe: 0] == "description" {
                     continue lineLoop
                 }
@@ -265,7 +265,7 @@ class AccessList {
                     objectGroup.ipRanges.append(contentsOf: nestedObjectGroup.ipRanges)
                     continue lineLoop
                 }
-                if deviceType == .iosxe && words[safe: 0] == "group-object", let possibleObjectName = words[safe: 1], let nestedObjectGroup = self.objectGroupNetworks[possibleObjectName] {
+                if deviceType == .ios && words[safe: 0] == "group-object", let possibleObjectName = words[safe: 1], let nestedObjectGroup = self.objectGroupNetworks[possibleObjectName] {
                     objectGroup.ipRanges.append(contentsOf: nestedObjectGroup.ipRanges)
                     continue lineLoop
                 }
@@ -634,7 +634,7 @@ class AccessList {
                     }
                 }
             }
-            if (deviceType == .ios || deviceType == .iosxe) && words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
+            if deviceType == .ios && words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
             //if line.starts(with: "ip access-list extended") {
                 objectName = nil
                 configurationMode = .accessListExtended

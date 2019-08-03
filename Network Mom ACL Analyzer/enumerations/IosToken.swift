@@ -15,6 +15,7 @@ enum IosToken: Equatable {
     case ipProtocol(UInt)
     case any
     case host
+    case objectGroup
     case portOperator(PortOperator)
     case comment
     case log
@@ -25,7 +26,7 @@ enum IosToken: Equatable {
     
     init?(string: String) {
         switch string {
-        case "dynamic","timeout","precedence","dscp","tos","time-range","fragments":
+        case "precedence","dscp","tos","time-range","fragments","timeout","reflect","option","match-any","match-all":
             self = .unsupported(string)
         case "access-list":
             self = .accessList
@@ -33,6 +34,8 @@ enum IosToken: Equatable {
             self = .comment
         case "permit":
             self = .action(.permit)
+        case "object-group":
+            self = .objectGroup
         case "deny":
             self = .action(.deny)
         case "log", "log-input":
@@ -49,7 +52,7 @@ enum IosToken: Equatable {
             }
         case "established","est":
             self = .established
-        case "ahp","eigrp","esp","gre","icmp","igmp","igrp","ip","ipv4","ipinip","nos","ospf","pcp","pim","tcp","udp":
+        case "ahp","eigrp","esp","gre","icmp","igmp","igrp","ip","ipinip","nos","ospf","pcp","pim","tcp","udp":
             if let ipProtocol = string.ipProtocol(deviceType: .ios, delegate: nil, delegateWindow: nil) {
                 self = .ipProtocol(ipProtocol)
             } else {

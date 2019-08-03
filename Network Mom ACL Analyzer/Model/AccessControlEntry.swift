@@ -73,7 +73,8 @@ struct AccessControlEntry {
         case logInterval
         case end
     }
-
+    
+    /*
     enum IosLinePosition {
         case beginning
         case sequence    // only some ios versions support sequence
@@ -96,7 +97,7 @@ struct AccessControlEntry {
         case lastDestPort
         case comment
         case end
-    }
+    }*/
 
     enum NxLinePosition {
         case beginning
@@ -120,7 +121,7 @@ struct AccessControlEntry {
         case end  // includes capture session 3
     }
     
-    enum IosXeLinePosition {
+    enum IosLinePosition {
         case beginning
         case sequence
         case accessList
@@ -269,15 +270,13 @@ struct AccessControlEntry {
         
         switch deviceType {
         case .ios:
-            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosxe: true)
+            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, ios: true)
         case .asa:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, asa: true)
         case .nxos:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, nxos: true)
         case .iosxr:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosxr: true)
-        case .iosxe:
-            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosxe: true)
 
         case .arista:
             self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, arista: true)
@@ -929,15 +928,14 @@ struct AccessControlEntry {
         }
     }
     
-    //MARK: IOSXE IPV4 INIT
+    //MARK: WAS IOSXE IPV4 INIT
     
-    //TODO change from IOSXR to IOSXE
-    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosxe: Bool) {
+    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, ios: Bool) {
         var tempSourcePortOperator: PortOperator?
         var tempFirstSourcePort: UInt?
         var tempDestPortOperator: PortOperator?
         var tempFirstDestPort: UInt?
-        var linePosition: IosXeLinePosition = .beginning
+        var linePosition: IosLinePosition = .beginning
         var tempSourceIp: UInt?
         var tempDestIp: UInt?
         
@@ -1103,7 +1101,7 @@ struct AccessControlEntry {
         
         
         wordLoop: for word in words {
-            guard let token = IosXeToken(string: word) else {
+            guard let token = IosToken(string: word) else {
                 reportError()
                 return nil
             }
@@ -1525,7 +1523,7 @@ struct AccessControlEntry {
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.udpPort(deviceType: .iosxe, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -2518,7 +2516,7 @@ struct AccessControlEntry {
     }
     
    //MARK: IOS IPV4 INIT
-    
+    /*
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, ios: Bool) {
         var tempSourcePortOperator: PortOperator?
         var tempFirstSourcePort: UInt?
@@ -3197,6 +3195,7 @@ struct AccessControlEntry {
             return nil
         }
     }//init IOS
+    */
     
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, asa: Bool) {
         var tempSourcePortOperator: PortOperator?
