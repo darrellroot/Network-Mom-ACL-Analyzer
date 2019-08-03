@@ -72,6 +72,7 @@ class AccessList {
             }
             
             if self.deviceType == .ios && words[safe: 0] == "object-group" && words[safe: 1] == "network", let objectNameTemp = words[safe: 2] {
+                self.warnings.insert("Not all IOS versions support object-groups")
                 if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
                     self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
                     configurationMode = .objectGroupNetwork
@@ -462,7 +463,7 @@ class AccessList {
             //if line.starts(with: "object-group protocol") {
                 guard deviceType == .asa else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
-                    delegate?.report(severity: .error, message: "object-group not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
+                    delegate?.report(severity: .error, message: "object-group protocol not supported for device type \(deviceType)", line: linenum, delegateWindow: delegateWindow)
                     continue lineLoop
                 }
                 //let words = line.split{ $0.isWhitespace }.map{ String($0)}

@@ -52,21 +52,43 @@ li.Heading2 {
     margin-top: 0;
     margin-bottom: 0.5em;
 }
-body.Custom0, li.Custom0, span.Custom0 {
-    font-family: "Helvetica","Helvetica",sans-serif;
-    font-size: 12.000000px;
-    color: RGBA(8,79,209,1.000000);
+body.Custom3, li.Custom3, span.Custom3 {
+    font-family: "Helvetica-Bold","Helvetica",sans-serif;
+    font-size: 14.000000px;
+    color: RGBA(70,70,73,1.000000);
+    background-color: RGBA(255,255,255,1.000000);
 }
-span.Custom0_link  {
-    font-family: "Helvetica","Helvetica",sans-serif;
-    font-size: 12.000000px;
+span.Custom3_link  {
+    font-family: "Helvetica-Bold","Helvetica",sans-serif;
+    font-size: 14.000000px;
     color: #0000ff;
+    background-color: RGBA(255,255,255,1.000000);
 }
-p.Custom0 {
+p.Custom3 {
     margin-top: 0;
     margin-bottom: 0.0px;
 }
-li.Custom0 {
+li.Custom3 {
+    margin-top: 0;
+    margin-bottom: 0.0em;
+}
+body.Custom2, li.Custom2, span.Custom2 {
+    font-family: "Courier","Courier",serif;
+    font-size: 13.000000px;
+    color: RGBA(70,70,73,1.000000);
+    background-color: RGBA(255,255,255,1.000000);
+}
+span.Custom2_link  {
+    font-family: "Courier","Courier",serif;
+    font-size: 13.000000px;
+    color: #0000ff;
+    background-color: RGBA(255,255,255,1.000000);
+}
+p.Custom2 {
+    margin-top: 0;
+    margin-bottom: 0.0px;
+}
+li.Custom2 {
     margin-top: 0;
     margin-bottom: 0.0em;
 }
@@ -92,6 +114,24 @@ p.Heading1 {
 li.Heading1 {
     margin-top: 0;
     margin-bottom: 0.5em;
+}
+body.Custom0, li.Custom0, span.Custom0 {
+    font-family: "Helvetica","Helvetica",sans-serif;
+    font-size: 12.000000px;
+    color: RGBA(8,79,209,1.000000);
+}
+span.Custom0_link  {
+    font-family: "Helvetica","Helvetica",sans-serif;
+    font-size: 12.000000px;
+    color: #0000ff;
+}
+p.Custom0 {
+    margin-top: 0;
+    margin-bottom: 0.0px;
+}
+li.Custom0 {
+    margin-top: 0;
+    margin-bottom: 0.0em;
 }
 body.Custom1, li.Custom1, span.Custom1 {
     font-family: "Helvetica","Helvetica",sans-serif;
