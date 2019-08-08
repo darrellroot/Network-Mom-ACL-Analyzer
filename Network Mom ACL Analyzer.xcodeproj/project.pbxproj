@@ -31,6 +31,19 @@
 		2F32058822CE89E60013A3E8 /* ObjectGroupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058622CE89E60013A3E8 /* ObjectGroupService.swift */; };
 		2F32058B22CE96120013A3E8 /* ServiceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058A22CE96120013A3E8 /* ServiceType.swift */; };
 		2F32058C22CE96120013A3E8 /* ServiceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F32058A22CE96120013A3E8 /* ServiceType.swift */; };
+		2F36626E22F75931007A24DC /* UInt128.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36626D22F75931007A24DC /* UInt128.swift */; };
+		2F36626F22F75931007A24DC /* UInt128.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36626D22F75931007A24DC /* UInt128.swift */; };
+		2F36627122F7CB0A007A24DC /* TestIosV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627022F7CB0A007A24DC /* TestIosV6.swift */; };
+		2F36627322F7CC5E007A24DC /* AccessControlEntryV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627222F7CC5E007A24DC /* AccessControlEntryV6.swift */; };
+		2F36627422F7CC5E007A24DC /* AccessControlEntryV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627222F7CC5E007A24DC /* AccessControlEntryV6.swift */; };
+		2F36627622F7CD36007A24DC /* IpRangeV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627522F7CD36007A24DC /* IpRangeV6.swift */; };
+		2F36627722F7CD36007A24DC /* IpRangeV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627522F7CD36007A24DC /* IpRangeV6.swift */; };
+		2F36627922F7CDD7007A24DC /* UInt128+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627822F7CDD7007A24DC /* UInt128+extensions.swift */; };
+		2F36627A22F7CDD7007A24DC /* UInt128+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627822F7CDD7007A24DC /* UInt128+extensions.swift */; };
+		2F36627C22F89B45007A24DC /* IosTokenV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627B22F89B45007A24DC /* IosTokenV6.swift */; };
+		2F36627D22F89B45007A24DC /* IosTokenV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627B22F89B45007A24DC /* IosTokenV6.swift */; };
+		2F36627F22F89C9C007A24DC /* IPv6Address+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627E22F89C9C007A24DC /* IPv6Address+extensions.swift */; };
+		2F36628022F89C9C007A24DC /* IPv6Address+extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F36627E22F89C9C007A24DC /* IPv6Address+extensions.swift */; };
 		2F49B71422C6AC86001F0DB5 /* IpRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F49B71322C6AC86001F0DB5 /* IpRange.swift */; };
 		2F49B71522C6AC86001F0DB5 /* IpRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F49B71322C6AC86001F0DB5 /* IpRange.swift */; };
 		2F49B71722C6DAED001F0DB5 /* PortRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F49B71622C6DAED001F0DB5 /* PortRange.swift */; };
@@ -113,6 +126,13 @@
 		2F32058322CE82BA0013A3E8 /* ObjectGroupProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectGroupProtocol.swift; sourceTree = "<group>"; };
 		2F32058622CE89E60013A3E8 /* ObjectGroupService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectGroupService.swift; sourceTree = "<group>"; };
 		2F32058A22CE96120013A3E8 /* ServiceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceType.swift; sourceTree = "<group>"; };
+		2F36626D22F75931007A24DC /* UInt128.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UInt128.swift; sourceTree = "<group>"; };
+		2F36627022F7CB0A007A24DC /* TestIosV6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestIosV6.swift; sourceTree = "<group>"; };
+		2F36627222F7CC5E007A24DC /* AccessControlEntryV6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessControlEntryV6.swift; sourceTree = "<group>"; };
+		2F36627522F7CD36007A24DC /* IpRangeV6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IpRangeV6.swift; sourceTree = "<group>"; };
+		2F36627822F7CDD7007A24DC /* UInt128+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt128+extensions.swift"; sourceTree = "<group>"; };
+		2F36627B22F89B45007A24DC /* IosTokenV6.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IosTokenV6.swift; sourceTree = "<group>"; };
+		2F36627E22F89C9C007A24DC /* IPv6Address+extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPv6Address+extensions.swift"; sourceTree = "<group>"; };
 		2F49B71322C6AC86001F0DB5 /* IpRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IpRange.swift; sourceTree = "<group>"; };
 		2F49B71622C6DAED001F0DB5 /* PortRange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortRange.swift; sourceTree = "<group>"; };
 		2F4B851622B16C8E00927DD2 /* AnalyzeDashboardController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyzeDashboardController.swift; sourceTree = "<group>"; };
@@ -179,6 +199,7 @@
 		2F2698A122A7784300517AC9 /* Network Mom ACL AnalyzerTests */ = {
 			isa = PBXGroup;
 			children = (
+				2F36627022F7CB0A007A24DC /* TestIosV6.swift */,
 				2FFE3B6322DE370100718B4E /* TestIosXR.swift */,
 				2FE27AF522D95249006CB34E /* TestNxos.swift */,
 				2F0E24E822C726720032962D /* TestAsa.swift */,
@@ -189,6 +210,14 @@
 				2F928A4722ECEA0B0030C4FF /* TestAristaIPv4.swift */,
 			);
 			path = "Network Mom ACL AnalyzerTests";
+			sourceTree = "<group>";
+		};
+		2F36626C22F75914007A24DC /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				2F36626D22F75931007A24DC /* UInt128.swift */,
+			);
+			path = Types;
 			sourceTree = "<group>";
 		};
 		2F4B851A22B2EBB100927DD2 /* Protocols */ = {
@@ -233,6 +262,7 @@
 			isa = PBXGroup;
 			children = (
 				2F9D0675228A0700002C09EE /* AppDelegate.swift */,
+				2F36626C22F75914007A24DC /* Types */,
 				2FBAA072228A0DE200B53113 /* extensions */,
 				2FCE6AA522AAFCF000E0B4D7 /* enumerations */,
 				2F4B851A22B2EBB100927DD2 /* Protocols */,
@@ -253,6 +283,8 @@
 				2FC3F4FD22E9F7550043F92D /* NSTextView+extensions.swift */,
 				2FBAA082228F5B9D00B53113 /* String+extensions.swift */,
 				2FCE6AA222A865A300E0B4D7 /* UInt+extensions.swift */,
+				2F36627822F7CDD7007A24DC /* UInt128+extensions.swift */,
+				2F36627E22F89C9C007A24DC /* IPv6Address+extensions.swift */,
 			);
 			path = extensions;
 			sourceTree = "<group>";
@@ -274,8 +306,10 @@
 			isa = PBXGroup;
 			children = (
 				2FBAA079228A38AE00B53113 /* AccessControlEntry.swift */,
+				2F36627222F7CC5E007A24DC /* AccessControlEntryV6.swift */,
 				2FBAA077228A12D500B53113 /* AccessList.swift */,
 				2F49B71322C6AC86001F0DB5 /* IpRange.swift */,
+				2F36627522F7CD36007A24DC /* IpRangeV6.swift */,
 				2F0E24EA22C81A460032962D /* ObjectGroupNetwork.swift */,
 				2F32058322CE82BA0013A3E8 /* ObjectGroupProtocol.swift */,
 				2F32058622CE89E60013A3E8 /* ObjectGroupService.swift */,
@@ -296,6 +330,7 @@
 				2F1FD8AE22B9DBB3008ADBC7 /* DeviceType.swift */,
 				2F73920B22B6E4AE0062BC5C /* IcmpMessage.swift */,
 				2FF8F3F722E41395007EECFC /* IosToken.swift */,
+				2F36627B22F89B45007A24DC /* IosTokenV6.swift */,
 				2FFE3B6522DE384500718B4E /* IosXrToken.swift */,
 				2FC3F4FA22E91A7D0043F92D /* Ipv4Prefix.swift */,
 				2FBAA07E228A399300B53113 /* IpVersion.swift */,
@@ -420,8 +455,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F0E24EC22C81A460032962D /* ObjectGroupNetwork.swift in Sources */,
+				2F36627122F7CB0A007A24DC /* TestIosV6.swift in Sources */,
 				2F2698AE22A7798D00517AC9 /* AclAction.swift in Sources */,
+				2F36627D22F89B45007A24DC /* IosTokenV6.swift in Sources */,
+				2F36627A22F7CDD7007A24DC /* UInt128+extensions.swift in Sources */,
 				2F92967522D7A97500F5A731 /* DelegateWindow.swift in Sources */,
+				2F36627422F7CC5E007A24DC /* AccessControlEntryV6.swift in Sources */,
 				2F1FD8B022B9DBB3008ADBC7 /* DeviceType.swift in Sources */,
 				2F4B851D22B2EC2A00927DD2 /* ErrorDelegate.swift in Sources */,
 				2F2698B322A779A100517AC9 /* String+extensions.swift in Sources */,
@@ -437,11 +476,13 @@
 				2FFE3B6722DE384500718B4E /* IosXrToken.swift in Sources */,
 				2FB804F822D8F3E700F5E2A9 /* PerformanceTest.swift in Sources */,
 				2F928A4822ECEA0B0030C4FF /* TestAristaIPv4.swift in Sources */,
+				2F36626F22F75931007A24DC /* UInt128.swift in Sources */,
 				2F32058822CE89E60013A3E8 /* ObjectGroupService.swift in Sources */,
 				2FCE6AAB22ACAF5100E0B4D7 /* AclToken.swift in Sources */,
 				2F32058522CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */,
 				2FF8F3F922E41395007EECFC /* IosToken.swift in Sources */,
 				2F2698AB22A7798300517AC9 /* LinePosition.swift in Sources */,
+				2F36627722F7CD36007A24DC /* IpRangeV6.swift in Sources */,
 				2F1FD8B322B9EE26008ADBC7 /* Collection+extensions.swift in Sources */,
 				2F32058C22CE96120013A3E8 /* ServiceType.swift in Sources */,
 				2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
@@ -457,6 +498,7 @@
 				2FD50F5F22D96E8C0016FC95 /* NxAclToken.swift in Sources */,
 				2FFE3B6422DE370100718B4E /* TestIosXR.swift in Sources */,
 				2FF8F3FC22E543A1007EECFC /* AsaToken.swift in Sources */,
+				2F36628022F89C9C007A24DC /* IPv6Address+extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,18 +509,23 @@
 				2FBAA085228F5EAB00B53113 /* LinePosition.swift in Sources */,
 				2FBAA07F228A399300B53113 /* IpVersion.swift in Sources */,
 				2F32058722CE89E60013A3E8 /* ObjectGroupService.swift in Sources */,
+				2F36626E22F75931007A24DC /* UInt128.swift in Sources */,
 				2FBAA078228A12D500B53113 /* AccessList.swift in Sources */,
 				2FFE3B6622DE384500718B4E /* IosXrToken.swift in Sources */,
 				2F9D0676228A0700002C09EE /* AppDelegate.swift in Sources */,
 				2F32058B22CE96120013A3E8 /* ServiceType.swift in Sources */,
 				2FD50F5E22D96E8C0016FC95 /* NxAclToken.swift in Sources */,
 				2F49B71722C6DAED001F0DB5 /* PortRange.swift in Sources */,
+				2F36627322F7CC5E007A24DC /* AccessControlEntryV6.swift in Sources */,
 				2FC3F4F822E90F650043F92D /* RandomAcl.swift in Sources */,
 				2F4B851C22B2EC2A00927DD2 /* ErrorDelegate.swift in Sources */,
 				2F7D69AF22C9576D0024348B /* AclDelegate.swift in Sources */,
 				2F4B851822B16C8E00927DD2 /* AnalyzeDashboardController.swift in Sources */,
 				2F4B852222B555F200927DD2 /* Socket.swift in Sources */,
 				2F1FD8B222B9EE26008ADBC7 /* Collection+extensions.swift in Sources */,
+				2F36627F22F89C9C007A24DC /* IPv6Address+extensions.swift in Sources */,
+				2F36627922F7CDD7007A24DC /* UInt128+extensions.swift in Sources */,
+				2F36627C22F89B45007A24DC /* IosTokenV6.swift in Sources */,
 				2FCE6AA722AAFD6600E0B4D7 /* PortOperator.swift in Sources */,
 				2FCE6AA322A865A300E0B4D7 /* UInt+extensions.swift in Sources */,
 				2FBAA07D228A392B00B53113 /* AclAction.swift in Sources */,
@@ -500,6 +547,7 @@
 				2FBAA074228A0DF200B53113 /* Array+extensions.swift in Sources */,
 				2FC3F4FE22E9F7550043F92D /* NSTextView+extensions.swift in Sources */,
 				2FF8F3FB22E543A1007EECFC /* AsaToken.swift in Sources */,
+				2F36627622F7CD36007A24DC /* IpRangeV6.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

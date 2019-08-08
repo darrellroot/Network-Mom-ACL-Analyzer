@@ -9,6 +9,9 @@
 import Foundation
 
 struct PortRange: CustomStringConvertible {
+    
+    static let ANYPORTRANGE = PortRange(minPort: 0, maxPort: UInt(UInt16.max))!
+
     let minPort: UInt
     let maxPort: UInt
     var serviceType: ServiceType?  // only non-nil for service object groups

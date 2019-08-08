@@ -1303,12 +1303,12 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstPort = firstStringPort.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.tcpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
                     case 17:
-                        guard let firstPort = firstStringPort.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.udpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstSourcePort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -1345,11 +1345,11 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        if let tempPort = name.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
+                        if let tempPort = name.tcpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     case 17:
-                        if let tempPort = name.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
+                        if let tempPort = name.udpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     default:
@@ -1518,7 +1518,7 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        guard let firstPort = firstStringPort.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
+                        guard let firstPort = firstStringPort.tcpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow), analyzeFirstDestPort(firstPort: firstPort) else {
                             reportError()
                             return nil
                         }
@@ -1560,11 +1560,11 @@ struct AccessControlEntry {
                     }
                     switch ipProtocol {
                     case 6:
-                        if let tempPort = secondPortString.tcpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
+                        if let tempPort = secondPortString.tcpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     case 17:
-                        if let tempPort = secondPortString.udpPort(deviceType: .iosxr, delegate: errorDelegate, delegateWindow: delegateWindow) {
+                        if let tempPort = secondPortString.udpPort(deviceType: .ios, delegate: errorDelegate, delegateWindow: delegateWindow) {
                             possiblePort = tempPort
                         }
                     default:
@@ -1665,7 +1665,7 @@ struct AccessControlEntry {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
             errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
             return nil
-        }//Init IOS-XE
+        }//Init IOS and IOS-XE
     }
 
     //MARK: IOSXR IPV4 INIT

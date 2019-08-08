@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+    <head>
+        <script src="../js/topicpage.js" type="text/javascript"></script>
+        <title>Cisco Service Obect-Group Configuration</title>
+        <meta name="robots" content="index" />
+        <meta name="description" content="" />
+        <meta name="keywords" content="" />
+    </head>
+    <body>
+        <a name="Page18"></a>
+        <p class="Left Heading1">
+            <img style="margin: 0.0px 0.0px 0.0px 0.0px;" height="0.0" src="../images/" width="0.0" />
+            <span class="Heading1">Cisco Service Obect-Group Configuration</span>
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">A note about service object-groups and the ACL Analyzer:</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">As of August 2019, we do not plan to support Cisco IOS-XE and ASA service object-groups with the Network Mom ACL Analyzer.  While it is possible to support permit/deny analysis, supporting the arbitrary collection of protocols and ports with the duplicate line analysis is problematic.  Our perception is that service object-groups are a rarely-used feature.</span>
+        </p>
+        <p class="Left Normal">
+            <span class="Normal">If the lack of this feature poses a problem to your environment, please send feedback@networkmom.net ACL samples so we can understand your use case.</span>
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Cisco IOS-XR</span>
+        </p>
+        <p class="Left Custom">
+            <a href="https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r6-4/ip-addresses/configuration/guide/b-ip-addresses-configuration-guide-asr9000-64x/b-ip-addresses-configuration-guide-asr9000-64x_chapter_0110.html#task_F1C9DD53BF954A92B7DAE9BF5AFF5545">
+                <span class="Custom_link">https://www.cisco.com/c/en/us/td/docs/routers/asr9000/software/asr9k-r6-4/ip-addresses/configuration/guide/b-ip-addresses-configuration-guide-asr9000-64x/b-ip-addresses-configuration-guide-asr9000-64x_chapter_0110.html#task_F1C9DD53BF954A92B7DAE9BF5AFF5545</span>
+            </a>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">object-group port ipv4_type5_obj1</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">{ eq | lt | gt }&nbsp;</span>
+            <span class="Custom3 bold italic">{ protocol | number }    ! I think it means port number rather than ip protocol</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	description port-object-group</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	eq ftp</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">range&nbsp;</span>
+            <span class="Custom3 bold italic">rangerange</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">range 1000 2000</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">object-group&nbsp;</span>
+            <span class="Custom3 bold italic">name</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">object-group port-group2</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Using object-groups on IOS-XR:</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">10 permit tcp net-group network-group-west net-group network-group-east port-group</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">20 permit ipv4 net-group network-group-west1 net-group network-group-east1</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Cisco IOS-XE</span>
+        </p>
+        <p class="Left Custom">
+            <a href="https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_data_zbf/configuration/xe-16/sec-data-zbf-xe-16-book/sec-zbf-ogacl.html#GUID-B12163EE-71C5-4D1A-9DA1-6AA9558378A7">
+                <span class="Custom_link">https://www.cisco.com/c/en/us/td/docs/ios-xml/ios/sec_data_zbf/configuration/xe-16/sec-data-zbf-xe-16-book/sec-zbf-ogacl.html#GUID-B12163EE-71C5-4D1A-9DA1-6AA9558378A7</span>
+            </a>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">object-group service&nbsp;</span>
+            <span class="Custom3 bold italic">object-group-name</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">description&nbsp;</span>
+            <span class="Custom3 bold italic">description-text</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3 bold italic">protocol</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">{tcp | udp | tcp-udp } [source {{[eq ] | lt | gt }&nbsp;</span>
+            <span class="Custom3 bold italic">port1</span>
+            <span class="Custom3">&nbsp;| range&nbsp;</span>
+            <span class="Custom3 bold italic">port1port2</span>
+            <span class="Custom3">&nbsp;}] [{[eq ] | lt | gt }&nbsp;</span>
+            <span class="Custom3 bold italic">port1</span>
+            <span class="Custom3">&nbsp;| range&nbsp;</span>
+            <span class="Custom3 bold italic">port1port2</span>
+            <span class="Custom3">&nbsp;]</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">icmp&nbsp;</span>
+            <span class="Custom3 bold italic">icmp-type</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">group-object&nbsp;</span>
+            <span class="Custom3 bold italic">nested-object-group-name</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">object-group service my-service-object-group</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	description test engineers</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	ahp</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	tcp-udp range 2000 2005</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	icmp conversion-error</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	icmp 13</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	group-object my-nested-object-group</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Using object-groups in IOS-XE</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">deny&nbsp;</span>
+            <span class="Custom3 bold italic">protocolsource</span>
+            <span class="Custom3">&nbsp;[</span>
+            <span class="Custom3 bold italic">source-wildcard</span>
+            <span class="Custom3">&nbsp;]&nbsp;</span>
+            <span class="Custom3 bold italic">destination</span>
+            <span class="Custom3">&nbsp;[</span>
+            <span class="Custom3 bold italic">destination-wildcard</span>
+            <span class="Custom3">&nbsp;] [option&nbsp;</span>
+            <span class="Custom3 bold italic">option-name</span>
+            <span class="Custom3">&nbsp;] [precedence&nbsp;</span>
+            <span class="Custom3 bold italic">precedence</span>
+            <span class="Custom3">&nbsp;] [tos&nbsp;</span>
+            <span class="Custom3 bold italic">tos</span>
+            <span class="Custom3">&nbsp;] [established ] [log | log-input ] [time-range&nbsp;</span>
+            <span class="Custom3 bold italic">time-range-name</span>
+            <span class="Custom3">&nbsp;] [fragments ]</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">permit object-group my-service-object-group object-group my_network_object_group object-group my_other_network_object_group log</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Cisco NX-OS</span>
+        </p>
+        <p class="Left Custom">
+            <a href="https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus7000/sw/security/command/reference/n7k_sec_cmd/sec_cmd_k_to_p.html#pgfId-1243551">
+                <span class="Custom_link">https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus7000/sw/security/command/reference/n7k_sec_cmd/sec_cmd_k_to_p.html#pgfId-1243551</span>
+            </a>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2 bold">object-group ip port port-group-05</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2 bold">eq 443</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2 bold">	gt 33</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2 bold">	lt 33</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2 bold">	neq 33</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2 bold">	range 33 35</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Using object-groups in NX-OS:</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">permit protocol { 0-255 | ahp | eigrp | esp | gre | icmp | igmp | ip | nos | ospf | pcp | pim | tcp | udp } | {</span>
+            <span class="Custom3 bold italic">&nbsp;source</span>
+            <span class="Custom3">&nbsp;| addrgroup | any | host } | {</span>
+            <span class="Custom3 bold italic">&nbsp;destination</span>
+            <span class="Custom3">&nbsp;| addrgroup | any | eq | gt | host | lt | neq | portgroup | range } capture session</span>
+            <span class="Custom3 bold italic">session</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">[&nbsp;</span>
+            <span class="Custom3 bold italic">sequence-number</span>
+            <span class="Custom3">&nbsp;] permit tcp</span>
+            <span class="Custom3 bold italic">source</span>
+            <span class="Custom3">&nbsp;[&nbsp;</span>
+            <span class="Custom3 bold italic">operatorport&nbsp;</span>
+            <span class="Custom3">[&nbsp;</span>
+            <span class="Custom3 bold italic">port</span>
+            <span class="Custom3">&nbsp;] | portgroup&nbsp;</span>
+            <span class="Custom3 bold italic">portgroup</span>
+            <span class="Custom3">&nbsp;]&nbsp;</span>
+            <span class="Custom3 bold italic">destination</span>
+            <span class="Custom3">&nbsp;[&nbsp;</span>
+            <span class="Custom3 bold italic">operatorport&nbsp;</span>
+            <span class="Custom3">[&nbsp;</span>
+            <span class="Custom3 bold italic">port</span>
+            <span class="Custom3">&nbsp;] | portgroup</span>
+            <span class="Custom3 bold italic">portgroup</span>
+            <span class="Custom3">&nbsp;] [ dscp</span>
+            <span class="Custom3 bold italic">dscp</span>
+            <span class="Custom3">&nbsp;| precedence</span>
+            <span class="Custom3 bold italic">precedence</span>
+            <span class="Custom3">&nbsp;] [ fragments ] [ log ] [ time-range</span>
+            <span class="Custom3 bold italic">time-range-name</span>
+            <span class="Custom3">&nbsp;] [&nbsp;</span>
+            <span class="Custom3 bold italic">flags</span>
+            <span class="Custom3">&nbsp;] [ established ] [ packet-length</span>
+            <span class="Custom3 bold italic">operator packet-length</span>
+            <span class="Custom3">&nbsp;[&nbsp;</span>
+            <span class="Custom3 bold italic">packet-length</span>
+            <span class="Custom3">&nbsp;]]</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">permit tcp addrgroup mynetgroup1 portgroup myportgroup1 addrgroup mynetgroup2 portgroup myportgroup2 capture session 1</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Heading2">
+            <span class="Heading2">Cisco ASA</span>
+        </p>
+        <p class="Left Custom">
+            <a href="https://www.cisco.com/c/en/us/td/docs/security/asa/asa98/configuration/firewall/asa-98-firewall-config/access-objects.html">
+                <span class="Custom_link">https://www.cisco.com/c/en/us/td/docs/security/asa/asa98/configuration/firewall/asa-98-firewall-config/access-objects.html</span>
+            </a>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom">
+            <span class="Custom">A service object can contain a single protocol specification:</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">object service&nbsp;</span>
+            <span class="Custom3 bold italic">object_name</span>
+        </p>
+        <ul class="listDisc">
+            <li class="Custom3">
+                <p class="Left Custom3">
+                    <span class="Custom3">service&nbsp;</span>
+                    <span class="Custom3 bold italic">protocol</span>
+                    <span class="Custom3">&nbsp;—The name or number (0-255) of an IP protocol. Specify ip to apply to all protocols.&nbsp;</span>
+                </p>
+            </li>
+            <li class="Custom3">
+                <p class="Left Custom3">
+                    <span class="Custom3">service {icmp | icmp6 } [</span>
+                    <span class="Custom3 bold italic">icmp-type</span>
+                    <span class="Custom3">&nbsp;[</span>
+                    <span class="Custom3 bold italic">icmp_code</span>
+                    <span class="Custom3">]] —For ICMP or ICMP version 6 messages. You can optionally specify the ICMP type by name or number (0-255) to limit the object to that message type. If you specify a type, you can optionally specify an ICMP code for that type (1-255). If you do not specify the code, then all codes are used.&nbsp;</span>
+                </p>
+            </li>
+            <li class="Custom3">
+                <p class="Left Custom3">
+                    <span class="Custom3">service {tcp | upd | sctp } [source&nbsp;</span>
+                    <span class="Custom3 bold italic">operatorport</span>
+                    <span class="Custom3">] [destination&nbsp;</span>
+                    <span class="Custom3 bold italic">operatorport</span>
+                    <span class="Custom3">] —For TCP, UDP or SCTP. You can optionally specify ports for the source, destination, or both. You can specify the port by name or number. The operator can be one of the following:&nbsp;</span>
+                </p>
+            </li>
+            <ul class="listDisc">
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">lt—less than.&nbsp;</span>
+                    </p>
+                </li>
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">gt—greater than.&nbsp;</span>
+                    </p>
+                </li>
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">eq—equal to.&nbsp;</span>
+                    </p>
+                </li>
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">neq—not equal to.&nbsp;</span>
+                    </p>
+                </li>
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">range—an inclusive range of values. When you use this operator, specify two port numbers, for example, range 100 200.</span>
+                    </p>
+                </li>
+            </ul>
+        </ul>
+        <p class="Left Custom2">
+            <span class="Custom2">object service web</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service tcp destination eq http</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">Service group:</span>
+        </p>
+        <p class="Left Custom3">
+            <span class="Custom3">object-group service&nbsp;</span>
+            <span class="Custom3 bold italic">object_name</span>
+        </p>
+        <ul class="listDisc">
+            <li class="Custom3">
+                <p class="Left Custom3">
+                    <span class="Custom3">service-object&nbsp;</span>
+                    <span class="Custom3 bold italic">protocol</span>
+                    <span class="Custom3">&nbsp;—The name or number (0-255) of an IP protocol. Specify ip to apply to all protocols.&nbsp;</span>
+                </p>
+            </li>
+            <li class="Custom3">
+                <p class="Left Custom3">
+                    <span class="Custom3">service-object {icmp | icmp6 } [</span>
+                    <span class="Custom3 bold italic">icmp-type</span>
+                    <span class="Custom3">&nbsp;[</span>
+                    <span class="Custom3 bold italic">icmp_code</span>
+                    <span class="Custom3">]] —For ICMP or ICMP version 6 messages. You can optionally specify the ICMP type by name or number (0-255) to limit the object to that message type. If you specify a type, you can optionally specify an ICMP code for that type (1-255). If you do not specify the code, then all codes are used.&nbsp;</span>
+                </p>
+            </li>
+            <li class="Custom3">
+                <p class="Left Custom3">
+                    <span class="Custom3">service-object {tcp | udp | tcp-udp | sctp } [source&nbsp;</span>
+                    <span class="Custom3 bold italic">operatorport</span>
+                    <span class="Custom3">] [destination&nbsp;</span>
+                    <span class="Custom3 bold italic">operatorport</span>
+                    <span class="Custom3">] —For TCP, UDP, or both, or for SCTP. You can optionally specify ports for the source, destination, or both. You can specify the port by name or number. The operator can be one of the following:&nbsp;</span>
+                </p>
+            </li>
+            <ul class="listDisc">
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">lt—less than.&nbsp;</span>
+                    </p>
+                </li>
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">gt—greater than.&nbsp;</span>
+                    </p>
+                </li>
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">eq—equal to.&nbsp;</span>
+                    </p>
+                </li>
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">neq—not equal to.&nbsp;</span>
+                    </p>
+                </li>
+                <li class="Custom3">
+                    <p class="Left Custom3">
+                        <span class="Custom3">range—an inclusive range of values. When you use this operator, specify two port numbers, for example, range 100 200.&nbsp;</span>
+                    </p>
+                </li>
+            </ul>
+            <li class="Custom3">
+                <p class="Left Custom3">
+                    <span class="Custom3">service-object object&nbsp;</span>
+                    <span class="Custom3 bold italic">object_name</span>
+                    <span class="Custom3">—The name of an existing service object.&nbsp;</span>
+                </p>
+            </li>
+            <li class="Custom3">
+                <p class="Left Custom3">
+                    <span class="Custom3">group-object&nbsp;</span>
+                    <span class="Custom3 bold italic">object_group_name</span>
+                    <span class="Custom3">—The name of an existing service object group.&nbsp;</span>
+                </p>
+            </li>
+        </ul>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">service-object ipsec</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object tcp destination eq domain</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object icmp echo</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object object my-service</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	group-object Engineering_groups</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">object-group service CommonApps</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object tcp destination eq ftp</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object tcp-udp destination eq www</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object tcp destination eq h323</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object tcp destination eq https</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object udp destination eq ntp</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">object service SSH</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service tcp destination eq ssh</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">object service EIGRP</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service eigrp</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">object service HTTPS</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service tcp source range 1 1024 destination eq https</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">object-group service Group1</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object object SSH</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object object EIGRP</span>
+        </p>
+        <p class="Left Custom2">
+            <span class="Custom2">	service-object object HTTPS</span>
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Left">
+            <br />
+        </p>
+        <p class="Center Normal">
+            <span class="Normal">©2019 Network Mom LLC   https://networkmom.net    feedback@networkmom.net</span>
+        </p>
+    </body>
+</html>
