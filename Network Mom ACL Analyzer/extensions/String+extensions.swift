@@ -274,19 +274,24 @@ extension String {
             return nil
         }
     }
+    //case "ahp","esp","hbh","icmp","ipv6","pcp","sctp","tcp","udp":
+
     func ipProtocol(deviceType: DeviceType, delegate: ErrorDelegate?, delegateWindow: DelegateWindow?) -> UInt? {
         switch (deviceType, self) {
-        case (.iosxr,"ahp"),(.nxos,"ahp"):
+        case (.iosxr,"ahp"),(.iosv6,"ahp"),(.nxos,"ahp"):
             return 51
         case (.asa,"ah"):
             return 51
         case (_,"eigrp"):
             return 88
-        case (.asa,"esp"),(.iosxr,"esp"),(.nxos,"esp"):
+        case (.asa,"esp"),(.iosxr,"esp"),(.iosv6,"esp"),(.nxos,"esp"):
             return 50
         case (.ios,"esp"):
             delegate?.report(severity: .warning, message: "esp port label is only supported on some ios platforms", delegateWindow: delegateWindow)
             return 50
+        case (.iosv6,"hbh"):
+            delegate?.report(severity: .error, message: "hop by hop protocol not supported by ACL analyzer, line with protocol hbh will not be included in analysis", delegateWindow: delegateWindow)
+            return nil
         case (_,"gre"):
             return 47
         case (_,"icmp"):
@@ -297,9 +302,14 @@ extension String {
             return 2
         case (.iosxr,"igrp"):
             return 9
+        case (.iosv6,"ip"):
+            delegate?.report(severity: .error, message: "Found protocol ip in ipv6 ACL, requires correction.  CRITICAL LINE NOT INCLUDED IN ANALYSIS", delegateWindow: delegateWindow)
+            return nil
         case (_,"ip"):
             return 0
         case (.iosxr,"ipv4"):
+            return 0
+        case (.iosv6,"ipv6"):
             return 0
         case (.asa,"ipinip"),(.iosxr,"ipinip"),(.ios,"ipinip"):
             return 94

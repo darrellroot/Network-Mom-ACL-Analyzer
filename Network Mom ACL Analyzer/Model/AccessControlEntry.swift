@@ -14,7 +14,7 @@ struct AccessControlEntry {
     static let ANYIPV6RANGE: IpRange = IpRange(minIp: 0, maxIp: UInt128.max)
 
     var aclAction: AclAction = .neither  // neither means not initialized
-    var ipVersion: IpVersion = .IPv4
+    var ipVersion: IpVersion
     var listName: String?
     var ipProtocols: [UInt] = []  // 0 means ip
     var sourceIp: [IpRange] = []
@@ -318,6 +318,7 @@ struct AccessControlEntry {
         
         self.line = line
         self.linenum = linenum
+        self.ipVersion = .IPv6
         
         func reportError() {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
@@ -899,6 +900,7 @@ struct AccessControlEntry {
         
         self.line = line
         self.linenum = linenum
+        self.ipVersion = .IPv4
         
         
         func reportError() {
@@ -1536,6 +1538,7 @@ struct AccessControlEntry {
         
         self.line = line
         self.linenum = linenum
+        self.ipVersion = .IPv4
         
         func reportError() {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
@@ -2276,6 +2279,7 @@ struct AccessControlEntry {
         
         self.line = line
         self.linenum = linenum
+        self.ipVersion = .IPv4
         
         func reportError() {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
@@ -3803,6 +3807,7 @@ struct AccessControlEntry {
         
         self.line = line
         self.linenum = linenum
+        self.ipVersion = .IPv4
         
         
         func validateAsa() -> Bool { // true -> ACE validated

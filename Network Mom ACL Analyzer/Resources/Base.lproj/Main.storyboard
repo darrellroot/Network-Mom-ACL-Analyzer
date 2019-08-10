@@ -380,28 +380,34 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="ACL Utilities" id="U4x-iX-Yok">
                                     <items>
-                                        <menuItem title="Random IOS ACL" id="bZN-jp-NxQ">
+                                        <menuItem title="Random IPv4 IOS ACL" id="bZN-jp-NxQ">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="randomAcl:" target="Voe-Tx-rLC" id="Gtd-lX-7c8"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Random IOS-XR ACL" id="lQ7-RH-sz6">
+                                        <menuItem title="Random IPv4 IOS-XR ACL" id="lQ7-RH-sz6">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="randomAcl:" target="Voe-Tx-rLC" id="GTK-rb-xJB"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Random NX-OS ACL" id="bSQ-a5-OHd">
+                                        <menuItem title="Random IPv4 NX-OS ACL" id="bSQ-a5-OHd">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="randomAcl:" target="Voe-Tx-rLC" id="xfw-Pm-f5z"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Random ASA ACL" id="Vhh-Mh-8To">
+                                        <menuItem title="Random IPv4 ASA ACL" id="Vhh-Mh-8To">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="randomAcl:" target="Voe-Tx-rLC" id="hfY-y9-Adx"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Random IPv6 IOS ACL" id="iek-KW-nyU">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="randomAcl:" target="Voe-Tx-rLC" id="deM-mN-vee"/>
                                             </connections>
                                         </menuItem>
                                     </items>

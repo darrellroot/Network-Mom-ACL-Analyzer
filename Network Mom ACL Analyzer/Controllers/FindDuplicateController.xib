@@ -62,6 +62,9 @@
                                                     <menuItem title="IPv4 ASA" id="hF5-FH-g3I">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
+                                                    <menuItem title="IPv6 IOS or IOS-XE" id="Ndz-p0-Rkr">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
                                                 </items>
                                             </menu>
                                         </popUpButtonCell>

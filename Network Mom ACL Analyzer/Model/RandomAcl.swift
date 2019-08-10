@@ -17,6 +17,7 @@ struct RandomAcl: CustomStringConvertible {
     var deviceType: DeviceType
     var aclAction: AclAction
     var ipProtocol: String
+    let sourceV6cidr: Cidr  // only used for ipv6 case
     var sourceIp: UInt
     var sourcePrefix: Ipv4Prefix
     //var sourceDontCare: UInt
@@ -25,6 +26,7 @@ struct RandomAcl: CustomStringConvertible {
     var sourcePortOperator: PortOperator
     var destIp: UInt
     let destPrefix: Ipv4Prefix
+    let destV6cidr: Cidr // only used for ipv6 case
     //var destDontCare: UInt
     let destLowPort: UInt
     let destHighPort: UInt
@@ -38,6 +40,15 @@ struct RandomAcl: CustomStringConvertible {
         if deviceType == .iosxr {
             RandomAcl.staticSequence = RandomAcl.staticSequence + 1
         }
+        
+        let sourceV6 = UInt128.random(in: 0...UInt128.max)
+        let sourceV6Prefix = UInt.random(in: 0...128)
+        let sourceV6String = "\(sourceV6.ipv6)/\(sourceV6Prefix)"
+        self.sourceV6cidr = Cidr(cidr: sourceV6String)!  //TODO get rid of !
+        let destV6 = UInt128.random(in: 0...UInt128.max)
+        let destV6Prefix = UInt.random(in: 0...128)
+        let destV6String = "\(destV6.ipv6)/\(destV6Prefix)"
+        self.destV6cidr = Cidr(cidr: destV6String)!  //TODO get rid of !
         
         let sourceIp = UInt.random(in: 0...UInt(UInt32.max))
         self.sourcePrefix = Ipv4Prefix.allCases.randomElement()!
@@ -88,18 +99,18 @@ struct RandomAcl: CustomStringConvertible {
             let sequenceString = String(format: "%4d ", self.sequence)
             outputString.append(sequenceString)
         }
-        outputString.append("\(aclAction) \(ipProtocol) \(self.sourceIp.ipv4)")
+        outputString.append("\(aclAction) \(ipProtocol) ")
         switch self.deviceType {
         case .ios, .iosxr:
-            outputString.append(" \(sourcePrefix.dontCareBits) ")
+            outputString.append("\(self.sourceIp.ipv4) \(sourcePrefix.dontCareBits) ")
         case .asa:
-            outputString.append(" \(sourcePrefix.netmask) ")
+            outputString.append("\(self.sourceIp.ipv4) \(sourcePrefix.netmask) ")
         case .nxos:
-            outputString.append("/\(sourcePrefix.rawValue) ")
+            outputString.append("\(self.sourceIp.ipv4)/\(sourcePrefix.rawValue) ")
         case .arista:
             fatalError("Not implemented")
         case .iosv6:
-            fatalError("Not implemented")
+            outputString.append("\(sourceV6cidr) ")
         }
         switch ipProtocol {
         case "tcp","udp","6","17":
@@ -116,18 +127,18 @@ struct RandomAcl: CustomStringConvertible {
         default:
             break
         }//switch ipProtocol for source ports
-        outputString.append(" \(self.destIp.ipv4)")
+        //outputString.append(" \(self.destIp.ipv4)")
         switch self.deviceType {
         case .ios, .iosxr:
-            outputString.append(" \(destPrefix.dontCareBits) ")
+            outputString.append(" \(self.destIp.ipv4) \(destPrefix.dontCareBits) ")
         case .asa:
-            outputString.append(" \(destPrefix.netmask) ")
+            outputString.append(" \(self.destIp.ipv4) \(destPrefix.netmask) ")
         case .nxos:
-            outputString.append("/\(destPrefix.rawValue) ")
+            outputString.append(" \(self.destIp.ipv4)/\(destPrefix.rawValue) ")
         case .arista:
             fatalError("Not implemented")
         case .iosv6:
-            fatalError("Not implemented")
+            outputString.append(" \(destV6cidr) ")
 
         }
         switch ipProtocol {

@@ -46,7 +46,7 @@ class RandomAclController: NSWindowController {
             self.window?.title = "Random IPv6 IOS ACL"
         }
         RandomAcl.staticSequence = 1
-        for _ in 0..<2000 {
+        for _ in 0..<20 {
             let ace = RandomAcl(deviceType: deviceType)
             aclString.append(ace.description)
         }

@@ -65,14 +65,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func randomAcl(_ sender: NSMenuItem) {
         let randomAclController = RandomAclController()
         switch sender.title {
-        case "Random IOS ACL":
+        case "Random IPv4 IOS ACL":
             randomAclController.deviceType = .ios
-        case "Random IOS-XR ACL":
+        case "Random IPv4 IOS-XR ACL":
             randomAclController.deviceType = .iosxr
-        case "Random NX-OS ACL":
+        case "Random IPv4 NX-OS ACL":
             randomAclController.deviceType = .nxos
-        case "Random ASA ACL":
+        case "Random IPv4 ASA ACL":
             randomAclController.deviceType = .asa
+        case "Random IPv6 IOS ACL":
+            randomAclController.deviceType = .iosv6
         default:
             debugPrint("Fix appdelegate.randomAcl.switch sender.title")
         }

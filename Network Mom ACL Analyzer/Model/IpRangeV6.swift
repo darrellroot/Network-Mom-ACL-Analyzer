@@ -9,7 +9,7 @@
 import Foundation
 import Network
 
-
+/*
 struct IpRangeV6: Equatable {
     
     let minIp: UInt128
@@ -69,4 +69,4 @@ struct IpRangeV6: Equatable {
             return
         }
     }
-}
+}*/
