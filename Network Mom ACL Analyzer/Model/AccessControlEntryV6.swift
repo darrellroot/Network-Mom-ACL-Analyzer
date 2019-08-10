@@ -5,7 +5,7 @@
 //  Created by Darrell Root on 8/4/19.
 //  Copyright © 2019 Network Mom LLC. All rights reserved.
 //
-
+/*
 import Foundation
 
 struct AccessControlEntryV6 {
@@ -49,11 +49,12 @@ struct AccessControlEntryV6 {
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?) {
         
         switch deviceType {
-        case .ios:
-            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, ios: true)
-        
+        case .iosv6:
+            self.init(line: line, deviceType: deviceType, linenum: linenum, aclDelegate: aclDelegate, errorDelegate: errorDelegate, delegateWindow: delegateWindow, iosv6: true)
         case .asa:
-        fatalError("ipv6 .asa not implemented")
+            fatalError("ipv6 .asa not implemented")
+        case .ios:
+            fatalError("ipv6 .ios not implemented")
         case .nxos:
             fatalError("ipv6 .nxos not implemented")
         case .iosxr:
@@ -63,7 +64,7 @@ struct AccessControlEntryV6 {
         }
     }
     
-    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, ios: Bool) {
+    init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosv6: Bool) {
         var tempSourcePortOperator: PortOperator?
         var tempFirstSourcePort: UInt?
         var tempDestPortOperator: PortOperator?
@@ -622,3 +623,4 @@ struct AccessControlEntryV6 {
         }
     }// init ios
 }
+*/

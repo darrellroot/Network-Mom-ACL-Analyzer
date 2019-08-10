@@ -98,6 +98,8 @@ struct RandomAcl: CustomStringConvertible {
             outputString.append("/\(sourcePrefix.rawValue) ")
         case .arista:
             fatalError("Not implemented")
+        case .iosv6:
+            fatalError("Not implemented")
         }
         switch ipProtocol {
         case "tcp","udp","6","17":
@@ -124,6 +126,9 @@ struct RandomAcl: CustomStringConvertible {
             outputString.append("/\(destPrefix.rawValue) ")
         case .arista:
             fatalError("Not implemented")
+        case .iosv6:
+            fatalError("Not implemented")
+
         }
         switch ipProtocol {
         case "tcp","udp","6","17":

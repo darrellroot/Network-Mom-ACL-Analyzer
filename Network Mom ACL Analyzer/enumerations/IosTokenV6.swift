@@ -22,7 +22,7 @@ enum IosTokenV6: Equatable {
     case log
     case established
     case addressV6(UInt128)
-    case cidrV6(IpRangeV6)
+    case cidrV6(IpRange)
     case number(UInt)
     case name(String)
     
@@ -67,7 +67,7 @@ enum IosTokenV6: Equatable {
                 self = .number(number)
             } else if let ipv6Address = IPv6Address(string) {
                 self = .addressV6(ipv6Address.uint128)
-            } else if let ipRangeV6 = IpRangeV6(cidr: string) {
+            } else if let ipRangeV6 = IpRange(cidr: string) {
                 self = .cidrV6(ipRangeV6)
             } else if string.first == "!" || string.first == "#" || string.first == ";" || string.first == ":" {
                 self = .comment

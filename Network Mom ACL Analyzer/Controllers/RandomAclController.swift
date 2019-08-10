@@ -42,6 +42,8 @@ class RandomAclController: NSWindowController {
             self.window?.title = "Random IOS-XR ACL"
         case .arista:
             self.window?.title = "Random Arista ACL"
+        case .iosv6:
+            self.window?.title = "Random IOS IPv6 ACL"
         }
         RandomAcl.staticSequence = 1
         for _ in 0..<2000 {

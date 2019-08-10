@@ -20,7 +20,7 @@ class TestIosV6: XCTestCase {
     }
 
     func testTcpNamedPort() {
-        let ace = AccessControlEntryV6(line: "permit tcp 2001:db8::/32 eq domain 2001:3:4::4/48 eq www", deviceType: .ios, linenum: 5, errorDelegate: nil, delegateWindow: nil)
+        let ace = AccessControlEntry(line: "permit tcp 2001:db8::/32 eq domain 2001:3:4::4/48 eq www", deviceType: .iosv6, linenum: 5, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace?.sourcePort[0].maxPort == 53)
         XCTAssert(ace?.destPort[0].minPort == 80)
     }

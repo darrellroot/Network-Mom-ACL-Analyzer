@@ -203,7 +203,7 @@ extension String {
             switch deviceType {
             case .asa, .nxos, .arista, .iosxr:
                 break
-            case .ios:
+            case .ios,.iosv6:
                 delegate?.report(severity: .warning, message: "isakmp port label is only supported on some ios platforms", delegateWindow: delegateWindow)
             }
             return 500

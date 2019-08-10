@@ -10,6 +10,7 @@ import Foundation
 
 enum DeviceType: String, CaseIterable, Hashable {
     case ios
+    case iosv6
     case asa
     case nxos
     case iosxr
