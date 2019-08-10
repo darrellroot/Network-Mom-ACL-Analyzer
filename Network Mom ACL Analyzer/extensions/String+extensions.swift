@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Network
 
 extension String {
     var ipv4address: UInt128? {
@@ -18,6 +19,10 @@ extension String {
         guard let octet4 = UInt8(octets[3]) else { return nil }
         let answer: UInt128 = UInt128(octet1) * 256 * 256 * 256 + UInt128(octet2) * 256 * 256 + UInt128(octet3) * 256 + UInt128(octet4)
         return answer
+    }
+    var ipv6address: UInt128? {
+        guard let ipv6 = IPv6Address(self) else { return nil }
+        return ipv6.uint128
     }
 
     func tcpPort(deviceType: DeviceType, delegate: ErrorDelegate?, delegateWindow: DelegateWindow?) -> UInt? {

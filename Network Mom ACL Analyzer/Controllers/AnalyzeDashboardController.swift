@@ -150,9 +150,32 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             self.report(severity: .error, message: "Socket: Invalid IP Protocol", delegateWindow: .ingressAnalyze)
             return nil
         }
-        guard let sourceIp = sourceIpOutlet.stringValue.ipv4address else {
-            self.report(severity: .error, message: "Socket: Invalid source IPv4 address", delegateWindow: .ingressAnalyze)
-            return nil
+        let sourceIp: UInt128
+        let destinationIp: UInt128
+        switch self.ingressDeviceType {
+            
+        case .ios,.asa,.nxos,.iosxr,.arista:
+            guard let tempSourceIp = sourceIpOutlet.stringValue.ipv4address else {
+                self.report(severity: .error, message: "Socket: Invalid source IPv4 address", delegateWindow: .ingressAnalyze)
+                return nil
+            }
+            sourceIp = tempSourceIp
+            guard let tempDestinationIp = destinationIpOutlet.stringValue.ipv4address else {
+                self.report(severity: .error, message: "Socket: Invalid destination IPv4 address", delegateWindow: .ingressAnalyze)
+                return nil
+            }
+            destinationIp = tempDestinationIp
+        case .iosv6:
+            guard let tempSourceIp = sourceIpOutlet.stringValue.ipv6address else {
+                self.report(severity: .error, message: "Socket: Invalid source IPv6 address", delegateWindow: .ingressAnalyze)
+                return nil
+            }
+            sourceIp = tempSourceIp
+            guard let tempDestinationIp = destinationIpOutlet.stringValue.ipv6address else {
+                self.report(severity: .error, message: "Socket: Invalid destination IPv6 address", delegateWindow: .ingressAnalyze)
+                return nil
+            }
+            destinationIp = tempDestinationIp
         }
         if sourcePortOutlet.stringValue.isEmpty {
             let number = UInt.random(in: 1024 ... 65535)
@@ -163,10 +186,6 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             return nil
         }
         let sourcePort = UInt(sourcePort16)
-        guard let destinationIp = destinationIpOutlet.stringValue.ipv4address else {
-            self.report(severity: .error, message: "Socket: Invalid destination IPv4 address", delegateWindow: .ingressAnalyze)
-            return nil
-        }
         guard let destinationPort16 = UInt16(destinationPortOutlet.stringValue) else {
             self.report(severity: .error, message: "Socket: Invalid destination port", delegateWindow: .ingressAnalyze)
             return nil
@@ -199,29 +218,33 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             return false
         }
         switch ingressDeviceTypeString {
-        case "IOS or IOS-XE":
+        case "IPv4 IOS or IOS-XE":
             self.ingressDeviceType = .ios
-        case "IOS-XR":
+        case "IPv4 IOS-XR":
             self.ingressDeviceType = .iosxr
-        case "ASA":
+        case "IPv4 ASA":
             self.ingressDeviceType = .asa
-        case "NX-OS":
+        case "IPv4 NX-OS":
             self.ingressDeviceType = .nxos
-        case "Arista":
+        case "IPv4 Arista":
             self.ingressDeviceType = .arista
+        case "IPv6 IOS or IOS-XE":
+            self.ingressDeviceType = .iosv6
         default:
             self.report(severity: .error, message: "Unable to identify ingress device type", delegateWindow: .ingressValidation)
             return false
         }
         switch egressDeviceTypeString {
-        case "IOS or IOS-XE":
+        case "IPv4 IOS or IOS-XE":
             self.egressDeviceType = .ios
-        case "IOS-XR":
+        case "IPv4 IOS-XR":
             self.egressDeviceType = .iosxr
-        case "NX-OS":
+        case "IPv4 NX-OS":
             self.egressDeviceType = .nxos
-        case "Arista":
+        case "IPv4 Arista":
             self.egressDeviceType = .arista
+        case "IPv6 IOS or IOS-XE":
+            self.ingressDeviceType = .iosv6
         default:
             self.report(severity: .error, message: "Unable to identify egress device type", delegateWindow: .egressValidation)
             return false
@@ -275,6 +298,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         guard readyToValidate() else {
             return
         }
+        
         guard let ingressSocket = validateSocket() else {
             return
         }

@@ -33,7 +33,7 @@
                         <rect key="frame" x="20" y="20" width="640" height="288"/>
                         <subviews>
                             <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="800" verticalHuggingPriority="800" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9Pl-27-zg8" userLabel="H Stack View">
-                                <rect key="frame" x="139" y="267" width="362" height="21"/>
+                                <rect key="frame" x="124" y="267" width="392" height="21"/>
                                 <subviews>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Cl2-J8-Wy9">
                                         <rect key="frame" x="-2" y="0.0" width="83" height="21"/>
@@ -44,26 +44,30 @@
                                         </textFieldCell>
                                     </textField>
                                     <popUpButton horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7qC-1R-IGq">
-                                        <rect key="frame" x="85" y="-3" width="123" height="25"/>
-                                        <popUpButtonCell key="cell" type="push" title="IOS or IOS-XE" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="0k0-sB-D2S" id="DmE-jz-8vI">
+                                        <rect key="frame" x="85" y="-3" width="153" height="25"/>
+                                        <popUpButtonCell key="cell" type="push" title="IPv4 IOS or IOS-XE" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="0k0-sB-D2S" id="DmE-jz-8vI">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
                                             <menu key="menu" id="FZH-ih-KI8">
                                                 <items>
-                                                    <menuItem title="IOS or IOS-XE" state="on" id="0k0-sB-D2S"/>
-                                                    <menuItem title="IOS-XR" id="dBx-2t-LAG">
+                                                    <menuItem title="IPv4 IOS or IOS-XE" state="on" id="0k0-sB-D2S">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
-                                                    <menuItem title="NX-OS" id="jeh-XN-XJk" userLabel="NX-OS">
+                                                    <menuItem title="IPv4 IOS-XR" id="dBx-2t-LAG">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
-                                                    <menuItem title="ASA" id="hF5-FH-g3I"/>
+                                                    <menuItem title="IPv4 NX-OS" id="jeh-XN-XJk">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
+                                                    <menuItem title="IPv4 ASA" id="hF5-FH-g3I">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
                                                 </items>
                                             </menu>
                                         </popUpButtonCell>
                                     </popUpButton>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="AkQ-Vm-nPB" userLabel="Import from text file">
-                                        <rect key="frame" x="207" y="-7" width="161" height="32"/>
+                                        <rect key="frame" x="237" y="-7" width="161" height="32"/>
                                         <buttonCell key="cell" type="push" title="Import from text file" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4gm-Sb-P70">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>

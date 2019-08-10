@@ -407,7 +407,7 @@ struct AccessControlEntry {
             return true
         }
         
-        func validateIos() -> Bool { // true -> ACE validated
+        func validateIosV6() -> Bool { // true -> ACE validated
             if self.aclAction == .neither { return false }
             
             if self.sourceIp.count == 0 { return false }
@@ -415,6 +415,17 @@ struct AccessControlEntry {
             if self.ipProtocols.count != 1 { return false }
             guard let ipProtocol = self.ipProtocols.first else { return false }
             
+            for ip in sourceIp {
+                guard ip.ipVersion != .IPv4 else {
+                    return false
+                }
+            }
+            for ip in destIp {
+                guard ip.ipVersion != .IPv4 else {
+                    return false
+                }
+            }
+
             switch ipProtocol {
             case 6:
                 if self.sourcePort.count == 0 {
@@ -861,12 +872,12 @@ struct AccessControlEntry {
                 }
             }
         }//wordLoop for word in words
-        if validateIos() == false {
+        if validateIosV6() == false {
             errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
             errorDelegate?.report(severity: .error, message: "Unable to create valid ACE based on line", delegateWindow: delegateWindow)
             return nil
         }
-    }// init ios
+    }// init iosv6
 
     //MARK: Arista IPV4 INIT
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, arista: Bool) {

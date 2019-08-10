@@ -9,6 +9,7 @@
 import Foundation
 
 struct Socket {
+    // could be ipv4 or ipv6
     let ipProtocol: UInt // 0 means ip
     let sourceIp: UInt128
     let sourcePort: UInt?  // always nonoptional for tcp, udp
@@ -18,12 +19,6 @@ struct Socket {
 
     init?(ipProtocol: UInt, sourceIp: UInt128, destinationIp: UInt128, sourcePort: UInt? = nil, destinationPort: UInt? = nil, established: Bool? = nil) {
         guard ipProtocol < 256 else {
-            return nil
-        }
-        guard sourceIp <= UInt128(UInt32.max) else {
-            return nil
-        }
-        guard destinationIp <= UInt128(UInt32.max) else {
             return nil
         }
         if let sourcePort = sourcePort {
@@ -78,6 +73,14 @@ struct Socket {
 }
 extension Socket: CustomStringConvertible {
     var description: String {
+        let sourceIpString, destIpString: String
+        if self.sourceIp > UInt128.MAXIPV4 || self.destinationIp > UInt128.MAXIPV4 {
+            sourceIpString = self.sourceIp.ipv6
+            destIpString = self.destinationIp.ipv6
+        } else {
+            sourceIpString = self.sourceIp.ipv4
+            destIpString = self.destinationIp.ipv4
+        }
         switch ipProtocol {
         case 6: // tcp
             guard let sourcePort = sourcePort else {
@@ -86,7 +89,7 @@ extension Socket: CustomStringConvertible {
             guard let destinationPort = destinationPort else {
                 return "error no source port in udp socket"
             }
-            var returnString = "\(self.ipProtocol.ipProto) sourceIp \(self.sourceIp.ipv4) sourcePort \(sourcePort) destinationIp \(self.destinationIp.ipv4) destinationPort \(destinationPort)"
+            var returnString = "\(self.ipProtocol.ipProto) sourceIp \(sourceIpString) sourcePort \(sourcePort) destinationIp \(destIpString) destinationPort \(destinationPort)"
             if let established = self.established, established {
                 returnString.append(" established")
                 }
@@ -98,9 +101,9 @@ extension Socket: CustomStringConvertible {
             guard let destinationPort = destinationPort else {
                 return "error no source port in udp socket"
             }
-            return "\(self.ipProtocol.ipProto) sourceIp \(self.sourceIp.ipv4) sourcePort \(sourcePort) destinationIp \(self.destinationIp.ipv4) destinationPort \(destinationPort)"
+            return "\(self.ipProtocol.ipProto) sourceIp \(sourceIpString) sourcePort \(sourcePort) destinationIp \(destIpString) destinationPort \(destinationPort)"
         case 0...255:
-            return "\(self.ipProtocol.ipProto) sourceIp \(self.sourceIp.ipv4) destinationIp \(self.destinationIp.ipv4)"
+            return "\(self.ipProtocol.ipProto) sourceIp \(sourceIpString) destinationIp \(destIpString)"
         default:
             return "error: invalid ip proto in socket"
         }

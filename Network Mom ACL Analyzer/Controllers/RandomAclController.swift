@@ -33,17 +33,17 @@ class RandomAclController: NSWindowController {
         }
         switch deviceType {
         case .ios:
-            self.window?.title = "Random IOS ACL"
+            self.window?.title = "Random IPv4 IOS ACL"
         case .asa:
-            self.window?.title = "Random ASA ACL"
+            self.window?.title = "Random IPv4 ASA ACL"
         case .nxos:
-            self.window?.title = "Random NX-OS ACL"
+            self.window?.title = "Random IPv4 NX-OS ACL"
         case .iosxr:
-            self.window?.title = "Random IOS-XR ACL"
+            self.window?.title = "Random IPv4 IOS-XR ACL"
         case .arista:
-            self.window?.title = "Random Arista ACL"
+            self.window?.title = "Random IPv4 Arista ACL"
         case .iosv6:
-            self.window?.title = "Random IOS IPv6 ACL"
+            self.window?.title = "Random IPv6 IOS ACL"
         }
         RandomAcl.staticSequence = 1
         for _ in 0..<2000 {
