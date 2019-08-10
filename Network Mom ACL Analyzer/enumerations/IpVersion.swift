@@ -11,4 +11,5 @@ import Foundation
 enum IpVersion: String {
     case IPv4
     case IPv6
+    case Unknown
 }

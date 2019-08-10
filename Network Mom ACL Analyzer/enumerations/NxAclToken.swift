@@ -20,7 +20,7 @@ enum NxAclToken: Equatable {
     case comment
     case log
     case established
-    case fourOctet(UInt)
+    case fourOctet(UInt128)
     case cidr(IpRange)
     case number(UInt)
     case name(String)

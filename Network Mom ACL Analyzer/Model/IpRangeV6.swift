@@ -31,7 +31,6 @@ struct IpRangeV6: Equatable {
     }
     
     init?(cidr: String) {
-        
         func power(_ x: UInt128, _ y: UInt128) -> UInt128 {
             var result: UInt128 = 1
             for _ in 0..<y {

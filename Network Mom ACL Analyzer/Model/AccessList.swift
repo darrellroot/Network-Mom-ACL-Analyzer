@@ -22,7 +22,7 @@ class AccessList {
     var objectGroupNetworks = [String:ObjectGroupNetwork]()
     var objectGroupProtocols = [String:ObjectGroupProtocol]()
     var objectGroupServices = [String:ObjectGroupService]()
-    var hostnames = [String:UInt]() // ASA example: "name 2.2.2.203 trust18"
+    var hostnames = [String:UInt128]() // ASA example: "name 2.2.2.203 trust18"
     var warnings: Set<String> = [] // summary warnings each to be printed out once at end of processing
     
     var count: Int {
@@ -797,7 +797,7 @@ class AccessList {
     }
 }
 extension AccessList: AclDelegate {
-    func getHostname(_ hostname: String) -> UInt? {
+    func getHostname(_ hostname: String) -> UInt128? {
         return self.hostnames[hostname]
     }
     

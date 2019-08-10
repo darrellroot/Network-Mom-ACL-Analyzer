@@ -10,20 +10,20 @@ import Foundation
 
 struct Socket {
     let ipProtocol: UInt // 0 means ip
-    let sourceIp: UInt
+    let sourceIp: UInt128
     let sourcePort: UInt?  // always nonoptional for tcp, udp
-    let destinationIp: UInt
+    let destinationIp: UInt128
     let destinationPort: UInt?  // always nonoptional for tcp, udp
     let established: Bool?
 
-    init?(ipProtocol: UInt, sourceIp: UInt, destinationIp: UInt, sourcePort: UInt? = nil, destinationPort: UInt? = nil, established: Bool? = nil) {
+    init?(ipProtocol: UInt, sourceIp: UInt128, destinationIp: UInt128, sourcePort: UInt? = nil, destinationPort: UInt? = nil, established: Bool? = nil) {
         guard ipProtocol < 256 else {
             return nil
         }
-        guard sourceIp <= UInt(UInt32.max) else {
+        guard sourceIp <= UInt128(UInt32.max) else {
             return nil
         }
-        guard destinationIp <= UInt(UInt32.max) else {
+        guard destinationIp <= UInt128(UInt32.max) else {
             return nil
         }
         if let sourcePort = sourcePort {

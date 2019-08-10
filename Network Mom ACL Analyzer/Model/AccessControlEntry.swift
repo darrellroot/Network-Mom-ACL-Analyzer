@@ -936,8 +936,8 @@ struct AccessControlEntry {
         var tempDestPortOperator: PortOperator?
         var tempFirstDestPort: UInt?
         var linePosition: IosLinePosition = .beginning
-        var tempSourceIp: UInt?
-        var tempDestIp: UInt?
+        var tempSourceIp: UInt128?
+        var tempDestIp: UInt128?
         
         self.line = line
         self.linenum = linenum
@@ -1676,8 +1676,8 @@ struct AccessControlEntry {
         var tempDestPortOperator: PortOperator?
         var tempFirstDestPort: UInt?
         var linePosition: IosXrLinePosition = .beginning
-        var tempSourceIp: UInt?
-        var tempDestIp: UInt?
+        var tempSourceIp: UInt128?
+        var tempDestIp: UInt128?
         
         self.line = line
         self.linenum = linenum
@@ -3203,8 +3203,8 @@ struct AccessControlEntry {
         var tempDestPortOperator: PortOperator?
         var tempFirstDestPort: UInt?
         var linePosition: AsaLinePosition = .beginning
-        var tempSourceIp: UInt?
-        var tempDestIp: UInt?
+        var tempSourceIp: UInt128?
+        var tempDestIp: UInt128?
         
         self.line = line
         self.linenum = linenum

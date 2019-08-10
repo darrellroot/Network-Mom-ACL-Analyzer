@@ -12,6 +12,6 @@ protocol AclDelegate {
     func getObjectGroupNetwork(_ group: String) -> ObjectGroupNetwork?
     func getObjectGroupService(_ group: String) -> ObjectGroupService?
     func getObjectGroupProtocol(_ group: String) -> ObjectGroupProtocol?
-    func getHostname(_ hostname: String) -> UInt?   // must be < UInt32.max
+    func getHostname(_ hostname: String) -> UInt128?   // must be < UInt32.max
     func foundName(_ name: String, delegateWindow: DelegateWindow?)
 }
