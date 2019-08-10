@@ -10,6 +10,9 @@ import Foundation
 import Network
 
 extension UInt128 {
+    //performance optimziation
+    static let hexstring: [String] = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]
+    
     static var MAXIPV4: UInt128 {
         return UInt128(UInt32.max)
     }
@@ -25,11 +28,15 @@ extension UInt128 {
         var runningValue = self
         var output: String = ""
         for position: UInt128 in 0..<32 {
-            let lastDigitValue = Int(runningValue % 16)
-            runningValue = runningValue / 16
-            let character = String(format: "%x",lastDigitValue)
+            //let lastDigitValue = Int(runningValue % 16)
+            let lastDigitValue = Int(runningValue & 0xf)
+            //runningValue = runningValue / 16
+            runningValue = runningValue >> 4
+            //let character = String(format: "%x",lastDigitValue)
+            let character = UInt128.hexstring[lastDigitValue]
             output = "\(character)\(output)"
-            if position % 4 == 3 && position != 0 && position != 31 {
+//            if position % 4 == 3 && position != 0 && position != 31 {
+            if position & 3 == 3 && position != 0 && position != 31 {
                 output = ":\(output)"
             }
         }
