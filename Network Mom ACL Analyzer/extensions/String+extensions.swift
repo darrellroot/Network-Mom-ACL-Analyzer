@@ -17,8 +17,11 @@ extension String {
         guard let octet2 = UInt8(octets[1]) else { return nil }
         guard let octet3 = UInt8(octets[2]) else { return nil }
         guard let octet4 = UInt8(octets[3]) else { return nil }
-        let answer: UInt128 = UInt128(octet1) * 256 * 256 * 256 + UInt128(octet2) * 256 * 256 + UInt128(octet3) * 256 + UInt128(octet4)
-        return answer
+        
+        //performance optimization
+        //let answer: UInt128 = UInt128(octet1) * 256 * 256 * 256 + UInt128(octet2) * 256 * 256 + UInt128(octet3) * 256 + UInt128(octet4)
+        let answer: UInt = (UInt(octet1) << 24) + (UInt(octet2) << 16) + (UInt(octet3) << 8) + UInt(octet4)
+        return UInt128(answer)
     }
     var ipv6address: UInt128? {
         guard let ipv6 = IPv6Address(self) else { return nil }

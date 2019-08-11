@@ -81,8 +81,11 @@ struct IpRange: CustomStringConvertible, Equatable {
                 }
                 return
             } else {
-                let numHosts = power(2, 128 - length)
-                let remainder = ip % numHosts
+                let numHosts: UInt128 = 1 << (128 - length)
+                let minIp = (ip >> (128 - length)) << (128 - length)
+                let remainder = ip - minIp
+                //let numHosts = power(2, 128 - length)
+                //let remainder = ip % numHosts
                 if remainder > 0 {
                     self.bitAligned = false
                 }
@@ -100,20 +103,33 @@ struct IpRange: CustomStringConvertible, Equatable {
             guard let octet2 = UInt8(octets[1]) else { return nil }
             guard let octet3 = UInt8(octets[2]) else { return nil }
             guard let octet4 = UInt8(octets[3]) else { return nil }
-            let passedInAddress: UInt128 = UInt128(octet1) * 256 * 256 * 256 + UInt128(octet2) * 256 * 256 + UInt128(octet3) * 256 + UInt128(octet4)
+            
+            //performance optimization
+            //let passedInAddress: UInt128 = UInt128(octet1) * 256 * 256 * 256 + UInt128(octet2) * 256 * 256 + UInt128(octet3) * 256 + UInt128(octet4)
+            let passedInAddressTemp = (UInt(octet1) << 24) + (UInt(octet2) << 16) + (UInt(octet3) << 8) + UInt(octet4)
+            let passedInAddress = UInt128(passedInAddressTemp)
+            //guard let length = UInt128(lengthString) else { return nil }
             guard let length = UInt128(lengthString) else { return nil }
             guard length >= 0 && length <= 32 else { return nil }
-            let numHosts = power(UInt128(2),(32 - length))
-            let remainder = passedInAddress % numHosts
-            let baseAddress: UInt128
-            if remainder > 0 {
+            
+            //performance optimization
+            //let numHosts = power(UInt128(2),(32 - length))
+            //let remainder = passedInAddress % numHosts
+            let numHosts: UInt128 = 1 << (32 - length)
+            self.minIp = (passedInAddress >> (32 - length)) << (32 - length)
+            if passedInAddress != self.minIp {
                 bitAligned = false
-                baseAddress = passedInAddress - remainder
-            } else {
-                baseAddress = passedInAddress
             }
-            self.minIp = baseAddress
-            self.maxIp = baseAddress + numHosts - 1
+            //let remainder = passedInAddress - self.minIp
+            //let baseAddress: UInt128
+            /*if remainder > 0 {
+                bitAligned = false
+                //baseAddress = passedInAddress - remainder
+            } else {
+                //baseAddress = passedInAddress
+            }*/
+            //self.minIp = baseAddress
+            self.maxIp = self.minIp + numHosts - 1
             return
         }
         
@@ -127,9 +143,9 @@ struct IpRange: CustomStringConvertible, Equatable {
         guard let numHosts = dontCare.dontCareHosts else {
             return nil
         }
-        let remainder = ipv4 % numHosts
+        let remainder = UInt64(ipv4) % UInt64(numHosts)
         if remainder > 0 { self.bitAligned = false }
-        self.minIp = UInt128(ipv4 - remainder)
+        self.minIp = UInt128(ipv4 - UInt128(remainder))
         self.maxIp = self.minIp + UInt128(numHosts) - 1
         self.ipVersion = .IPv4
         return
@@ -152,13 +168,21 @@ struct IpRange: CustomStringConvertible, Equatable {
         guard let numHosts = netmask.netmaskHosts else {
             return nil
         }
+        /*performance optimization
         let remainder = ip % numHosts
         if remainder > 0 {
             bitAligned = false
             //aclDelegate?.report(severity: .warning, message: "\(ip) \(mask) Destination IP not on netmask or bit boundary", delegateWindow: delegateWindow)
+        }*/
+        guard let subnetBits = netmask.netmaskBits else {
+            return nil
         }
-        self.minIp = UInt128(ip - remainder)
-        self.maxIp = self.minIp + UInt128(numHosts) - 1
+        self.minIp = (ip >> (32 - subnetBits)) << (32 - subnetBits)
+        if self.minIp != ip {
+            self.bitAligned = false
+        }
+        //self.minIp = UInt128(ip - remainder)
+        self.maxIp = self.minIp + numHosts - 1
         self.ipVersion = .IPv4
         return
     }

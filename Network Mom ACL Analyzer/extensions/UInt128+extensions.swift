@@ -27,9 +27,10 @@ extension UInt128 {
     var ipv6: String {
         var runningValue = self
         var output: String = ""
-        for position: UInt128 in 0..<32 {
+        for position in 0..<32 {
             //let lastDigitValue = Int(runningValue % 16)
-            let lastDigitValue = Int(runningValue & 0xf)
+            //let lastDigitValue = Int(runningValue & 0xf)
+            let lastDigitValue = Int(runningValue.words[0] & 0xf)
             //runningValue = runningValue / 16
             runningValue = runningValue >> 4
             //let character = String(format: "%x",lastDigitValue)
@@ -50,10 +51,86 @@ extension UInt128 {
         }
         var total: UInt128 = 0
         for byte in data {
-            total = total * 256
+            //performance optimization
+            //total = total * 256
+            total = total << 8
             total = total + UInt128(byte)
         }
         self = total
+    }
+    var netmaskBits: UInt? {
+        // returns number of bits in a netmask
+        switch self {
+        case
+        2147483648:     /*128.0.0.0*/
+            return 1
+        case 3221225472:     /*192.0.0.0*/
+            return 2
+        case 3758096384:     /*224.0.0.0*/
+            return 3
+        case 4026531840:     /*240.0.0.0*/
+            return 4
+        case 4160749568:     /*248.0.0.0*/
+            return 5
+        case 4227858432:     /*252.0.0.0*/
+            return 6
+        case 4261412864:     /*254.0.0.0*/
+            return 7
+        case 4278190080:     /*255.0.0.0*/
+            return 8
+        case 4286578688:     /*255.128.0.0*/
+            return 9
+        case 4290772992:     /*255.192.0.0*/
+            return 10
+        case 4292870144:     /*255.224.0.0*/
+            return 11
+        case 4293918720:     /*255.240.0.0*/
+            return 12
+        case 4294443008:     /*255.248.0.0*/
+            return 13
+        case 4294705152:     /*255.252.0.0*/
+            return 14
+        case 4294836224:     /*255.254.0.0*/
+            return 15
+        case 4294901760:     /*255.255.0.0*/
+            return 16
+        case 4294934528:     /*255.255.128.0*/
+            return 17
+        case 4294950912:     /*255.255.192.0*/
+            return 18
+        case 4294959104:     /*255.255.224.0*/
+            return 19
+        case 4294963200:     /*255.255.240.0*/
+            return 20
+        case 4294965248:     /*255.255.248.0*/
+            return 21
+        case 4294966272:     /*255.255.252.0*/
+            return 22
+        case 4294966784:     /*255.255.254.0*/
+            return 23
+        case 4294967040:     /*255.255.255.0*/
+            return 24
+        case 4294967168:     /*255.255.255.128*/
+            return 25
+        case 4294967232:     /*255.255.255.192*/
+            return 26
+        case 4294967264:     /*255.255.255.224*/
+            return 27
+        case 4294967280:     /*255.255.255.240*/
+            return 28
+        case 4294967288:     /*255.255.255.248*/
+            return 29
+        case 4294967292:     /*255.255.255.252*/
+            return 30
+        case 4294967294:     /*255.255.255.254*/
+            return 31
+        case 4294967295:     //255.255.255.255
+            return 32
+        case 0:
+            return 0         //0.0.0.0
+        default:
+            return nil
+        }
     }
     var netmaskHosts: UInt128? {
         // returns number of hosts in a netmask range

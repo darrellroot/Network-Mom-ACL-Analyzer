@@ -1,5 +1,5 @@
 //
-//  IpRange.swift
+//  Cidr.swift
 //  Network Mom ACL Analyzer
 //
 //  Created by Darrell Root on 6/28/19.
@@ -57,8 +57,11 @@ struct Cidr: CustomStringConvertible, Equatable {
                 }
                 return
             } else {
-                let numHosts = power(2, 128 - length)
-                let remainder = ip % numHosts
+                let numHosts: UInt128 = 1 << (128 - length)
+                let minIp = (ip >> (128 - length)) << (128 - length)
+                let remainder = ip - minIp
+                //let numHosts = power(2, 128 - length)
+                //let remainder = ip % numHosts
                 if remainder > 0 {
                     self.bitAligned = false
                 }
