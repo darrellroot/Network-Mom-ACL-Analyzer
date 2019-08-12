@@ -635,6 +635,22 @@ class AccessList {
                     }
                 }
             }
+            if deviceType == .iosv6 && words[safe: 0] == "ipv6" && words[safe: 1] == "access-list" {
+                //if line.starts(with: "ipv6 access-list ") {
+                objectName = nil
+                configurationMode = .accessListExtended
+                lastSequenceSeen = 0
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                //let words = line.components(separatedBy: NSCharacterSet.whitespaces).filter { !$0.isEmpty }
+                if let aclName = words[safe: 2] {
+                    aclNames.insert(aclName)
+                    if aclNames.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
+                    }
+                }
+                continue lineLoop
+            }
+
             if deviceType == .ios && words[safe: 0] == "ip" && words[safe: 1] == "access-list" && words[safe: 2] == "extended" {
             //if line.starts(with: "ip access-list extended") {
                 objectName = nil

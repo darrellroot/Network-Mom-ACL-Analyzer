@@ -14,7 +14,8 @@ struct RandomAcl: CustomStringConvertible {
     var myDescription: String
     
     static let protocols = ["ip","tcp","udp","6","17","gre"]
-    
+    static let protocolsv6 = ["ipv6","tcp","udp","6","17","ahp"]
+
     //var deviceType: DeviceType
     //var aclAction: AclAction
     //var ipProtocol: String
@@ -152,7 +153,17 @@ struct RandomAcl: CustomStringConvertible {
         }
         let sourcePortOperator = PortOperator.allCases.randomElement()!
         let destPortOperator = PortOperator.allCases.randomElement()!
-        let ipProtocol = RandomAcl.protocols.randomElement()!
+        
+        let ipProtocol: String
+        switch deviceType {
+            
+        case .ios,.asa,.nxos,.iosxr:
+            ipProtocol = RandomAcl.protocols.randomElement()!
+        case .iosv6:
+            ipProtocol = RandomAcl.protocolsv6.randomElement()!
+        case .arista:
+            fatalError("not implemented")
+        }
         
         var outputString = ""
         if deviceType == .asa {

@@ -452,6 +452,28 @@ struct AccessControlEntry {
                 // should not get here
                 return false
             }
+            var sourceAllBitAligned = true
+            var destAllBitAligned = true
+            for ipRange in self.sourceIp {
+                if ipRange.bitAligned == false {
+                    sourceAllBitAligned = false
+                }
+            }
+            for ipRange in self.destIp {
+                if ipRange.bitAligned == false {
+                    destAllBitAligned = false
+                }
+            }
+            
+            if !sourceAllBitAligned || !destAllBitAligned {
+                errorDelegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+            }
+            if !sourceAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Source IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
+            if !destAllBitAligned {
+                errorDelegate?.report(severity: .warning, message: "Destination IP not on netmask or bit boundary", line: linenum, delegateWindow: delegateWindow)
+            }
             return true
         }//ValidateIos
         
