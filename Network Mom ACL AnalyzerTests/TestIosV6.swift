@@ -669,5 +669,65 @@ class TestIosV6: XCTestCase {
             XCTAssert(result == .deny)
         }
     }
-
+    func testIosV629() {
+        let sample = """
+    ipv6 access-list extended acl1
+    permit tcp host 2001:DB8:1::32 eq bgp host 2001:DB8:2::32 eq 11000 sequence 1
+    """
+        let acl = AccessList(sourceText: sample, deviceType: .iosv6, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::32".ipv6address!, destinationIp: "2001:DB8:2::32".ipv6address!, sourcePort: 179, destinationPort: 11000, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::32".ipv6address!, destinationIp: "2001:DB8:2::32".ipv6address!, sourcePort: 180, destinationPort: 11000, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "2001:DB8:1::32".ipv6address!, destinationIp: "2001:DB8:2::32".ipv6address!, sourcePort: 179, destinationPort: 11000, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::33".ipv6address!, destinationIp: "2001:DB8:2::32".ipv6address!, sourcePort: 179, destinationPort: 11000, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::32".ipv6address!, destinationIp: "2001:DB8:2::33".ipv6address!, sourcePort: 179, destinationPort: 11000, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::32".ipv6address!, destinationIp: "2001:DB8:2::32".ipv6address!, sourcePort: 179, destinationPort: 11001, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testIosV630() {
+        let sample = """
+    ipv6 access-list extended acl1
+    permit tcp 2620::33/128 eq www ::/0 range 10 20 established sequence 1
+    """
+        let acl = AccessList(sourceText: sample, deviceType: .iosv6, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "2620::33".ipv6address!, destinationIp: "2001:DB8:2::32".ipv6address!, sourcePort: 80, destinationPort: 10, established: true)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "2620::34".ipv6address!, destinationIp: "2001:DB8:2::32".ipv6address!, sourcePort: 80, destinationPort: 10, established: true)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 6, sourceIp: "2620::32".ipv6address!, destinationIp: "2001:DB8:2::32".ipv6address!, sourcePort: 80, destinationPort: 10, established: true)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
 }

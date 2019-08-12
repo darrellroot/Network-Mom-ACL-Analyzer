@@ -20,6 +20,7 @@ enum IosTokenV6: Equatable {
     case portOperator(PortOperator)
     case comment
     case log
+    case sequence
     case established
     case addressV6(UInt128)
     case cidrV6(IpRange)
@@ -44,6 +45,8 @@ enum IosTokenV6: Equatable {
             self = .log
         case "any":
             self = .any
+        case "sequence":
+            self = .sequence
         case "host":
             self = .host
         case "eq","gt","lt","neq","range":

@@ -48,7 +48,6 @@ struct AccessControlEntry {
     
     enum IosLinePositionV6 {
         case beginning
-        case sequence
         case action
         case ipProtocol
         case sourceIp
@@ -62,6 +61,7 @@ struct AccessControlEntry {
         case firstDestPort
         case lastDestPort
         case flags
+        case sequence
         case comment // comment spotted, can ignore everything from here on
         case end // end without comment, still need to check syntax
     }
@@ -496,35 +496,18 @@ struct AccessControlEntry {
                 case .action(let action):
                     self.aclAction = action
                     linePosition = .action
-                case .ipProtocol,.any,.host,.portOperator,.log,.established,.name,.addressV6,.cidrV6:
+                case .ipProtocol,.any,.host,.portOperator,.log,.established,.name,.addressV6,.cidrV6,.number,.sequence:
                     reportError()
                     return nil
                 case .comment:
                     return nil
-                case .number(let sequence):
-                    self.sequence = sequence
-                    linePosition = .sequence
             }//switch linePosition
-            case .sequence:
-                switch token {
-                case .unsupported(let keyword):
-                    reportUnsupported(keyword: keyword)
-                    return nil
-                case .action(let action):
-                    self.aclAction = action
-                    linePosition = .action
-                case .ipProtocol,.any,.host,.portOperator,.log,.established,.name,.addressV6,.cidrV6,.number:
-                    reportError()
-                    return nil
-                case .comment:
-                    return nil
-                }
             case .action:
                 switch token {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6,.name:
+                case .action,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6,.name,.sequence:
                     reportError()
                     return nil
                 case .ipProtocol(let ipProtocol):
@@ -547,7 +530,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.portOperator,.comment,.log,.established,.addressV6,.number,.name:
+                case .action,.ipProtocol,.portOperator,.comment,.log,.established,.addressV6,.number,.name,.sequence:
                     reportError()
                     return nil
                 case .any:
@@ -564,7 +547,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.cidrV6,.number,.name:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.cidrV6,.number,.name,.sequence:
                     reportError()
                     return nil
                 case .addressV6(let address):
@@ -577,7 +560,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.comment,.log,.established,.addressV6,.number,.name:
+                case .action,.ipProtocol,.comment,.log,.established,.addressV6,.number,.name,.sequence:
                     reportError()
                     return nil
                 case .any:
@@ -597,7 +580,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6,.sequence:
                     reportError()
                     return nil
                 case .number(let firstPort):
@@ -633,7 +616,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6,.sequence:
                     reportError()
                     return nil
                 case .number(let port):
@@ -677,7 +660,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.portOperator,.comment,.log,.established,.addressV6,.number,.name:
+                case .action,.ipProtocol,.portOperator,.comment,.log,.established,.addressV6,.number,.name,.sequence:
                     reportError()
                     return nil
                 case .any:
@@ -694,7 +677,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.cidrV6,.number,.name:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.cidrV6,.number,.name,.sequence:
                     reportError()
                     return nil
                 case .addressV6(let address):
@@ -715,6 +698,8 @@ struct AccessControlEntry {
                     linePosition = .destPortOperator
                 case .comment:
                     linePosition = .comment
+                case .sequence:
+                    linePosition = .sequence
                 case .log:
                     guard self.log == false else {
                         reportError()
@@ -736,7 +721,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6,.sequence:
                     reportError()
                     return nil
                 case .number(let firstPort):
@@ -772,7 +757,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6:
+                case .action,.ipProtocol,.any,.host,.portOperator,.comment,.log,.established,.addressV6,.cidrV6,.sequence:
                     reportError()
                     return nil
                 case .number(let secondDestPort):
@@ -821,6 +806,8 @@ struct AccessControlEntry {
                     return nil
                 case .comment:
                     linePosition = .comment
+                case .sequence:
+                    linePosition = .sequence
                 case .log:
                     guard self.log == false else {
                         reportError()
@@ -852,6 +839,8 @@ struct AccessControlEntry {
                     return nil
                 case .comment:
                     linePosition = .comment
+                case .sequence:
+                    linePosition = .sequence
                 case .log:
                     guard self.log == false else {
                         reportError()
@@ -875,6 +864,22 @@ struct AccessControlEntry {
                 }
             case .comment:
                 linePosition = .comment
+            case .sequence:
+                switch token {
+                case .unsupported(let keyword):
+                    reportUnsupported(keyword: keyword)
+                    return nil
+                case .action,.ipProtocol,.any,.host,.portOperator,.sequence,.comment,.established,.addressV6,.cidrV6,.name,.log:
+                    reportError()
+                    return nil
+                case .number(let sequenceNumber):
+                    guard self.sequence == nil else {
+                        reportError()
+                        return nil
+                    }
+                    self.sequence = sequenceNumber
+                    linePosition = .end
+                }
             case .end:
                 switch token {
                 case .unsupported(let keyword):
@@ -885,6 +890,8 @@ struct AccessControlEntry {
                     return nil
                 case .comment:
                     linePosition = .comment
+                case .sequence:
+                    linePosition = .sequence
                 case .log:
                     guard self.log == false else {
                         reportError()
