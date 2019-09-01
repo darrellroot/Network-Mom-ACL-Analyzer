@@ -165,7 +165,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
                 return nil
             }
             destinationIp = tempDestinationIp
-        case .iosv6:
+        case .iosv6,.nxosv6:
             guard let tempSourceIp = sourceIpOutlet.stringValue.ipv6address else {
                 self.report(severity: .error, message: "Socket: Invalid source IPv6 address", delegateWindow: .ingressAnalyze)
                 return nil
@@ -230,6 +230,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             self.ingressDeviceType = .arista
         case "IPv6 IOS or IOS-XE":
             self.ingressDeviceType = .iosv6
+        case "IPv6 NX-OS":
+            self.ingressDeviceType = .nxosv6
         default:
             self.report(severity: .error, message: "Unable to identify ingress device type", delegateWindow: .ingressValidation)
             return false
@@ -244,7 +246,9 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         case "IPv4 Arista":
             self.egressDeviceType = .arista
         case "IPv6 IOS or IOS-XE":
-            self.ingressDeviceType = .iosv6
+            self.egressDeviceType = .iosv6
+        case "IPv6 NX-OS":
+            self.egressDeviceType = .nxosv6
         default:
             self.report(severity: .error, message: "Unable to identify egress device type", delegateWindow: .egressValidation)
             return false

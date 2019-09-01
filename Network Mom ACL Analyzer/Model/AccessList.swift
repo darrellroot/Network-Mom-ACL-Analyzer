@@ -199,7 +199,21 @@ class AccessList {
                 continue lineLoop
             }
             
-            
+            if deviceType == .nxosv6 && words[safe: 0] == "object-group" && words[safe: 1] == "ipv6" && words[safe: 2] == "address" , let objectNameTemp = words[safe: 3] {
+                guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
+                    delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
+                    configurationMode = .accessControlEntry
+                    lastSequenceSeen = 0
+                    objectName = nil
+                    continue lineLoop
+                }
+                self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
+                configurationMode = .nxosObjectGroupAddress
+                lastSequenceSeen = 0
+                objectName = objectNameTemp
+                continue lineLoop
+            }
+
             if deviceType == .nxos && words[safe: 0] == "object-group" && words[safe: 1] == "ip" && words[safe: 2] == "address" , let objectNameTemp = words[safe: 3] {
                 guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
                         delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
@@ -215,7 +229,7 @@ class AccessList {
                 continue lineLoop
             }
             
-            if deviceType == .nxos && words[safe: 0] == "object-group" && words[safe: 1] == "ip" && words[safe: 2] == "port", let objectNameTemp = words[safe: 3] {
+            if (deviceType == .nxos || deviceType == .nxosv6) && words[safe: 0] == "object-group" && words[safe: 1] == "ip" && words[safe: 2] == "port", let objectNameTemp = words[safe: 3] {
                 guard self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil else {
                     delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
                     delegate?.report(severity: .error, message: "Duplicate object-group service \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
@@ -272,7 +286,7 @@ class AccessList {
                 }
             }
             
-            if deviceType == .nxos && configurationMode == .nxosObjectGroupPort {
+            if (deviceType == .nxos || deviceType == .nxosv6) && configurationMode == .nxosObjectGroupPort {
                 //let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 // first word could be sequence number
                 var localwords: [String]
@@ -348,6 +362,54 @@ class AccessList {
                 }
             }
             
+            if deviceType == .nxosv6 && configurationMode == .nxosObjectGroupAddress {
+                // first word could be sequence number, drop it and process the rest
+                var localwords = words
+                if let firstword = localwords[safe: 0], let thisSequence = UInt(firstword) {
+                    localwords.removeFirst()
+                    if thisSequence <= lastSequenceSeen {
+                        delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        delegate?.report(severity: .error, message: "Sequence number not increasing.  ACL analysis will not be accurate!", line: linenum, delegateWindow: delegateWindow)
+                    }
+                    lastSequenceSeen = thisSequence
+                }
+                if let word1 = localwords.first, let token = NxAclTokenV6(string: word1), let currentObjectName = objectName, let currentObjectGroup = objectGroupNetworks[currentObjectName] {
+                    
+                    switch token {
+                        
+                    case .action(_),.ipProtocol, .any, .portOperator, .comment, .log, .addrgroup,.portgroup,.established, .number, .name, .unsupported,.addressV6:
+                        break
+                    //do nothing and continue, we might be done with object group
+                    case .host:
+                        guard let word2 = localwords[safe: 1], let token2 = NxAclTokenV6(string: word2), case let .addressV6(hostIp) = token2 else {
+                            delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                            configurationMode = .accessControlEntry
+                            lastSequenceSeen = 0
+                            objectName = nil
+                            continue lineLoop
+                        }
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
+                        currentObjectGroup.append(ipRange: ipRange)
+                        continue lineLoop
+/*                    case .addressV6(let network):
+                        guard let word2 = localwords[safe: 1], let token2 = NxAclToken(string: word2), case let .fourOctet(mask) = token2, mask >= 0, mask <= MAXIP, let ipRange = IpRange(ipv4: network, dontCare: mask) else {
+                            delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                            delegate?.report(severity: .error, message: "Error decoding nxos object-group", line: linenum, delegateWindow: delegateWindow)
+                            configurationMode = .accessControlEntry
+                            lastSequenceSeen = 0
+                            objectName = nil
+                            continue lineLoop
+                        }
+                        currentObjectGroup.append(ipRange: ipRange)
+                        continue lineLoop*/
+                    case .cidrV6(let cidr):
+                        currentObjectGroup.append(ipRange: cidr)
+                        continue lineLoop
+                    }
+                }
+            }
+
             if deviceType == .nxos && configurationMode == .nxosObjectGroupAddress {
                 // first word could be sequence number, drop it and process the rest
                 var localwords = words
@@ -683,6 +745,21 @@ class AccessList {
                 continue lineLoop
             }
             
+            if deviceType == .nxosv6 && words[safe: 0] == "ipv6" && words[safe: 1] == "access-list" {
+                //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
+                objectName = nil
+                configurationMode = .accessListExtended
+                lastSequenceSeen = 0
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                if let aclName = words[safe: 2] {
+                    aclNames.insert(String(aclName))
+                    if aclNames.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
+                    }
+                }
+                continue lineLoop
+            }
+
             
             if deviceType == .iosxr && words[safe: 0] == "ipv4" && words[safe: 1] == "access-list" {
                 //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
@@ -762,6 +839,7 @@ class AccessList {
                     continue lineLoop
                 }
             }
+            
             //debugPrint("starting timer")
             let timer = Timer(timeInterval: 1.0, repeats: false) { timer in
                 //debugPrint("timer fired")

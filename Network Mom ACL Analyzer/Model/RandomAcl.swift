@@ -116,7 +116,7 @@ struct RandomAcl: CustomStringConvertible {
 
         case .arista:
             fatalError("Not implemented")
-        case .iosv6:
+        case .iosv6,.nxosv6:
             let sourceV6 = UInt128.random(in: 0...UInt128.max)
             let sourceV6Prefix = UInt.random(in: 0...128)
             let sourceV6String = "\(sourceV6.ipv6)/\(sourceV6Prefix)"
@@ -159,7 +159,7 @@ struct RandomAcl: CustomStringConvertible {
             
         case .ios,.asa,.nxos,.iosxr:
             ipProtocol = RandomAcl.protocols.randomElement()!
-        case .iosv6:
+        case .iosv6,.nxosv6:
             ipProtocol = RandomAcl.protocolsv6.randomElement()!
         case .arista:
             fatalError("not implemented")
@@ -180,6 +180,8 @@ struct RandomAcl: CustomStringConvertible {
         case .asa:
             outputString.append(sourceString)
         case .nxos:
+            outputString.append(sourceString)
+        case .nxosv6:
             outputString.append(sourceString)
         case .arista:
             fatalError("Not implemented")
@@ -211,7 +213,7 @@ struct RandomAcl: CustomStringConvertible {
             outputString.append(destString)
         case .arista:
             fatalError("Not implemented")
-        case .iosv6:
+        case .iosv6,.nxosv6:
             outputString.append(destString)
             
         }

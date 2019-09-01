@@ -329,6 +329,34 @@ ip access-list L3Port
 
     }
     
+    func testNxosObjectPortInvalid() {
+        let sample = """
+object-group ip address SERVERS
+    10 host 1.1.1.101
+    20 10.0.0.0/24
+    30 11.0.0.0 255.255.0.0
+object-group ip port WEB
+ip access-list L3Port
+    10 permit tcp addrgroup SERVERS addrgroup SERVERS portgroup WEB log
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 0)
+    }
+    func testNxosObjectPortInvalid2() {
+        let sample = """
+object-group ip address SERVERS
+    10 host 1.1.1.101
+    20 10.0.0.0/24
+    30 11.0.0.0 255.255.0.0
+object-group ip port WEB
+ip access-list L3Port
+    10 permit tcp addrgroup SERVERS portgroup WEB addrgroup SERVERS log
+"""
+        let acl = AccessList(sourceText: sample, deviceType: .nxos, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 0)
+    }
+
+    
     func testNxosCcieMcgeeWithSpaces() {
         let sample = """
 object-group  ip  address  SERVERS

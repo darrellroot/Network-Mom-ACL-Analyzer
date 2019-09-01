@@ -38,6 +38,8 @@ class RandomAclController: NSWindowController {
             self.window?.title = "Random IPv4 ASA ACL"
         case .nxos:
             self.window?.title = "Random IPv4 NX-OS ACL"
+        case .nxosv6:
+            self.window?.title = "Random IPv6 NX-OS ACL"
         case .iosxr:
             self.window?.title = "Random IPv4 IOS-XR ACL"
         case .arista:

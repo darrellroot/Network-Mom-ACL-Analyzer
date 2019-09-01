@@ -65,6 +65,9 @@
                                                     <menuItem title="IPv6 IOS or IOS-XE" id="Ndz-p0-Rkr">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
+                                                    <menuItem title="IPv6 NX-OS" id="bMd-LX-qQC">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
                                                 </items>
                                             </menu>
                                         </popUpButtonCell>

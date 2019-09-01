@@ -410,6 +410,12 @@
                                                 <action selector="randomAcl:" target="Voe-Tx-rLC" id="deM-mN-vee"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Random IPv6 NX-OS ACL" id="Mgd-HJ-668">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="randomAcl:" target="Voe-Tx-rLC" id="lQt-Cn-yn4"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
