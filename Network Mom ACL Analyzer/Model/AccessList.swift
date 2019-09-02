@@ -88,6 +88,22 @@ class AccessList {
                 continue lineLoop
             }
 
+            if self.deviceType == .iosxrv6 && words[safe: 0] == "object-group" && words[safe: 1] == "network" && words[safe: 2] == "ipv6", let objectNameTemp = words[safe: 3]  {
+                if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
+                    self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
+                    configurationMode = .objectGroupNetwork
+                    lastSequenceSeen = 0
+                    objectName = objectNameTemp
+                } else {
+                    reportError()
+                    delegate?.report(severity: .error, message: "Duplicate object-group name \(objectNameTemp)", line: linenum, delegateWindow: delegateWindow)
+                    configurationMode = .accessControlEntry
+                    lastSequenceSeen = 0
+                    objectName = nil
+                }
+                continue lineLoop
+            }
+
             if self.deviceType == .iosxr && words[safe: 0] == "object-group" && words[safe: 1] == "network" && words[safe: 2] == "ipv4", let objectNameTemp = words[safe: 3]  {
                 if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
                     self.objectGroupNetworks[objectNameTemp] = ObjectGroupNetwork()
@@ -104,7 +120,7 @@ class AccessList {
                 continue lineLoop
             }
             
-            if self.deviceType == .iosxr && words[safe: 0] == "object-group" && words[safe: 1] == "port", let objectNameTemp = words[safe: 2]  {
+            if (self.deviceType == .iosxr || self.deviceType == .iosxrv6) && words[safe: 0] == "object-group" && words[safe: 1] == "port", let objectNameTemp = words[safe: 2]  {
                 if self.objectGroupNetworks[objectNameTemp] == nil  && self.objectGroupServices[objectNameTemp] == nil && self.objectGroupProtocols[objectNameTemp] == nil {
                     self.objectGroupServices[objectNameTemp] = ObjectGroupService(type: .tcpAndUdp)
                     configurationMode = .objectGroupService
@@ -118,7 +134,8 @@ class AccessList {
                     objectName = nil
                 }
             }
-            if self.deviceType == .iosxr && configurationMode == .objectGroupService, let objectName = objectName, let objectGroup = objectGroupServices[objectName], let possibleSequence = words[safe: 0] {
+            
+            if (self.deviceType == .iosxr || self.deviceType == .iosxrv6) && configurationMode == .objectGroupService, let objectName = objectName, let objectGroup = objectGroupServices[objectName], let possibleSequence = words[safe: 0] {
                 var myWords = words
                 if let _ = UInt(possibleSequence) {
                     myWords.removeFirst()
@@ -286,6 +303,42 @@ class AccessList {
                 }
             }
             
+            if deviceType == .iosxrv6 && configurationMode == .objectGroupNetwork, let objectName = objectName, let objectGroup = objectGroupNetworks[objectName] {
+                if words[safe: 0] == "description" {
+                    continue lineLoop
+                }
+                if words[safe: 0] == "host" {
+                    guard let ipString = words[safe:1], let ipAddress = ipString.ipv6address else {
+                        
+                        delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        delegate?.report(severity: .error, message: "", line: linenum, delegateWindow: delegateWindow)
+                        continue lineLoop
+                    }
+                    let hostIpRange = IpRange(minIp: ipAddress, maxIp: ipAddress)
+                    objectGroup.append(ipRange: hostIpRange)
+                    continue lineLoop
+                }
+                
+                //range x.x.x.x x.x.x.y only applied to IOS-XR
+                if deviceType == .iosxrv6 && words[safe: 0] == "range", let firstIpString = words[safe: 1], let firstIp = firstIpString.ipv6address, let secondIpString = words[safe: 2], let secondIp = secondIpString.ipv6address, firstIp <= secondIp {
+                    let ipRange = IpRange(minIp: firstIp, maxIp: secondIp)
+                    objectGroup.append(ipRange: ipRange)
+                    continue lineLoop
+                }
+                if let possibleCidr = words[safe: 0], let ipRange = IpRange(cidr: possibleCidr) {
+                    if ipRange.bitAligned == false {
+                        delegate?.report(severity: .linetext, message: line, line: linenum, delegateWindow: delegateWindow)
+                        delegate?.report(severity: .warning, message: "Not aligned on bit boundary", line: linenum, delegateWindow: delegateWindow)
+                    }
+                    objectGroup.append(ipRange: ipRange)
+                    continue lineLoop
+                }
+                if deviceType == .iosxrv6 && words[safe: 0] == "object-group", let possibleObjectName = words[safe: 1], let nestedObjectGroup = self.objectGroupNetworks[possibleObjectName] {
+                    objectGroup.ipRanges.append(contentsOf: nestedObjectGroup.ipRanges)
+                    continue lineLoop
+                }
+            }
+
             if (deviceType == .nxos || deviceType == .nxosv6) && configurationMode == .nxosObjectGroupPort {
                 //let words = line.components(separatedBy: NSCharacterSet.whitespaces)
                 // first word could be sequence number
@@ -760,7 +813,21 @@ class AccessList {
                 continue lineLoop
             }
 
-            
+            if deviceType == .iosxrv6 && words[safe: 0] == "ipv6" && words[safe: 1] == "access-list" {
+                //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
+                objectName = nil
+                configurationMode = .accessListExtended
+                lastSequenceSeen = 0
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                if let aclName = words[safe: 2] {
+                    aclNames.insert(String(aclName))
+                    if aclNames.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
+                    }
+                }
+                continue lineLoop
+            }
+
             if deviceType == .iosxr && words[safe: 0] == "ipv4" && words[safe: 1] == "access-list" {
                 //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
                 objectName = nil

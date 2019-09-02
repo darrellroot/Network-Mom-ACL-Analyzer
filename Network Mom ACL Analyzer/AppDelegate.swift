@@ -75,6 +75,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             randomAclController.deviceType = .asa
         case "Random IPv6 IOS ACL":
             randomAclController.deviceType = .iosv6
+        case "Random IPv6 IOS-XR ACL":
+            randomAclController.deviceType = .iosxrv6
         case "Random IPv6 NX-OS ACL":
             randomAclController.deviceType = .nxosv6
         default:

@@ -239,6 +239,34 @@ ipv4 access-list ACL-INFRASTRUCTURE-IN
         XCTAssert(ace?.sourceIp[0].minIp == sourceip)
     }
     
+    func testIosXrSourceCidr() {
+        let sample = """
+        ipv4 access-list acl_hw_1
+          10 permit 192.168.36.0/24
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .iosxr, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 3, sourceIp: "192.168.36.0".ipv4address!, destinationIp: "202.202.202.20".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 3, sourceIp: "192.168.36.255".ipv4address!, destinationIp: "202.202.202.20".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 3, sourceIp: "192.168.35.255".ipv4address!, destinationIp: "202.202.202.20".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 3, sourceIp: "192.168.37.0".ipv4address!, destinationIp: "202.202.202.20".ipv4address!, sourcePort: nil, destinationPort: nil, established: false)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
     func testIosXrSequence() {
         let sample = """
 ipv4 access-list acl_hw_1

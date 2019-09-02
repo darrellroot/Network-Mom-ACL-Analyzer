@@ -209,7 +209,7 @@ extension String {
             return 7
         case (_,"isakmp"):    //TODO only on some platforms
             switch deviceType {
-            case .asa, .nxos, .nxosv6, .arista, .iosxr:
+            case .asa, .nxos, .nxosv6, .arista, .iosxr,.iosxrv6:
                 break
             case .ios,.iosv6:
                 delegate?.report(severity: .warning, message: "isakmp port label is only supported on some ios platforms", delegateWindow: delegateWindow)
@@ -281,13 +281,13 @@ extension String {
 
     func ipProtocol(deviceType: DeviceType, delegate: ErrorDelegate?, delegateWindow: DelegateWindow?) -> UInt? {
         switch (deviceType, self) {
-        case (.iosxr,"ahp"),(.iosv6,"ahp"),(.nxos,"ahp"),(.nxosv6,"ahp"):
+        case (.iosxr,"ahp"),(.iosxrv6,"ahp"),(.iosv6,"ahp"),(.nxos,"ahp"),(.nxosv6,"ahp"):
             return 51
         case (.asa,"ah"):
             return 51
         case (.ios,"eigrp"),(.iosv6,"eigrp"),(.asa,"eigrp"),(.nxos,"eigrp"),(.iosxr,"eigrp"):
             return 88
-        case (.asa,"esp"),(.iosxr,"esp"),(.iosv6,"esp"),(.nxos,"esp"),(.nxosv6,"esp"):
+        case (.asa,"esp"),(.iosxr,"esp"),(.iosxrv6,"esp"),(.iosv6,"esp"),(.nxos,"esp"),(.nxosv6,"esp"):
             return 50
         case (.ios,"esp"):
             delegate?.report(severity: .warning, message: "esp port label is only supported on some ios platforms", delegateWindow: delegateWindow)
@@ -295,15 +295,15 @@ extension String {
         case (.iosv6,"hbh"):
             delegate?.report(severity: .error, message: "hop by hop protocol not supported by ACL analyzer, line with protocol hbh will not be included in analysis", delegateWindow: delegateWindow)
             return nil
-        case (.ios,"gre"),(.iosv6,"gre"),(.asa,"gre"),(.nxos,"gre"),(.iosxr,"gre"):
+        case (.ios,"gre"),(.iosv6,"gre"),(.asa,"gre"),(.nxos,"gre"),(.iosxr,"gre"),(.iosxrv6,"gre"):
             return 47
         case (_,"icmp"):
             return 1
         case (.asa,"icmp6"):
             return 58
-        case (.ios,"igmp"),(.iosv6,"igmp"),(.asa,"igmp"),(.nxos,"igmp"),(.iosxr,"igmp"):  //TODO NXOSv6 not supported
+        case (.ios,"igmp"),(.iosv6,"igmp"),(.asa,"igmp"),(.nxos,"igmp"),(.iosxr,"igmp"),(.iosxrv6,"igmp"):
             return 2
-        case (.iosxr,"igrp"):
+        case (.iosxr,"igrp"),(.iosxrv6,"igrp"):
             return 9
         case (.iosv6,"ip"),(.nxosv6,"ip"):
             delegate?.report(severity: .error, message: "Found protocol ip in ipv6 ACL, requires correction.  CRITICAL LINE NOT INCLUDED IN ANALYSIS", delegateWindow: delegateWindow)
@@ -312,23 +312,23 @@ extension String {
             return 0
         case (.iosxr,"ipv4"):
             return 0
-        case (.iosv6,"ipv6"),(.nxosv6,"ipv6"):
+        case (.iosv6,"ipv6"),(.nxosv6,"ipv6"),(.iosxrv6,"ipv6"):
             return 0
-        case (.asa,"ipinip"),(.iosxr,"ipinip"),(.ios,"ipinip"):
+        case (.asa,"ipinip"),(.iosxr,"ipinip"),(.iosxrv6,"ipinip"),(.ios,"ipinip"):
             return 94
         case (.asa,"ipsec"):
             return 50
-        case (.ios,"nos"),(.iosv6,"nos"),(.asa,"nos"),(.nxos,"nos"),(.iosxr,"nos"): // not a typo both ipinip and nos report 94
+        case (.ios,"nos"),(.iosv6,"nos"),(.asa,"nos"),(.nxos,"nos"),(.iosxr,"nos"),(.iosxrv6,"nos"): // not a typo both ipinip and nos report 94
             return 94
-        case (.ios,"ospf"),(.iosv6,"ospf"),(.asa,"ospf"),(.nxos,"ospf"),(.iosxr,"ospf"):  //TODO NXOSv6 not supported
+        case (.ios,"ospf"),(.iosv6,"ospf"),(.asa,"ospf"),(.nxos,"ospf"),(.iosxr,"ospf"),(.iosxrv6,"ospf"):
             return 89
-        case (.asa,"pcp"),(.iosxr,"pcp"),(.nxos,"pcp"),(.nxosv6,"pcp"):
+        case (.asa,"pcp"),(.iosxr,"pcp"),(.iosxrv6,"pcp"),(.nxos,"pcp"),(.nxosv6,"pcp"):
             return 108
         case (.ios,"pim"),(.iosv6,"pim"),(.asa,"pim"),(.nxos,"pim"),(.iosxr,"pim"):  //TODO NXOSv6 not supported
             return 103
         case (.asa,"pptp"):
             return 47
-        case (.nxosv6,"sctp"):
+        case (.nxosv6,"sctp"),(.iosxrv6,"sctp"):
             return 132
         case (.asa,"snp"):
             return 109

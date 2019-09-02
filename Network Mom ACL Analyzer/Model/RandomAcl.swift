@@ -39,7 +39,7 @@ struct RandomAcl: CustomStringConvertible {
         //self.deviceType = deviceType
         
         self.sequence = RandomAcl.staticSequence
-        if deviceType == .iosxr {
+        if deviceType == .iosxr || deviceType == .iosxrv6 {
             RandomAcl.staticSequence = RandomAcl.staticSequence + 1
         }
         
@@ -116,7 +116,7 @@ struct RandomAcl: CustomStringConvertible {
 
         case .arista:
             fatalError("Not implemented")
-        case .iosv6,.nxosv6:
+        case .iosv6,.nxosv6,.iosxrv6:
             let sourceV6 = UInt128.random(in: 0...UInt128.max)
             let sourceV6Prefix = UInt.random(in: 0...128)
             let sourceV6String = "\(sourceV6.ipv6)/\(sourceV6Prefix)"
@@ -159,7 +159,7 @@ struct RandomAcl: CustomStringConvertible {
             
         case .ios,.asa,.nxos,.iosxr:
             ipProtocol = RandomAcl.protocols.randomElement()!
-        case .iosv6,.nxosv6:
+        case .iosv6,.nxosv6,.iosxrv6:
             ipProtocol = RandomAcl.protocolsv6.randomElement()!
         case .arista:
             fatalError("not implemented")
@@ -169,7 +169,7 @@ struct RandomAcl: CustomStringConvertible {
         if deviceType == .asa {
             outputString.append("access-list 101 extended ")
         }
-        if deviceType == .iosxr {
+        if deviceType == .iosxr || deviceType == .iosxrv6 {
             let sequenceString = String(format: "%4d ", self.sequence)
             outputString.append(sequenceString)
         }
@@ -182,6 +182,8 @@ struct RandomAcl: CustomStringConvertible {
         case .nxos:
             outputString.append(sourceString)
         case .nxosv6:
+            outputString.append(sourceString)
+        case .iosxrv6:
             outputString.append(sourceString)
         case .arista:
             fatalError("Not implemented")
@@ -213,7 +215,7 @@ struct RandomAcl: CustomStringConvertible {
             outputString.append(destString)
         case .arista:
             fatalError("Not implemented")
-        case .iosv6,.nxosv6:
+        case .iosv6,.nxosv6,.iosxrv6:
             outputString.append(destString)
             
         }
@@ -252,88 +254,6 @@ struct RandomAcl: CustomStringConvertible {
     var description: String {
         return myDescription
     }
-/*    var makeDescription: String {
-        var outputString = ""
-        if self.deviceType == .asa {
-            outputString.append("access-list 101 extended ")
-        }
-        if self.deviceType == .iosxr {
-            let sequenceString = String(format: "%4d ", self.sequence)
-            outputString.append(sequenceString)
-        }
-        outputString.append("\(aclAction) \(ipProtocol) ")
-        switch self.deviceType {
-        case .ios, .iosxr:
-            outputString.append("\(self.sourceIp.ipv4) \(sourcePrefix.dontCareBits) ")
-        case .asa:
-            outputString.append("\(self.sourceIp.ipv4) \(sourcePrefix.netmask) ")
-        case .nxos:
-            outputString.append("\(self.sourceIp.ipv4)/\(sourcePrefix.rawValue) ")
-        case .arista:
-            fatalError("Not implemented")
-        case .iosv6:
-            outputString.append("\(sourceV6cidr) ")
-        }
-        switch ipProtocol {
-        case "tcp","udp","6","17":
-            switch sourcePortOperator {
-            case .eq,.gt,.lt:
-                outputString.append("\(sourcePortOperator) \(sourceLowPort)")
-            case .ne:
-                outputString.append("neq \(sourceLowPort)")
-            case .range:
-                outputString.append("\(sourcePortOperator) \(sourceLowPort) \(sourceHighPort)")
-//            case .nothing:
-//                sourcePortString = ""
-            }
-        default:
-            break
-        }//switch ipProtocol for source ports
-        //outputString.append(" \(self.destIp.ipv4)")
-        switch self.deviceType {
-        case .ios, .iosxr:
-            outputString.append(" \(self.destIp.ipv4) \(destPrefix.dontCareBits) ")
-        case .asa:
-            outputString.append(" \(self.destIp.ipv4) \(destPrefix.netmask) ")
-        case .nxos:
-            outputString.append(" \(self.destIp.ipv4)/\(destPrefix.rawValue) ")
-        case .arista:
-            fatalError("Not implemented")
-        case .iosv6:
-            outputString.append(" \(destV6cidr) ")
-
-        }
-        switch ipProtocol {
-        case "tcp","udp","6","17":
-            switch destPortOperator {
-            case .eq,.gt,.lt:
-                outputString.append("\(destPortOperator) \(destLowPort)")
-            case .ne:
-                outputString.append("neq \(destLowPort)")
-            case .range:
-                outputString.append("\(destPortOperator) \(destLowPort) \(destHighPort)")
-                //            case .nothing:
-                //                destPortString = ""
-            }
-        default:
-            break
-        }// switch ipProtocol for dest ports
-        switch ipProtocol {
-        case "tcp","6":
-            if Bool.random() && deviceType != .asa {
-                outputString.append(" established")
-            } else {
-                break
-            }
-        default:
-            break
-        }
-        if Bool.random() {
-            outputString.append( " log")
-        }
-        outputString.append("\n")
-        return outputString
-    }*/
     
     static func operation() -> String {
         //let valid = Bool.random()

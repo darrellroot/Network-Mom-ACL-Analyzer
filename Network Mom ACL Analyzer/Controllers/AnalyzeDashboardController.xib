@@ -84,6 +84,9 @@
                                                                     <menuItem title="IPv6 IOS or IOS-XE" id="NQv-hA-ClD">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
+                                                                    <menuItem title="IPv6 IOS-XR" id="uEh-cV-avm">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    </menuItem>
                                                                     <menuItem title="IPv6 NX-OS" id="7TE-sH-Aey">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
@@ -196,6 +199,9 @@
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
                                                                     <menuItem title="IPv6 IOS or IOS-XE" id="4xx-Vw-SH3">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    </menuItem>
+                                                                    <menuItem title="IPv6 IOS-XR" id="Sjo-kf-BaE">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
                                                                     <menuItem title="IPv6 NX-OS" id="YsG-3S-lob">

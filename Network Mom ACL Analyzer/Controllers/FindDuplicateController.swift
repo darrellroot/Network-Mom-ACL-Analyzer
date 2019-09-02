@@ -82,6 +82,8 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
             self.deviceType = .arista
         case "IPv6 IOS or IOS-XE":
             self.deviceType = .iosv6
+        case "IPv6 IOS-XR":
+            self.deviceType = .iosxrv6
         case "IPv6 NX-OS":
             self.deviceType = .nxosv6
         default:
