@@ -191,7 +191,7 @@ class AccessList {
             }
             
             if deviceType == .asa && configurationMode == .asaObjectNetwork && words[safe: 0] == "host", let possibleIp = words[safe: 1], let objectName = objectName, let ip = possibleIp.ipv4address {
-                let ipRange = IpRange(minIp: ip, maxIp: ip)
+                let ipRange = IpRange(minIp: ip, maxIp: ip, ipVersion: .IPv4)
                 let objectGroupNetwork = ObjectGroupNetwork()
                 objectGroupNetwork.append(ipRange: ipRange)
                 objectGroupNetworks[objectName] = objectGroupNetwork
@@ -274,14 +274,14 @@ class AccessList {
                         delegate?.report(severity: .error, message: "", line: linenum, delegateWindow: delegateWindow)
                         continue lineLoop
                     }
-                    let hostIpRange = IpRange(minIp: ipAddress, maxIp: ipAddress)
+                    let hostIpRange = IpRange(minIp: ipAddress, maxIp: ipAddress, ipVersion: .IPv4)
                     objectGroup.append(ipRange: hostIpRange)
                     continue lineLoop
                 }
                 
                 //range x.x.x.x x.x.x.y only applied to IOS-XR
                 if deviceType == .iosxr && words[safe: 0] == "range", let firstIpString = words[safe: 1], let firstIp = firstIpString.ipv4address, let secondIpString = words[safe: 2], let secondIp = secondIpString.ipv4address, firstIp <= secondIp {
-                    let ipRange = IpRange(minIp: firstIp, maxIp: secondIp)
+                    let ipRange = IpRange(minIp: firstIp, maxIp: secondIp, ipVersion: .IPv4)
                     objectGroup.append(ipRange: ipRange)
                     continue lineLoop
                 }
@@ -314,14 +314,14 @@ class AccessList {
                         delegate?.report(severity: .error, message: "", line: linenum, delegateWindow: delegateWindow)
                         continue lineLoop
                     }
-                    let hostIpRange = IpRange(minIp: ipAddress, maxIp: ipAddress)
+                    let hostIpRange = IpRange(minIp: ipAddress, maxIp: ipAddress, ipVersion: .IPv6)
                     objectGroup.append(ipRange: hostIpRange)
                     continue lineLoop
                 }
                 
                 //range x.x.x.x x.x.x.y only applied to IOS-XR
                 if deviceType == .iosxrv6 && words[safe: 0] == "range", let firstIpString = words[safe: 1], let firstIp = firstIpString.ipv6address, let secondIpString = words[safe: 2], let secondIp = secondIpString.ipv6address, firstIp <= secondIp {
-                    let ipRange = IpRange(minIp: firstIp, maxIp: secondIp)
+                    let ipRange = IpRange(minIp: firstIp, maxIp: secondIp, ipVersion: .IPv6)
                     objectGroup.append(ipRange: ipRange)
                     continue lineLoop
                 }
@@ -442,7 +442,7 @@ class AccessList {
                             objectName = nil
                             continue lineLoop
                         }
-                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp, ipVersion: .IPv6)
                         currentObjectGroup.append(ipRange: ipRange)
                         continue lineLoop
 /*                    case .addressV6(let network):
@@ -490,7 +490,7 @@ class AccessList {
                             objectName = nil
                             continue lineLoop
                         }
-                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp, ipVersion: .IPv4)
                         currentObjectGroup.append(ipRange: ipRange)
                         continue lineLoop
                     case .fourOctet(let network):
@@ -708,7 +708,7 @@ class AccessList {
                 if term1String == "host" {
                     //network-object host 131.252.209.18
                     if let hostIp = term2String.ipv4address {
-                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp, ipVersion: .IPv4)
                         objectGroupNetwork.append(ipRange: ipRange)
                         continue lineLoop
                     } else if let hostIp = hostnames[term2String] {
@@ -719,7 +719,7 @@ class AccessList {
                             delegate?.report(severity: .error, message: "unexpected error decoding host ip", line: linenum, delegateWindow: delegateWindow)
                             continue lineLoop
                         }
-                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp)
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp, ipVersion: .IPv4)
                         objectGroupNetwork.append(ipRange: ipRange)
                         continue lineLoop
                     } else {

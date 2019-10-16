@@ -11,7 +11,7 @@ import Network
 
 struct AccessControlEntry {
     
-    static let ANYIPV6RANGE: IpRange = IpRange(minIp: 0, maxIp: UInt128.max)
+    static let ANYIPV6RANGE: IpRange = IpRange(minIp: 0, maxIp: UInt128.max, ipVersion: .IPv6)
 
     var aclAction: AclAction = .neither  // neither means not initialized
     var ipVersion: IpVersion
@@ -32,7 +32,7 @@ struct AccessControlEntry {
     
     let MAXIP = UInt(UInt32.max)
     let MAXPORT = UInt(UInt16.max)
-    let ANYIPRANGE = IpRange(minIp: 0, maxIp: UInt(UInt32.max))
+    let ANYIPRANGE = IpRange(minIp: 0, maxIp: UInt(UInt32.max), ipVersion: .IPv4)
     let ANYPORTRANGE = PortRange(minPort: 0, maxPort: UInt(UInt16.max))!
     
     func findAction(word: String) -> AclAction? {
@@ -311,6 +311,7 @@ struct AccessControlEntry {
         }
     }
     
+    //MARK: IOS IPv6
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, iosv6: Bool) {
         var tempSourcePortOperator: PortOperator?
         var tempFirstSourcePort: UInt?
@@ -553,7 +554,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .addressV6(let address):
-                    let ipRangeV6 = IpRange(minIp: address, maxIp: address)
+                    let ipRangeV6 = IpRange(minIp: address, maxIp: address, ipVersion: .IPv6)
                     self.sourceIp = [ipRangeV6]
                     linePosition = .sourceIp
                 }
@@ -683,7 +684,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .addressV6(let address):
-                    let ipRange = IpRange(minIp: address, maxIp: address)
+                    let ipRange = IpRange(minIp: address, maxIp: address, ipVersion: .IPv6)
                     self.destIp = [ipRange]
                     linePosition = .destIp
                 }
@@ -1157,7 +1158,7 @@ struct AccessControlEntry {
                 case .addrgroup:
                     linePosition = .sourceAddrgroup
                 case .any:
-                    self.sourceIp = [IpRange(minIp: 0, maxIp: MAXIP)]
+                    self.sourceIp = [IpRange(minIp: 0, maxIp: MAXIP, ipVersion: .IPv4)]
                     linePosition = .sourceIp
                 case .host:
                     linePosition = .sourceIpHost
@@ -1190,7 +1191,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .any:  //destination any
-                    self.destIp = [IpRange(minIp: 0, maxIp: MAXIP)]
+                    self.destIp = [IpRange(minIp: 0, maxIp: MAXIP, ipVersion: .IPv4)]
                     linePosition = .destIp
                 case .host:
                     linePosition = .destIpHost
@@ -1214,7 +1215,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .fourOctet(let ipAddress):
-                    let ipRange = IpRange(minIp: ipAddress, maxIp: ipAddress)
+                    let ipRange = IpRange(minIp: ipAddress, maxIp: ipAddress, ipVersion: .IPv4)
                     self.sourceIp = [ipRange]
                     linePosition = .sourceIp
                 }
@@ -1329,7 +1330,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .any:
-                    let ipRange = IpRange(minIp: 0, maxIp: MAXIP)
+                    let ipRange = IpRange(minIp: 0, maxIp: MAXIP, ipVersion: .IPv4)
                     self.destIp = [ipRange]
                     linePosition = .destIp
                 case .host:
@@ -1388,7 +1389,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
-                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost, ipVersion: .IPv4)
                     self.destIp = [ipRange]
                     linePosition = .destIp
                 }
@@ -1858,7 +1859,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .addressV6(let ipAddress):
-                    let ipRange = IpRange(minIp: ipAddress, maxIp: ipAddress)
+                    let ipRange = IpRange(minIp: ipAddress, maxIp: ipAddress, ipVersion: .IPv6)
                     self.sourceIp = [ipRange]
                     linePosition = .sourceIp
                 }
@@ -2030,7 +2031,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .addressV6(let ipHost):
-                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost, ipVersion: .IPv6)
                     self.destIp = [ipRange]
                     linePosition = .destIp
                 }
@@ -2518,7 +2519,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
-                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost, ipVersion: .IPv4)
                     self.sourceIp = [ipRange]
                     linePosition = .sourceMask
                 }
@@ -2686,7 +2687,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
-                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost, ipVersion: .IPv4)
                     self.destIp = [ipRange]
                     linePosition = .destMask
                 }
@@ -3195,7 +3196,7 @@ struct AccessControlEntry {
                     linePosition = .sourceIpHostOnly
                 case .any:
                     //this means this is the short "source address only" mode with a permit any
-                    let ipRange = IpRange(minIp: 0, maxIp: MAXIP)
+                    let ipRange = IpRange(minIp: 0, maxIp: MAXIP, ipVersion: .IPv4)
                     self.sourceIp = [ipRange]
                     self.destIp = [ipRange]
                     self.ipProtocols = [0]
@@ -3233,7 +3234,7 @@ struct AccessControlEntry {
                         reportError()
                         return nil
                     }
-                    let sourceIpRange = IpRange(minIp: sourceIp, maxIp: sourceIp)
+                    let sourceIpRange = IpRange(minIp: sourceIp, maxIp: sourceIp, ipVersion: .IPv4)
                     self.sourceIp = [sourceIpRange]
                     self.destIp = [ANYIPRANGE]
                     self.ipProtocols = [0]
@@ -3290,7 +3291,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
-                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost, ipVersion: .IPv4)
                     self.sourceIp = [ipRange]
                     linePosition = .sourceMask
                 }
@@ -3486,7 +3487,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .fourOctet(let ipHost):
-                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost, ipVersion: .IPv4)
                     self.destIp = [ipRange]
                     linePosition = .destMask
                 }
@@ -4059,7 +4060,7 @@ struct AccessControlEntry {
                     return nil
                     
                 case .addressV6(let sourceIp):
-                    let sourceIpRange = IpRange(minIp: sourceIp, maxIp: sourceIp)
+                    let sourceIpRange = IpRange(minIp: sourceIp, maxIp: sourceIp, ipVersion: .IPv6)
                     self.sourceIp = [sourceIpRange]
                     self.destIp = [AccessControlEntry.ANYIPV6RANGE]
                     self.ipProtocols = [0]
@@ -4103,7 +4104,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .addressV6(let ipHost):
-                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost, ipVersion: .IPv6)
                     self.sourceIp = [ipRange]
                     linePosition = .sourceMask
                 }
@@ -4286,7 +4287,7 @@ struct AccessControlEntry {
                     reportError()
                     return nil
                 case .addressV6(let ipHost):
-                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost)
+                    let ipRange = IpRange(minIp: ipHost, maxIp: ipHost, ipVersion: .IPv6)
                     self.destIp = [ipRange]
                     linePosition = .destMask
                 }
@@ -5284,6 +5285,7 @@ struct AccessControlEntry {
     }//init IOS
     */
     
+    //MARK: ASA
     init?(line: String, deviceType: DeviceType, linenum: Int, aclDelegate: AclDelegate? = nil, errorDelegate: ErrorDelegate?, delegateWindow: DelegateWindow?, asa: Bool) {
         var tempSourcePortOperator: PortOperator?
         var tempFirstSourcePort: UInt?
@@ -5467,7 +5469,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.log,.fourOctet,.number,.name:
+                case .extended,.action,.ipProtocol,.any,.any4,.any6,.host,.objectGroup,.portOperator,.log,.fourOctet,.addressV6,.cidrV6,.number,.name:
                     reportError()
                     return nil
                 case .accessList:
@@ -5480,7 +5482,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet,.addressV6,.cidrV6:
                     reportError()
                     return nil
                 case .number(let listNumber):
@@ -5498,7 +5500,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.log,.fourOctet,.number,.name:
+                case .accessList,.action,.ipProtocol,.any,.any4,.any6,.host,.objectGroup,.portOperator,.log,.fourOctet,.addressV6,.cidrV6,.number,.name:
                     reportError()
                     return nil
                 case .extended:
@@ -5511,7 +5513,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number,.name:
+                case .accessList,.extended,.ipProtocol,.any,.any4,.any6,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet,.addressV6,.cidrV6,.number,.name:
                     reportError()
                     return nil
                 case .action(let action):
@@ -5523,7 +5525,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.any,.host,.portOperator,.comment,.log,.fourOctet,.name:
+                case .accessList,.extended,.action,.any,.any4,.any6,.host,.portOperator,.comment,.log,.fourOctet,.addressV6,.cidrV6,.name:
                     reportError()
                     return nil
                 case .ipProtocol(let ipProtocol):
@@ -5545,7 +5547,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet:
                     reportError()
                     return nil
                 case .number(let objectGroupNumber):
@@ -5571,11 +5573,20 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.portOperator,.comment,.log,.number:
+                case .accessList,.extended,.action,.ipProtocol,.portOperator,.addressV6,.comment,.log,.number:
                     reportError()
                     return nil
                 case .any:
+                    self.sourceIp = [ANYIPRANGE,AccessControlEntry.ANYIPV6RANGE]
+                    linePosition = .sourceMask
+                case .any4:
                     self.sourceIp = [ANYIPRANGE]
+                    linePosition = .sourceMask
+                case .any6:
+                    self.sourceIp = [AccessControlEntry.ANYIPV6RANGE]
+                    linePosition = .sourceMask
+                case .cidrV6(let sourceIpv6Range):
+                    self.sourceIp = [sourceIpv6Range]
                     linePosition = .sourceMask
                 case .host:
                     linePosition = .sourceIpHost
@@ -5597,7 +5608,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.number,.name:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.number,.name:
                     reportError()
                     return nil
                 case .fourOctet(let sourceNetmask):
@@ -5613,11 +5624,15 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.number:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.cidrV6,.objectGroup,.portOperator,.comment,.log,.number:
                     reportError()
                     return nil
                 case .fourOctet(let sourceIp):
-                    let ipRange = IpRange(minIp: sourceIp, maxIp: sourceIp)
+                    let ipRange = IpRange(minIp: sourceIp, maxIp: sourceIp, ipVersion: .IPv4)
+                    self.sourceIp = [ipRange]
+                    linePosition = .sourceMask
+                case .addressV6(let sourceIp):
+                    let ipRange = IpRange(minIp: sourceIp, maxIp: sourceIp, ipVersion: .IPv6)
                     self.sourceIp = [ipRange]
                     linePosition = .sourceMask
                 case .name(let possibleHostname):
@@ -5625,7 +5640,7 @@ struct AccessControlEntry {
                         reportError()
                         return nil
                     }
-                    let ipRange = IpRange(minIp: sourceIp, maxIp: sourceIp)
+                    let ipRange = IpRange(minIp: sourceIp, maxIp: sourceIp, ipVersion: .IPv4)
                     self.sourceIp = [ipRange]
                     linePosition = .sourceMask
                 }
@@ -5634,7 +5649,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.cidrV6,.addressV6,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number:
                     reportError()
                     return nil
                 case .name(let objectName):
@@ -5651,11 +5666,20 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.comment,.log,.number:
+                case .accessList,.extended,.action,.ipProtocol,.comment,.log,.addressV6,.number:
                     reportError()
                     return nil
                 case .any:
+                    self.destIp = [ANYIPRANGE,AccessControlEntry.ANYIPV6RANGE]
+                    linePosition = .destMask
+                case .any4:
                     self.destIp = [ANYIPRANGE]
+                    linePosition = .destMask
+                case .any6:
+                    self.destIp = [AccessControlEntry.ANYIPV6RANGE]
+                    linePosition = .destMask
+                case .cidrV6(let ipRange):
+                    self.destIp = [ipRange]
                     linePosition = .destMask
                 case .host:
                     linePosition = .destIpHost
@@ -5680,7 +5704,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet:
                     reportError()
                     return nil
                 case .number(let firstSourcePort):
@@ -5716,7 +5740,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet:
                     reportError()
                     return nil
                 case .number(let secondSourcePort):
@@ -5750,11 +5774,20 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.portOperator,.comment,.log,.number:
+                case .accessList,.extended,.action,.ipProtocol,.portOperator,.addressV6,.comment,.log,.number:
                     reportError()
                     return nil
                 case .any:
+                    self.destIp = [ANYIPRANGE,AccessControlEntry.ANYIPV6RANGE]
+                    linePosition = .destMask
+                case .any4:
                     self.destIp = [ANYIPRANGE]
+                    linePosition = .destMask
+                case .any6:
+                    self.destIp = [AccessControlEntry.ANYIPV6RANGE]
+                    linePosition = .destMask
+                case .cidrV6(let ipRange):
+                    self.destIp = [ipRange]
                     linePosition = .destMask
                 case .host:
                     linePosition = .destIpHost
@@ -5776,7 +5809,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number:
                     reportError()
                     return nil
                 case .name(let objectName):
@@ -5798,7 +5831,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.number,.name:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.number,.name:
                     reportError()
                 case .fourOctet(let destNetmask):
                     guard let tempDestIp = tempDestIp, let destIpRange = IpRange(ip: tempDestIp, netmask: destNetmask) else {
@@ -5813,7 +5846,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.number:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.cidrV6,.objectGroup,.portOperator,.comment,.log,.number:
                     reportError()
                     return nil
                 case .fourOctet(let destIp):
@@ -5822,7 +5855,11 @@ struct AccessControlEntry {
                         reportError()
                         return nil
                     }
-                    let destIpRange = IpRange(minIp: destIp, maxIp: destIp)
+                    let destIpRange = IpRange(minIp: destIp, maxIp: destIp, ipVersion: .IPv4)
+                    self.destIp = [destIpRange]
+                    linePosition = .destMask
+                case .addressV6(let destIp):
+                    let destIpRange = IpRange(minIp: destIp, maxIp: destIp, ipVersion: .IPv6)
                     self.destIp = [destIpRange]
                     linePosition = .destMask
                 case .name(let destHostname):
@@ -5830,7 +5867,7 @@ struct AccessControlEntry {
                         reportError()
                         return nil
                     }
-                    let destIpRange = IpRange(minIp: destIp, maxIp: destIp)
+                    let destIpRange = IpRange(minIp: destIp, maxIp: destIp, ipVersion: .IPv4)
                     self.destIp = [destIpRange]
                     linePosition = .destMask
                 }
@@ -5839,7 +5876,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number:
                     reportError()
                     return nil
                 case .name(let objectName):
@@ -5855,7 +5892,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.fourOctet:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.addressV6,.cidrV6,.host,.fourOctet:
                     reportError()
                     return nil
                 case .objectGroup:
@@ -5887,7 +5924,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.fourOctet,.name:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.fourOctet,.name:
                     reportError()
                     return nil
                 case .comment:
@@ -5906,7 +5943,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet:
                     reportError()
                     return nil
                 case .number(let destPort):
@@ -5946,7 +5983,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet:
                     reportError()
                     return nil
                 case .number(let secondDestPort):
@@ -5980,7 +6017,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.fourOctet,.number,.name:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.fourOctet,.number,.name:
                     reportError()
                     return nil
                 case .comment:
@@ -5993,7 +6030,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet,.number:
                     reportError()
                     return nil
                 case .name(let objectName):
@@ -6011,7 +6048,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.fourOctet,.log:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.fourOctet,.log:
                     reportError()
                     return nil
                 case .comment:
@@ -6037,7 +6074,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.comment,.log,.fourOctet,.name:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.comment,.log,.fourOctet,.name:
                     reportError()
                     return nil
                 case .number(_):
@@ -6048,7 +6085,7 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .accessList,.extended,.action,.ipProtocol,.any,.host,.objectGroup,.portOperator,.fourOctet,.number,.name:
+                case .accessList,.extended,.action,.ipProtocol,.any,.any4,.any6,.host,.addressV6,.cidrV6,.objectGroup,.portOperator,.fourOctet,.number,.name:
                     reportError()
                     return nil
                 case .comment:
@@ -6070,13 +6107,13 @@ struct AccessControlEntry {
         // check source ip
         var sourceIpMatch = false
         for sourceIpRange in self.sourceIp {
-            if socket.sourceIp >= sourceIpRange.minIp && socket.sourceIp <= sourceIpRange.maxIp {
+            if socket.sourceIp >= sourceIpRange.minIp && socket.sourceIp <= sourceIpRange.maxIp && socket.ipVersion == sourceIpRange.ipVersion {
                 sourceIpMatch = true
             }
         }
         var destIpMatch = false
         for destIpRange in self.destIp {
-            if socket.destinationIp >= destIpRange.minIp && socket.destinationIp <= destIpRange.maxIp {
+            if socket.destinationIp >= destIpRange.minIp && socket.destinationIp <= destIpRange.maxIp && socket.ipVersion == destIpRange.ipVersion {
                 destIpMatch = true
             }
         }

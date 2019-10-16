@@ -24,8 +24,6 @@
                     <span class="Normal">Some ACL features (including even the ability to apply a L3 ACL to an interface) are IOS-XR version, platform, or linecard-specific.  The ACL analyzer does not know what type of box you have and cannot report related errors.</span>
                 </p>
             </li>
-        </ul>
-        <ul class="listDecimal">
             <li class="Normal">
                 <p class="Left Normal">
                     <span class="Normal">Nested object groups on some IOS-XR platforms can only be 4 layers deep.  The ACL analyzer does not report if it finds object groups nested greater than 4 deep.</span>
@@ -43,7 +41,12 @@
             </li>
             <li class="Normal">
                 <p class="Left Normal">
-                    <span class="Normal">Receive access control lists</span>
+                    <span class="Normal">Receive access control lists are not supported</span>
+                </p>
+            </li>
+            <li class="Normal">
+                <p class="Left Normal">
+                    <span class="Normal">IPv6 wildcard masks are not supported.  Use CIDR notation.  “You’ll thank me later.” - Adrian Monk</span>
                 </p>
             </li>
         </ul>

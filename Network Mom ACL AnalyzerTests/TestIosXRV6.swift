@@ -28,22 +28,22 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 2)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:0db8:85a3::".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:0db8:85a3::".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:0db8:85a2:ffff:ffff:ffff:ffff::".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:0db8:85a2:ffff:ffff:ffff:ffff::".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:0db9:85a3::".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:0db9:85a3::".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 17, sourceIp: "2001:0db9:85a3::".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 17, sourceIp: "2001:0db9:85a3::".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -59,12 +59,12 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 1)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001::0".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001::0".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001::1".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001::1".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -82,17 +82,17 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 1)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::1".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::1".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::2".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::2".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::0".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::0".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -108,22 +108,22 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 2)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "100:1:1:2:3::1".ipv6address!, destinationIp: "10:11:12::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "100:1:1:2:3::1".ipv6address!, destinationIp: "10:11:12::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "100:1:1:2:3::1".ipv6address!, destinationIp: "10:11:12::3".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "100:1:1:2:3::1".ipv6address!, destinationIp: "10:11:12::3".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "100:1:1:2:3::2".ipv6address!, destinationIp: "10:11:12::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "100:1:1:2:3::2".ipv6address!, destinationIp: "10:11:12::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "100:1:1:2:3::1".ipv6address!, destinationIp: "10:11:12::4".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "100:1:1:2:3::1".ipv6address!, destinationIp: "10:11:12::4".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -138,32 +138,32 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 2)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::3".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::3".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::1".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::1".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "1111:4444::2".ipv6address!, destinationIp: "1111:5555::2".ipv6address!, sourcePort: 100, destinationPort: 10, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "1111:4444::2".ipv6address!, destinationIp: "1111:5555::2".ipv6address!, sourcePort: 100, destinationPort: 10, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "1111:4444::2".ipv6address!, destinationIp: "1111:5555::2".ipv6address!, sourcePort: 101, destinationPort: 10, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "1111:4444::2".ipv6address!, destinationIp: "1111:5555::2".ipv6address!, sourcePort: 101, destinationPort: 10, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "1111:4444::2".ipv6address!, destinationIp: "1111:5555::2".ipv6address!, sourcePort: 100, destinationPort: 9, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "1111:4444::2".ipv6address!, destinationIp: "1111:5555::2".ipv6address!, sourcePort: 100, destinationPort: 9, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -182,37 +182,37 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 4)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "6666:1:2:3::10".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "6666:1:2:3::10".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "6666:1:2:3::10".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 180, destinationPort: 1300, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "6666:1:2:3::10".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 180, destinationPort: 1300, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "6666:1:2:3::10".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1401, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "6666:1:2:3::10".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1401, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "3333:1:2:3::".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "3333:1:2:3::".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "3333:1:2:3:ffff:ffff:ffff:ffff".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "3333:1:2:3:ffff:ffff:ffff:ffff".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "3333:1:2:4::".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "3333:1:2:4::".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "3333:1:2:2:ffff:ffff:ffff:ffff".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "3333:1:2:2:ffff:ffff:ffff:ffff".ipv6address!, destinationIp: "7777:1:2:3::20".ipv6address!, sourcePort: 179, destinationPort: 1300, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -229,22 +229,22 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 1)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::1".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::1".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::f".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::f".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::0".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::0".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::10".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::10".ipv6address!, destinationIp: "2001:0db8:be03:2112::".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -258,12 +258,12 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 1)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 17, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 17, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -277,12 +277,12 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 1)
         
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: true)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: true, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 17, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false)!
+            let socket = Socket(ipProtocol: 17, sourceIp: "1111:6666::2".ipv6address!, destinationIp: "1111:7777::2".ipv6address!, sourcePort: 80, destinationPort: 80, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }
@@ -296,12 +296,12 @@ class TestIosXRV6: XCTestCase {
         XCTAssert(acl.accessControlEntries.count == 1)
         
         do {
-            let socket = Socket(ipProtocol: 17, sourceIp: "efb6:e60d:7f7c:e8e2:497a:b2e6:1c00:0000".ipv6address!, destinationIp: "8fb7:837a:4690:a946:be32:288d:8000:0000".ipv6address!, sourcePort: 80, destinationPort: 15741, established: false)!
+            let socket = Socket(ipProtocol: 17, sourceIp: "efb6:e60d:7f7c:e8e2:497a:b2e6:1c00:0000".ipv6address!, destinationIp: "8fb7:837a:4690:a946:be32:288d:8000:0000".ipv6address!, sourcePort: 80, destinationPort: 15741, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
         do {
-            let socket = Socket(ipProtocol: 6, sourceIp: "efb6:e60d:7f7c:e8e2:497a:b2e6:1c00:0000".ipv6address!, destinationIp: "8fb7:837a:4690:a946:be32:288d:8000:0000".ipv6address!, sourcePort: 80, destinationPort: 15741, established: false)!
+            let socket = Socket(ipProtocol: 6, sourceIp: "efb6:e60d:7f7c:e8e2:497a:b2e6:1c00:0000".ipv6address!, destinationIp: "8fb7:837a:4690:a946:be32:288d:8000:0000".ipv6address!, sourcePort: 80, destinationPort: 15741, established: false, ipVersion: .IPv6)!
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .deny)
         }

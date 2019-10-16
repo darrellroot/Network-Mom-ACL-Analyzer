@@ -21,7 +21,7 @@ struct Cidr: CustomStringConvertible, Equatable {
         switch self.ipVersion {
         case .IPv4:
             return "\(self.minIp.ipv4)/\(self.prefix)"
-        case .IPv6,.Unknown:
+        case .IPv6:
             return "\(self.minIp.ipv6)/\(self.prefix)"
         }
     }

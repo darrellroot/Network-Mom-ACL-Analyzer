@@ -152,9 +152,23 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         }
         let sourceIp: UInt128
         let destinationIp: UInt128
+        let ipVersion: IpVersion
         switch self.ingressDeviceType {
-            
-        case .ios,.asa,.nxos,.iosxr,.arista:
+        case .asa:
+            ipVersion = .IPv4 // needs correction for dual version acls
+            guard let tempSourceIp = sourceIpOutlet.stringValue.ipv4address else {
+                self.report(severity: .error, message: "Socket: Invalid source IPv4 address", delegateWindow: .ingressAnalyze)
+                return nil
+            }
+            sourceIp = tempSourceIp
+            guard let tempDestinationIp = destinationIpOutlet.stringValue.ipv4address else {
+                self.report(severity: .error, message: "Socket: Invalid destination IPv4 address", delegateWindow: .ingressAnalyze)
+                return nil
+            }
+            destinationIp = tempDestinationIp
+
+        case .ios,.nxos,.iosxr,.arista:
+            ipVersion = .IPv4
             guard let tempSourceIp = sourceIpOutlet.stringValue.ipv4address else {
                 self.report(severity: .error, message: "Socket: Invalid source IPv4 address", delegateWindow: .ingressAnalyze)
                 return nil
@@ -166,6 +180,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             }
             destinationIp = tempDestinationIp
         case .iosv6,.nxosv6,.iosxrv6:
+            ipVersion = .IPv6
             guard let tempSourceIp = sourceIpOutlet.stringValue.ipv6address else {
                 self.report(severity: .error, message: "Socket: Invalid source IPv6 address", delegateWindow: .ingressAnalyze)
                 return nil
@@ -191,7 +206,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             return nil
         }
         let destinationPort = UInt(destinationPort16)
-        guard let socket = Socket(ipProtocol: ipProtocol, sourceIp: sourceIp, destinationIp: destinationIp, sourcePort: sourcePort, destinationPort: destinationPort, established: false) else {
+        guard let socket = Socket(ipProtocol: ipProtocol, sourceIp: sourceIp, destinationIp: destinationIp, sourcePort: sourcePort, destinationPort: destinationPort, established: false, ipVersion: ipVersion) else {
             self.report(severity: .error, message: "Unable to specify socket with current configuration", delegateWindow: .ingressAnalyze)
             return nil
         }

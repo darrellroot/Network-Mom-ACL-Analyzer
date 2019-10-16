@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Network
 
 enum AsaToken: Equatable {
     case unsupported(String)
@@ -15,6 +16,8 @@ enum AsaToken: Equatable {
     case action(AclAction)
     case ipProtocol(UInt)
     case any
+    case any4
+    case any6
     case host
     case objectGroup
     case portOperator(PortOperator)
@@ -22,6 +25,8 @@ enum AsaToken: Equatable {
     case log
     case fourOctet(UInt128)
     case number(UInt)
+    case addressV6(UInt128)
+    case cidrV6(IpRange)
     case name(String)
     
     init?(string: String) {
@@ -43,8 +48,12 @@ enum AsaToken: Equatable {
             self = .action(.deny)
         case "log", "log-input":
             self = .log
-        case "any","any4":
+        case "any":
             self = .any
+        case "any4":
+            self = .any4
+        case "any6":
+            self = .any6
         case "host":
             self = .host
         case "eq","gt","lt","ne","neq","ra","range":
@@ -66,6 +75,14 @@ enum AsaToken: Equatable {
                 self = .number(number)
             } else if let ipv4Address = string.ipv4address {
                 self = .fourOctet(ipv4Address)
+            } else if let ipRangeV6 = IpRange(cidr: string) {
+                // CIDR for IPv4 not allowed for ASA
+                if ipRangeV6.ipVersion == .IPv4 {
+                    return nil
+                }
+                self = .cidrV6(ipRangeV6)
+            } else if let ipv6Address = IPv6Address(string) {
+                self = .addressV6(ipv6Address.uint128)
             } else if string.first == "!" || string.first == "#" || string.first == ";" || string.first == ":" {
                 self = .comment
             } else  {

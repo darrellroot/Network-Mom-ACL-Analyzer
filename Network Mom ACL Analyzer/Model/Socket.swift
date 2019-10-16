@@ -9,7 +9,7 @@
 import Foundation
 
 struct Socket {
-    // could be ipv4 or ipv6
+    let ipVersion: IpVersion
     let ipProtocol: UInt // 0 means ip
     let sourceIp: UInt128
     let sourcePort: UInt?  // always nonoptional for tcp, udp
@@ -17,7 +17,8 @@ struct Socket {
     let destinationPort: UInt?  // always nonoptional for tcp, udp
     let established: Bool?
 
-    init?(ipProtocol: UInt, sourceIp: UInt128, destinationIp: UInt128, sourcePort: UInt? = nil, destinationPort: UInt? = nil, established: Bool? = nil) {
+    init?(ipProtocol: UInt, sourceIp: UInt128, destinationIp: UInt128, sourcePort: UInt? = nil, destinationPort: UInt? = nil, established: Bool? = nil, ipVersion: IpVersion) {
+        self.ipVersion = ipVersion
         guard ipProtocol < 256 else {
             return nil
         }
@@ -65,7 +66,7 @@ struct Socket {
         }
     }
     func reverse() -> Socket? {
-        guard let reverseSocket = Socket(ipProtocol: self.ipProtocol, sourceIp: self.destinationIp, destinationIp: self.sourceIp, sourcePort: self.destinationPort, destinationPort: self.sourcePort, established: true) else {
+        guard let reverseSocket = Socket(ipProtocol: self.ipProtocol, sourceIp: self.destinationIp, destinationIp: self.sourceIp, sourcePort: self.destinationPort, destinationPort: self.sourcePort, established: true, ipVersion: self.ipVersion) else {
             return nil
         }
         return reverseSocket
@@ -89,7 +90,7 @@ extension Socket: CustomStringConvertible {
             guard let destinationPort = destinationPort else {
                 return "error no source port in udp socket"
             }
-            var returnString = "\(self.ipProtocol.ipProto) sourceIp \(sourceIpString) sourcePort \(sourcePort) destinationIp \(destIpString) destinationPort \(destinationPort)"
+            var returnString = "\(self.ipVersion) \(self.ipProtocol.ipProto) sourceIp \(sourceIpString) sourcePort \(sourcePort) destinationIp \(destIpString) destinationPort \(destinationPort)"
             if let established = self.established, established {
                 returnString.append(" established")
                 }
@@ -101,9 +102,9 @@ extension Socket: CustomStringConvertible {
             guard let destinationPort = destinationPort else {
                 return "error no source port in udp socket"
             }
-            return "\(self.ipProtocol.ipProto) sourceIp \(sourceIpString) sourcePort \(sourcePort) destinationIp \(destIpString) destinationPort \(destinationPort)"
+            return "\(self.ipVersion) \(self.ipProtocol.ipProto) sourceIp \(sourceIpString) sourcePort \(sourcePort) destinationIp \(destIpString) destinationPort \(destinationPort)"
         case 0...255:
-            return "\(self.ipProtocol.ipProto) sourceIp \(sourceIpString) destinationIp \(destIpString)"
+            return "\(self.ipVersion) \(self.ipProtocol.ipProto) sourceIp \(sourceIpString) destinationIp \(destIpString)"
         default:
             return "error: invalid ip proto in socket"
         }

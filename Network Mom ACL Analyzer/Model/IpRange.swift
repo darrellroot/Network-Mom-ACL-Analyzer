@@ -24,23 +24,16 @@ struct IpRange: CustomStringConvertible, Equatable {
         }
     }
     
-    
-    init(minIp: UInt, maxIp: UInt) {  // requires valid minSourceIp and maxSourceIp
+    init(minIp: UInt, maxIp: UInt, ipVersion: IpVersion) {  // requires valid minSourceIp and maxSourceIp
         self.minIp = UInt128(minIp)
         self.maxIp = UInt128(maxIp)
-        self.ipVersion = .IPv4
+        self.ipVersion = ipVersion
     }
-    init(minIp: UInt128, maxIp: UInt128) {
+    init(minIp: UInt128, maxIp: UInt128, ipVersion: IpVersion) {
         // caller must guarantee minIp <= maxIp
         self.minIp = minIp
         self.maxIp = maxIp
-        //self.ipVersion = nil
-        if self.maxIp > UInt128.MAXIPV4 {
-            self.ipVersion = .IPv6
-        } else {
-            self.ipVersion = .Unknown
-            debugPrint("unknown ipVersion detected")
-        }
+        self.ipVersion = ipVersion
     }
 
     //init?(ip: String, mask: String, type: DeviceType, aclDelegate: ErrorDelegate? = nil, delegateWindow: DelegateWindow? = nil) {
