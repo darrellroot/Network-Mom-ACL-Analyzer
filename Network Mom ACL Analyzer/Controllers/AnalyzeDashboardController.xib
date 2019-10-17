@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14868" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14490.70"/>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14868"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -34,21 +35,21 @@
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="50" y="200" width="900" height="574"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
-            <view key="contentView" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="900" height="574"/>
+            <view key="contentView" misplaced="YES" id="se5-gp-TjO">
+                <rect key="frame" x="0.0" y="0.0" width="1380" height="574"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <stackView distribution="fillEqually" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HDt-aD-yac" userLabel="Overall Stack View">
                         <rect key="frame" x="20" y="20" width="1340" height="534"/>
                         <subviews>
                             <stackView distribution="fillEqually" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hGL-5r-dvO" userLabel="ACL Input H Stack View">
-                                <rect key="frame" x="0.0" y="399" width="1340" height="135"/>
+                                <rect key="frame" x="0.0" y="397" width="1340" height="137"/>
                                 <subviews>
                                     <stackView distribution="fill" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="juK-P8-AV9" userLabel="Ingress ACL V Stack View">
-                                        <rect key="frame" x="0.0" y="31" width="666" height="104"/>
+                                        <rect key="frame" x="0.0" y="34" width="666" height="103"/>
                                         <subviews>
                                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OGC-IH-5X4">
-                                                <rect key="frame" x="228" y="87" width="210" height="17"/>
+                                                <rect key="frame" x="228" y="87" width="210" height="16"/>
                                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Ingress ACL (stateless or stateful)" id="rKE-dJ-vEd">
                                                     <font key="font" usesAppearanceFont="YES"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -56,10 +57,10 @@
                                                 </textFieldCell>
                                             </textField>
                                             <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9Pl-27-zg8" userLabel="H Stack View">
-                                                <rect key="frame" x="137" y="58" width="392" height="21"/>
+                                                <rect key="frame" x="137" y="58" width="393" height="21"/>
                                                 <subviews>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Cl2-J8-Wy9">
-                                                        <rect key="frame" x="-2" y="4" width="83" height="17"/>
+                                                        <rect key="frame" x="-2" y="5" width="83" height="16"/>
                                                         <textFieldCell key="cell" lineBreakMode="clipping" title="Device Type:" id="OKK-CV-z5I">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -67,10 +68,10 @@
                                                         </textFieldCell>
                                                     </textField>
                                                     <popUpButton horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7qC-1R-IGq">
-                                                        <rect key="frame" x="85" y="-3" width="153" height="25"/>
+                                                        <rect key="frame" x="85" y="-3" width="154" height="25"/>
                                                         <popUpButtonCell key="cell" type="push" title="IPv4 IOS or IOS-XE" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="0k0-sB-D2S" id="DmE-jz-8vI">
                                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="menu"/>
+                                                            <font key="font" metaFont="system"/>
                                                             <menu key="menu" id="FZH-ih-KI8">
                                                                 <items>
                                                                     <menuItem title="IPv4 IOS or IOS-XE" state="on" id="0k0-sB-D2S" userLabel="IOS or IOS-XE IPv4"/>
@@ -80,7 +81,7 @@
                                                                     <menuItem title="IPv4 NX-OS" id="jeh-XN-XJk">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
-                                                                    <menuItem title="IPv4 ASA" id="hF5-FH-g3I"/>
+                                                                    <menuItem title="IPv4/IPv6 ASA" id="hF5-FH-g3I"/>
                                                                     <menuItem title="IPv6 IOS or IOS-XE" id="NQv-hA-ClD">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
@@ -95,7 +96,7 @@
                                                         </popUpButtonCell>
                                                     </popUpButton>
                                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="AkQ-Vm-nPB" userLabel="Import from text file">
-                                                        <rect key="frame" x="237" y="-7" width="161" height="32"/>
+                                                        <rect key="frame" x="238" y="-7" width="161" height="32"/>
                                                         <buttonCell key="cell" type="push" title="Import from text file" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4gm-Sb-P70">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -158,10 +159,10 @@
                                         </customSpacing>
                                     </stackView>
                                     <stackView distribution="fill" orientation="vertical" alignment="centerX" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sKv-MI-jKE" userLabel="Egress ACL V Stack View">
-                                        <rect key="frame" x="674" y="31" width="666" height="104"/>
+                                        <rect key="frame" x="674" y="34" width="666" height="103"/>
                                         <subviews>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WeC-eg-j95">
-                                                <rect key="frame" x="170" y="87" width="327" height="17"/>
+                                                <rect key="frame" x="170" y="87" width="327" height="16"/>
                                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Egress ACL for return traffic (optional): stateless only" id="cxW-F2-qC5">
                                                     <font key="font" usesAppearanceFont="YES"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -169,10 +170,10 @@
                                                 </textFieldCell>
                                             </textField>
                                             <stackView distribution="fill" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IDD-Au-x5o" userLabel="H Stack View">
-                                                <rect key="frame" x="125" y="58" width="417" height="21"/>
+                                                <rect key="frame" x="124" y="58" width="418" height="21"/>
                                                 <subviews>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vaf-lW-OKL">
-                                                        <rect key="frame" x="-2" y="4" width="108" height="17"/>
+                                                        <rect key="frame" x="-2" y="5" width="108" height="16"/>
                                                         <textFieldCell key="cell" lineBreakMode="clipping" title="       Device Type:" id="xaE-C6-b5k">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -180,10 +181,10 @@
                                                         </textFieldCell>
                                                     </textField>
                                                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cis-8y-h4o">
-                                                        <rect key="frame" x="110" y="-3" width="153" height="25"/>
+                                                        <rect key="frame" x="110" y="-3" width="154" height="25"/>
                                                         <popUpButtonCell key="cell" type="push" title="IPv4 IOS or IOS-XE" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="oqL-pG-Qac" id="JMI-s3-4iS">
                                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="menu"/>
+                                                            <font key="font" metaFont="system"/>
                                                             <menu key="menu" id="Lfu-02-cbt">
                                                                 <items>
                                                                     <menuItem title="IPv4 IOS or IOS-XE" state="on" id="oqL-pG-Qac"/>
@@ -207,7 +208,7 @@
                                                         </popUpButtonCell>
                                                     </popUpButton>
                                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XqJ-9R-cls">
-                                                        <rect key="frame" x="262" y="-7" width="161" height="32"/>
+                                                        <rect key="frame" x="263" y="-7" width="161" height="32"/>
                                                         <buttonCell key="cell" type="push" title="Import from text file" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="28c-aR-J1G">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -281,7 +282,7 @@
                                 </customSpacing>
                             </stackView>
                             <button horizontalHuggingPriority="751" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vPO-bT-uUS">
-                                <rect key="frame" x="608" y="363" width="124" height="32"/>
+                                <rect key="frame" x="608" y="361" width="124" height="32"/>
                                 <buttonCell key="cell" type="push" title="Validate ACLs" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="LD2-mS-FPT">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -291,7 +292,7 @@
                                 </connections>
                             </button>
                             <stackView distribution="fillEqually" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="g0k-gr-t3L" userLabel="Validation Output H Stack View">
-                                <rect key="frame" x="46" y="227" width="1248" height="135"/>
+                                <rect key="frame" x="46" y="225" width="1248" height="135"/>
                                 <subviews>
                                     <scrollView borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eea-mo-0Vc">
                                         <rect key="frame" x="0.0" y="85" width="620" height="50"/>
@@ -356,13 +357,13 @@
                                 </customSpacing>
                             </stackView>
                             <stackView distribution="fillProportionally" orientation="horizontal" alignment="top" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="700" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PIP-Ry-Vnj" userLabel="Socket H Stack View">
-                                <rect key="frame" x="0.0" y="172" width="1340" height="47"/>
+                                <rect key="frame" x="0.0" y="172" width="1340" height="45"/>
                                 <subviews>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="760" verticalStackHuggingPriority="249.99998474121094" horizontalHuggingPriority="753" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ERV-MO-JRL" userLabel="Protocol V Stack View">
-                                        <rect key="frame" x="0.0" y="1" width="57" height="46"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="57" height="45"/>
                                         <subviews>
                                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="l53-tb-y4q">
-                                                <rect key="frame" x="-2" y="29" width="61" height="17"/>
+                                                <rect key="frame" x="-2" y="29" width="61" height="16"/>
                                                 <textFieldCell key="cell" lineBreakMode="clipping" title="Protocol" id="7LG-pv-K9f">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -373,7 +374,7 @@
                                                 <rect key="frame" x="-2" y="-3" width="62" height="25"/>
                                                 <popUpButtonCell key="cell" type="push" title="tcp" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" tag="6" imageScaling="proportionallyDown" inset="2" selectedItem="1I4-1r-cu6" id="78F-hn-2Ft">
                                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                    <font key="font" metaFont="menu"/>
+                                                    <font key="font" metaFont="system"/>
                                                     <menu key="menu" id="Vop-6s-prv">
                                                         <items>
                                                             <menuItem title="tcp" state="on" tag="6" id="1I4-1r-cu6" userLabel="tcp"/>
@@ -393,10 +394,10 @@
                                         </customSpacing>
                                     </stackView>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="777" verticalStackHuggingPriority="249.99998474121094" horizontalHuggingPriority="760" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tE0-9y-s0J" userLabel="Source IP V Stack View">
-                                        <rect key="frame" x="65" y="0.0" width="173" height="47"/>
+                                        <rect key="frame" x="65" y="0.0" width="173" height="45"/>
                                         <subviews>
                                             <textField horizontalHuggingPriority="777" verticalHuggingPriority="750" horizontalCompressionResistancePriority="803" translatesAutoresizingMaskIntoConstraints="NO" id="LV7-8v-6Au">
-                                                <rect key="frame" x="-2" y="30" width="177" height="17"/>
+                                                <rect key="frame" x="-2" y="29" width="177" height="16"/>
                                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" title="Source IPv4 or IPv6 Address" id="afJ-XT-ttF">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -404,7 +405,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="geL-Qf-Xky">
-                                                <rect key="frame" x="0.0" y="0.0" width="173" height="22"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="173" height="21"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="9AQ-sq-fme">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -422,10 +423,10 @@
                                         </customSpacing>
                                     </stackView>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="556" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rjw-1I-OSN" userLabel="Source Port V Stack View">
-                                        <rect key="frame" x="246" y="0.0" width="280" height="47"/>
+                                        <rect key="frame" x="246" y="0.0" width="280" height="45"/>
                                         <subviews>
                                             <textField horizontalHuggingPriority="778" verticalHuggingPriority="750" horizontalCompressionResistancePriority="802" translatesAutoresizingMaskIntoConstraints="NO" id="SPY-69-nqn">
-                                                <rect key="frame" x="-2" y="30" width="284" height="17"/>
+                                                <rect key="frame" x="-2" y="29" width="284" height="16"/>
                                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" title="Source port (leave blank for &quot;random &gt; 1023&quot;)" id="3oh-5N-NF9">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -433,7 +434,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField horizontalHuggingPriority="775" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Q14-Xh-kUd">
-                                                <rect key="frame" x="0.0" y="0.0" width="280" height="22"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="280" height="21"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="vPh-Jp-vaL">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -451,10 +452,10 @@
                                         </customSpacing>
                                     </stackView>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="557" verticalStackHuggingPriority="700" verticalHuggingPriority="850" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h14-ZZ-6sc" userLabel="Destination IP V Stack View">
-                                        <rect key="frame" x="534" y="0.0" width="199" height="47"/>
+                                        <rect key="frame" x="534" y="0.0" width="199" height="45"/>
                                         <subviews>
                                             <textField horizontalHuggingPriority="774" verticalHuggingPriority="750" horizontalCompressionResistancePriority="801" translatesAutoresizingMaskIntoConstraints="NO" id="fkp-8b-rlm">
-                                                <rect key="frame" x="-2" y="30" width="203" height="17"/>
+                                                <rect key="frame" x="-2" y="29" width="203" height="16"/>
                                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" title="Destination IPv4 or IPv6 Address" id="8w8-qx-qAP">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -462,7 +463,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="caD-yT-NPl">
-                                                <rect key="frame" x="0.0" y="0.0" width="199" height="22"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="199" height="21"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="OuY-Yw-p4B">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -480,10 +481,10 @@
                                         </customSpacing>
                                     </stackView>
                                     <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="250" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5ix-KZ-YRd" userLabel="Destination Port V Stack View">
-                                        <rect key="frame" x="741" y="0.0" width="599" height="47"/>
+                                        <rect key="frame" x="741" y="0.0" width="599" height="45"/>
                                         <subviews>
                                             <textField horizontalHuggingPriority="773" verticalHuggingPriority="750" horizontalCompressionResistancePriority="800" translatesAutoresizingMaskIntoConstraints="NO" id="dmQ-QN-rMh">
-                                                <rect key="frame" x="-2" y="30" width="102" height="17"/>
+                                                <rect key="frame" x="-2" y="29" width="102" height="16"/>
                                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" title="Destination Port" id="crf-3L-noW">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -491,7 +492,7 @@
                                                 </textFieldCell>
                                             </textField>
                                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="97O-Wj-yHt">
-                                                <rect key="frame" x="0.0" y="0.0" width="599" height="22"/>
+                                                <rect key="frame" x="0.0" y="0.0" width="599" height="21"/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" id="Aes-5R-Z57">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>

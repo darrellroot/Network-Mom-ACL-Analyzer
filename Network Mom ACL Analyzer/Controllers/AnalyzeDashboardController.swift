@@ -155,17 +155,18 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
         let ipVersion: IpVersion
         switch self.ingressDeviceType {
         case .asa:
-            ipVersion = .IPv4 // needs correction for dual version acls
-            guard let tempSourceIp = sourceIpOutlet.stringValue.ipv4address else {
-                self.report(severity: .error, message: "Socket: Invalid source IPv4 address", delegateWindow: .ingressAnalyze)
+            if let tempSourceIp = sourceIpOutlet.stringValue.ipv4address, let tempDestinationIp = destinationIpOutlet.stringValue.ipv4address {
+                sourceIp = tempSourceIp
+                destinationIp = tempDestinationIp
+                ipVersion = .IPv4
+            } else if let tempSourceIp = sourceIpOutlet.stringValue.ipv6address, let tempDestinationIp = destinationIpOutlet.stringValue.ipv6address {
+                sourceIp = tempSourceIp
+                destinationIp = tempDestinationIp
+                ipVersion = .IPv6
+            } else {
+                self.report(severity: .error, message: "Socket: Invalid addresses", delegateWindow: .ingressAnalyze)
                 return nil
             }
-            sourceIp = tempSourceIp
-            guard let tempDestinationIp = destinationIpOutlet.stringValue.ipv4address else {
-                self.report(severity: .error, message: "Socket: Invalid destination IPv4 address", delegateWindow: .ingressAnalyze)
-                return nil
-            }
-            destinationIp = tempDestinationIp
 
         case .ios,.nxos,.iosxr,.arista:
             ipVersion = .IPv4
@@ -237,7 +238,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             self.ingressDeviceType = .ios
         case "IPv4 IOS-XR":
             self.ingressDeviceType = .iosxr
-        case "IPv4 ASA":
+        case "IPv4/IPv6 ASA":
             self.ingressDeviceType = .asa
         case "IPv4 NX-OS":
             self.ingressDeviceType = .nxos

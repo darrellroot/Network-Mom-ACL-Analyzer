@@ -1264,7 +1264,7 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
         let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
         XCTAssert(acl.objectGroupNetworks.count == 1)
         XCTAssert(acl.objectGroupNetworks["denied"]!.count == 3)
-        XCTAssert(acl.accessControlEntries.count == 3)
+        XCTAssert(acl.accessControlEntries.count == 2)
         
         do {
             guard let socket = Socket(ipProtocol: 6, sourceIp: "2001:DB8:1::3333".ipv6address!, destinationIp: "2001:DB8:2::ffff:ffff".ipv6address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv6) else {
@@ -1306,5 +1306,10 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
             let result = acl.analyze(socket: socket)
             XCTAssert(result == .permit)
         }
+    }
+    func testAsaIPv6Invalid() {
+        let line = "access-list bob extended permit ip host ::1 host 2.2.2.2"
+        let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 9, errorDelegate: nil, delegateWindow: nil)
+        XCTAssert(ace == nil)
     }
 }
