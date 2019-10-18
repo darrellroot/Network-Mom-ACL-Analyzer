@@ -190,8 +190,43 @@ class AccessList {
                 continue lineLoop
             }
             
+            if deviceType == .asa && configurationMode == .asaObjectNetwork && words[safe: 0] == "subnet", let possibleSubnet = words[safe: 1], let objectName = objectName, let ipRange = IpRange(cidr: possibleSubnet), ipRange.ipVersion == .IPv6 {
+                let objectGroupNetwork = ObjectGroupNetwork()
+                objectGroupNetwork.append(ipRange: ipRange)
+                objectGroupNetworks[objectName] = objectGroupNetwork
+                configurationMode = .accessControlEntry
+                continue lineLoop
+            }
+            
             if deviceType == .asa && configurationMode == .asaObjectNetwork && words[safe: 0] == "host", let possibleIp = words[safe: 1], let objectName = objectName, let ip = possibleIp.ipv4address {
                 let ipRange = IpRange(minIp: ip, maxIp: ip, ipVersion: .IPv4)
+                let objectGroupNetwork = ObjectGroupNetwork()
+                objectGroupNetwork.append(ipRange: ipRange)
+                objectGroupNetworks[objectName] = objectGroupNetwork
+                configurationMode = .accessControlEntry
+                continue lineLoop
+            }
+            
+            if deviceType == .asa && configurationMode == .asaObjectNetwork && words[safe: 0] == "host", let possibleIp = words[safe: 1], let objectName = objectName, let ip = possibleIp.ipv6address {
+                let ipRange = IpRange(minIp: ip, maxIp: ip, ipVersion: .IPv6)
+                let objectGroupNetwork = ObjectGroupNetwork()
+                objectGroupNetwork.append(ipRange: ipRange)
+                objectGroupNetworks[objectName] = objectGroupNetwork
+                configurationMode = .accessControlEntry
+                continue lineLoop
+            }
+            
+            if deviceType == .asa && configurationMode == .asaObjectNetwork && words[safe: 0] == "range", let firstIpString = words[safe: 1], let firstIp = firstIpString.ipv4address, let secondIpString = words[safe: 2], let secondIp = secondIpString.ipv4address, firstIp <= secondIp, let objectName = objectName {
+                let ipRange = IpRange(minIp: firstIp, maxIp: secondIp, ipVersion: .IPv4)
+                let objectGroupNetwork = ObjectGroupNetwork()
+                objectGroupNetwork.append(ipRange: ipRange)
+                objectGroupNetworks[objectName] = objectGroupNetwork
+                configurationMode = .accessControlEntry
+                continue lineLoop
+            }
+            
+            if deviceType == .asa && configurationMode == .asaObjectNetwork && words[safe: 0] == "range", let firstIpString = words[safe: 1], let firstIp = firstIpString.ipv6address, let secondIpString = words[safe: 2], let secondIp = secondIpString.ipv6address, firstIp <= secondIp, let objectName = objectName {
+                let ipRange = IpRange(minIp: firstIp, maxIp: secondIp, ipVersion: .IPv6)
                 let objectGroupNetwork = ObjectGroupNetwork()
                 objectGroupNetwork.append(ipRange: ipRange)
                 objectGroupNetworks[objectName] = objectGroupNetwork
@@ -699,16 +734,29 @@ class AccessList {
             }
             
             // has to be after object-group network xxxxxx
+            // handling 2-word cases like this:
+            // network-object host 2001:DB8::0DB8:800:200C:417A
+            if deviceType == .asa && configurationMode == .objectGroupNetwork && words.count == 2 && words[safe: 0] == "network-object", let term1String = words[safe: 1], let objectName = objectName, let objectGroupNetwork = objectGroupNetworks[objectName], let ipRange = IpRange(cidr: term1String), ipRange.ipVersion == .IPv6 {
+                objectGroupNetwork.append(ipRange: ipRange)
+                continue lineLoop
+            }
+            // has to be after object-group network xxxxxx
             // handling cases like this:
             //  network-object host AZ4-vTEST
             //  network-object host 131.252.209.18
             //  network-object Net-CorpOne1 255.255.255.252
             //  network-object 131.252.209.0 255.255.255.0
-            if deviceType == .asa && configurationMode == .objectGroupNetwork && words[safe: 0] == "network-object", let term1String = words[safe: 1], let term2String = words[safe: 2], let objectName = objectName, let objectGroupNetwork = objectGroupNetworks[objectName] {
+            //
+            // This case only handles 3-word cases
+            if deviceType == .asa && configurationMode == .objectGroupNetwork && words.count == 3 && words[safe: 0] == "network-object", let term1String = words[safe: 1], let term2String = words[safe: 2], let objectName = objectName, let objectGroupNetwork = objectGroupNetworks[objectName] {
                 if term1String == "host" {
                     //network-object host 131.252.209.18
                     if let hostIp = term2String.ipv4address {
                         let ipRange = IpRange(minIp: hostIp, maxIp: hostIp, ipVersion: .IPv4)
+                        objectGroupNetwork.append(ipRange: ipRange)
+                        continue lineLoop
+                    } else if let hostIp = term2String.ipv6address {
+                        let ipRange = IpRange(minIp: hostIp, maxIp: hostIp, ipVersion: .IPv6)
                         objectGroupNetwork.append(ipRange: ipRange)
                         continue lineLoop
                     } else if let hostIp = hostnames[term2String] {

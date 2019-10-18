@@ -1312,4 +1312,215 @@ access-list outside_in extended permit tcp object-group MailRelay object-group M
         let ace = AccessControlEntry(line: line, deviceType: .asa, linenum: 9, errorDelegate: nil, delegateWindow: nil)
         XCTAssert(ace == nil)
     }
+    func testAsaIPv6Object1() {
+        let sample = """
+        object-group network admin
+            network-object 10.1.1.0 255.255.255.0
+            network-object 2001:db8:0:cd30::/60
+            network-object host 10.2.2.2
+            network-object host 2001:DB8::0DB8:800:200C:417A
+            description blah
+        access-list demoacl extended permit ip object-group admin host 1.1.1.1
+        access-list demoacl extended permit ip host 3333::1 object-group admin
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.objectGroupNetworks.count == 1)
+        XCTAssert(acl.objectGroupNetworks["admin"]!.count == 4)
+        XCTAssert(acl.accessControlEntries.count == 2)
+        
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "10.1.1.255".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv4) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1.1.2.0".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv4) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "3333::1".ipv6address!, destinationIp: "2001:db8:0:cd30:aaaa:bbbb:cccc:dddd".ipv6address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 17, sourceIp: "10.2.2.2".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv4) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 17, sourceIp: "10.2.2.3".ipv4address!, destinationIp: "1.1.1.1".ipv4address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv4) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "3333::1".ipv6address!, destinationIp: "2001:DB8::0DB8:800:200C:417A".ipv6address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "3333::1".ipv6address!, destinationIp: "2001:DB8::0DB8:800:200C:417b".ipv6address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testAsaRangev4() {
+        let sample = """
+        object network email-server
+            range 10.1.1.0 10.1.1.5
+            description blah
+        access-list demoacl extended permit tcp host 1.1.1.1 object-group email-server eq 80
+        access-list demoacl extended permit tcp object-group email-server host 3333::1 gt 80
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.objectGroupNetworks.count == 1)
+        XCTAssert(acl.objectGroupNetworks["email-server"]!.count == 1)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "10.1.1.0".ipv4address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv4) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv4) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "10.1.0.255".ipv4address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv4) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1.1.1.1".ipv4address!, destinationIp: "10.1.1.6".ipv4address!, sourcePort: 33, destinationPort: 80, established: false, ipVersion: .IPv4) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testAsaRangev6() {
+        let sample = """
+        object network email-server
+            range 3333::33 3333::44
+            description blah
+        access-list demoacl extended permit tcp host 1.1.1.1 object-group email-server eq 80
+        access-list demoacl extended permit tcp object-group email-server host 3333::1 gt 80
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.objectGroupNetworks.count == 1)
+        XCTAssert(acl.objectGroupNetworks["email-server"]!.count == 1)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "3333::33".ipv6address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "3333::32".ipv6address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "3333::44".ipv6address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "3333::45".ipv6address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testAsaSubnetv6() {
+        let sample = """
+        object network email-server
+            subnet 1111:2222:3333:4444::/64
+            description blah
+        access-list demoacl extended permit tcp host 1.1.1.1 object-group email-server eq 80
+        access-list demoacl extended permit tcp object-group email-server host 3333::1 gt 80
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .asa, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.objectGroupNetworks.count == 1)
+        XCTAssert(acl.objectGroupNetworks["email-server"]!.count == 1)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1111:2222:3333:4444::0".ipv6address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1111:2222:3333:4443:ffff:ffff:ffff:ffff".ipv6address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1111:2222:3333:4444:ffff:ffff:ffff:ffff".ipv6address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            guard let socket = Socket(ipProtocol: 6, sourceIp: "1111:2222:3333:4445::0".ipv6address!, destinationIp: "3333::1".ipv6address!, sourcePort: 33, destinationPort: 81, established: false, ipVersion: .IPv6) else {
+                XCTAssert(false)
+                return
+            }
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
 }
