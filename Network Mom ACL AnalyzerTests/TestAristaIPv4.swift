@@ -273,5 +273,176 @@ class TestAristaIPv4: XCTestCase {
             XCTAssert(result == .deny)
         }
     }
+    func testArista8() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit udp 1.1.2.0/23 neq 10 30 20 40 2.2.4.0/22 neq 50 40 30 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 11, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 10, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 11, destinationPort: 30, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 41, destinationPort: 51, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 41, destinationPort: 50, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+
+    func testArista9() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit udp 1.1.2.0/23 neq 0 2.2.4.0/22 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 1, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 0, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testArista10() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit udp 1.1.2.0/23 neq 65535 2.2.4.0/22 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 65534, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 65535, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testArista11() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit udp 1.1.2.0/23 neq 1 2 3 4 5 6 7 8 9 10 2.2.4.0/22 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 11, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 10, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testArista12() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit udp 1.1.2.0/23 neq 1 2 3 4 5 6 7 8 9 10 11 2.2.4.0/22 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 0)
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 11, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 10, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testArista13() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit udp 1.1.2.0/23 eq 1 2 3 4 5 6 7 8 9 10 11 2.2.4.0/22 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 0)
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 11, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 10, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testArista14() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit udp 1.1.2.0/23 2.2.4.0/22 neq 1 2 3 4 5 6 7 8 9 10 11 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 0)
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 11, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 10, destinationPort: 31, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+    }
+    func testArista15() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit udp 1.1.2.0/23 2.2.4.0/22 neq 1 2 3 4 5 6 7 8 9 65535 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 1)
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 11, destinationPort: 65534, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 10, destinationPort: 65535, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 11, destinationPort: 10, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .permit)
+        }
+        do {
+            let socket = Socket(ipProtocol: 17, sourceIp: "1.1.3.255".ipv4address!, destinationIp: "2.2.7.255".ipv4address!, sourcePort: 10, destinationPort: 9, established: false, ipVersion: .IPv4)!
+            let result = acl.analyze(socket: socket)
+            XCTAssert(result == .deny)
+        }
+
+    }
 
 }

@@ -60,6 +60,8 @@
 		2F4B852022B2EFE300927DD2 /* Severity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B851E22B2EFE300927DD2 /* Severity.swift */; };
 		2F4B852222B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
 		2F4B852322B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
+		2F5988BE235D2D2C00CD787F /* AristaAclToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5988BD235D2D2C00CD787F /* AristaAclToken.swift */; };
+		2F5988BF235D2D2C00CD787F /* AristaAclToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5988BD235D2D2C00CD787F /* AristaAclToken.swift */; };
 		2F5D690622E7A002002D7E41 /* FindDuplicateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */; };
 		2F5D690822E7A6D8002D7E41 /* FindDuplicateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */; };
 		2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */; };
@@ -145,6 +147,7 @@
 		2F4B851B22B2EC2A00927DD2 /* ErrorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorDelegate.swift; sourceTree = "<group>"; };
 		2F4B851E22B2EFE300927DD2 /* Severity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Severity.swift; sourceTree = "<group>"; };
 		2F4B852122B555F200927DD2 /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
+		2F5988BD235D2D2C00CD787F /* AristaAclToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AristaAclToken.swift; sourceTree = "<group>"; };
 		2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FindDuplicateController.xib; sourceTree = "<group>"; };
 		2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindDuplicateController.swift; sourceTree = "<group>"; };
 		2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedFeatureTests.swift; sourceTree = "<group>"; };
@@ -342,6 +345,7 @@
 				2FBAA084228F5EAB00B53113 /* LinePosition.swift */,
 				2FBAA086228F613700B53113 /* MaskType.swift */,
 				2FD50F5D22D96E8C0016FC95 /* NxAclToken.swift */,
+				2F5988BD235D2D2C00CD787F /* AristaAclToken.swift */,
 				2F2D5BDF231B0D7800139375 /* NxAclTokenV6.swift */,
 				2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */,
 				2F32058A22CE96120013A3E8 /* ServiceType.swift */,
@@ -496,6 +500,7 @@
 				2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */,
 				2F2698A322A7784300517AC9 /* TestIos.swift in Sources */,
 				2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */,
+				2F5988BF235D2D2C00CD787F /* AristaAclToken.swift in Sources */,
 				2FC3F4F922E90F650043F92D /* RandomAcl.swift in Sources */,
 				2F2698B022A7799200517AC9 /* MaskType.swift in Sources */,
 				2F2698B222A7799F00517AC9 /* Array+extensions.swift in Sources */,
@@ -551,6 +556,7 @@
 				2FBAA083228F5B9D00B53113 /* String+extensions.swift in Sources */,
 				2F1FD8AF22B9DBB3008ADBC7 /* DeviceType.swift in Sources */,
 				2F0E24EB22C81A460032962D /* ObjectGroupNetwork.swift in Sources */,
+				2F5988BE235D2D2C00CD787F /* AristaAclToken.swift in Sources */,
 				2FF8F3F822E41395007EECFC /* IosToken.swift in Sources */,
 				2F4B851F22B2EFE300927DD2 /* Severity.swift in Sources */,
 				2FBAA074228A0DF200B53113 /* Array+extensions.swift in Sources */,

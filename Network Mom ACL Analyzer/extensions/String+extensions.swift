@@ -281,7 +281,7 @@ extension String {
 
     func ipProtocol(deviceType: DeviceType, delegate: ErrorDelegate?, delegateWindow: DelegateWindow?) -> UInt? {
         switch (deviceType, self) {
-        case (.iosxr,"ahp"),(.iosxrv6,"ahp"),(.iosv6,"ahp"),(.nxos,"ahp"),(.nxosv6,"ahp"):
+        case (.arista,"ahp"),(.iosxr,"ahp"),(.iosxrv6,"ahp"),(.iosv6,"ahp"),(.nxos,"ahp"),(.nxosv6,"ahp"):
             return 51
         case (.asa,"ah"):
             return 51
@@ -301,14 +301,14 @@ extension String {
             return 1
         case (.asa,"icmp6"):
             return 58
-        case (.ios,"igmp"),(.iosv6,"igmp"),(.asa,"igmp"),(.nxos,"igmp"),(.iosxr,"igmp"),(.iosxrv6,"igmp"):
+        case (.arista,"igmp"),(.ios,"igmp"),(.iosv6,"igmp"),(.asa,"igmp"),(.nxos,"igmp"),(.iosxr,"igmp"),(.iosxrv6,"igmp"):
             return 2
         case (.iosxr,"igrp"),(.iosxrv6,"igrp"):
             return 9
         case (.iosv6,"ip"),(.nxosv6,"ip"):
             delegate?.report(severity: .error, message: "Found protocol ip in ipv6 ACL, requires correction.  CRITICAL LINE NOT INCLUDED IN ANALYSIS", delegateWindow: delegateWindow)
             return nil
-        case (.ios,"ip"),(.asa,"ip"),(.nxos,"ip"),(.iosxr,"ip"):
+        case (.arista,"ip"),(.ios,"ip"),(.asa,"ip"),(.nxos,"ip"),(.iosxr,"ip"):
             return 0
         case (.iosxr,"ipv4"):
             return 0
@@ -320,11 +320,11 @@ extension String {
             return 50
         case (.ios,"nos"),(.iosv6,"nos"),(.asa,"nos"),(.nxos,"nos"),(.iosxr,"nos"),(.iosxrv6,"nos"): // not a typo both ipinip and nos report 94
             return 94
-        case (.ios,"ospf"),(.iosv6,"ospf"),(.asa,"ospf"),(.nxos,"ospf"),(.iosxr,"ospf"),(.iosxrv6,"ospf"):
+        case (.arista,"ospf"),(.ios,"ospf"),(.iosv6,"ospf"),(.asa,"ospf"),(.nxos,"ospf"),(.iosxr,"ospf"),(.iosxrv6,"ospf"):
             return 89
         case (.asa,"pcp"),(.iosxr,"pcp"),(.iosxrv6,"pcp"),(.nxos,"pcp"),(.nxosv6,"pcp"):
             return 108
-        case (.ios,"pim"),(.iosv6,"pim"),(.asa,"pim"),(.nxos,"pim"),(.iosxr,"pim"):  //TODO NXOSv6 not supported
+        case (.arista,"pim"),(.ios,"pim"),(.iosv6,"pim"),(.asa,"pim"),(.nxos,"pim"),(.iosxr,"pim"):  //TODO NXOSv6 not supported
             return 103
         case (.asa,"pptp"):
             return 47
@@ -336,6 +336,8 @@ extension String {
             return 6
         case (_,"udp"):
             return 17
+        case (.arista,"vrrp"):
+            return 112
         default:
             return nil
         }
