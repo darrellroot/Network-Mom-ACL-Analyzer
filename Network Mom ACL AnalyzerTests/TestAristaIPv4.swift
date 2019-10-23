@@ -444,5 +444,12 @@ class TestAristaIPv4: XCTestCase {
         }
 
     }
-
+    func testArista16() {
+        let sample = """
+        IP Access List default-control-plane-acl
+        10 permit ip 1.1.2.0/23 2.2.4.0/22 neq 1 2 3 4 5 6 7 8 9 65535 log
+        """
+        let acl = AccessList(sourceText: sample, deviceType: .arista, delegate: nil, delegateWindow: nil)
+        XCTAssert(acl.accessControlEntries.count == 0)
+    }
 }

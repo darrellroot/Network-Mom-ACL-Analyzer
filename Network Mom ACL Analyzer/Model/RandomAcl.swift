@@ -97,7 +97,7 @@ struct RandomAcl: CustomStringConvertible {
                 // deliberately using ipv4 protocol list for asa ipv6 pending better information
                 ipProtocol = RandomAcl.protocols.randomElement()!
             }
-        case .nxos:
+        case .nxos,.arista:
             var sourceIp = UInt.random(in: 0...UInt(UInt32.max))
             let sourcePrefix = Ipv4Prefix.allCases.randomElement()!
             let sourceRemainder = sourceIp % sourcePrefix.dontCareHosts
@@ -112,9 +112,7 @@ struct RandomAcl: CustomStringConvertible {
             destString = " \(destIp.ipv4)/\(destPrefix.rawValue) "
             ipProtocol = RandomAcl.protocols.randomElement()!
 
-        case .arista:
-            fatalError("Not implemented")
-        case .iosv6,.nxosv6,.iosxrv6:
+        case .iosv6,.nxosv6,.iosxrv6,.aristav6:
             let sourceV6 = UInt128.random(in: 0...UInt128.max)
             let sourceV6Prefix = UInt.random(in: 0...128)
             let sourceV6String = "\(sourceV6.ipv6)/\(sourceV6Prefix)"
@@ -166,14 +164,12 @@ struct RandomAcl: CustomStringConvertible {
             outputString.append(sourceString)
         case .asa:
             outputString.append(sourceString)
-        case .nxos:
+        case .nxos,.arista:
             outputString.append(sourceString)
-        case .nxosv6:
+        case .nxosv6,.aristav6:
             outputString.append(sourceString)
         case .iosxrv6:
             outputString.append(sourceString)
-        case .arista:
-            fatalError("Not implemented")
         case .iosv6:
             outputString.append(sourceString)
         }
@@ -198,11 +194,9 @@ struct RandomAcl: CustomStringConvertible {
             outputString.append(destString)
         case .asa:
             outputString.append(destString)
-        case .nxos:
+        case .nxos,.arista:
             outputString.append(destString)
-        case .arista:
-            fatalError("Not implemented")
-        case .iosv6,.nxosv6,.iosxrv6:
+        case .iosv6,.nxosv6,.iosxrv6,.aristav6:
             outputString.append(destString)
             
         }

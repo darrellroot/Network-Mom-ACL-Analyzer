@@ -26,7 +26,7 @@ struct IcmpMessage {
     }
     init?(deviceType: DeviceType, message: String) {
         switch deviceType {
-        case .arista:
+        case .arista,.aristav6:
             fatalError("IcmpMessage.swift.init not implemented for Arista")
         case .asa:
             switch message {

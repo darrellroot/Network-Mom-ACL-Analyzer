@@ -62,6 +62,9 @@
 		2F4B852322B555F200927DD2 /* Socket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4B852122B555F200927DD2 /* Socket.swift */; };
 		2F5988BE235D2D2C00CD787F /* AristaAclToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5988BD235D2D2C00CD787F /* AristaAclToken.swift */; };
 		2F5988BF235D2D2C00CD787F /* AristaAclToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5988BD235D2D2C00CD787F /* AristaAclToken.swift */; };
+		2F5988C1235FC8BD00CD787F /* AristaAclTokenV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5988C0235FC8BD00CD787F /* AristaAclTokenV6.swift */; };
+		2F5988C2235FC8BD00CD787F /* AristaAclTokenV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5988C0235FC8BD00CD787F /* AristaAclTokenV6.swift */; };
+		2F5988C4235FCDA300CD787F /* TestAristaIPv6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5988C3235FCDA300CD787F /* TestAristaIPv6.swift */; };
 		2F5D690622E7A002002D7E41 /* FindDuplicateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */; };
 		2F5D690822E7A6D8002D7E41 /* FindDuplicateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */; };
 		2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */; };
@@ -148,6 +151,8 @@
 		2F4B851E22B2EFE300927DD2 /* Severity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Severity.swift; sourceTree = "<group>"; };
 		2F4B852122B555F200927DD2 /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
 		2F5988BD235D2D2C00CD787F /* AristaAclToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AristaAclToken.swift; sourceTree = "<group>"; };
+		2F5988C0235FC8BD00CD787F /* AristaAclTokenV6.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AristaAclTokenV6.swift; sourceTree = "<group>"; };
+		2F5988C3235FCDA300CD787F /* TestAristaIPv6.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestAristaIPv6.swift; sourceTree = "<group>"; };
 		2F5D690522E7A002002D7E41 /* FindDuplicateController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FindDuplicateController.xib; sourceTree = "<group>"; };
 		2F5D690722E7A6D8002D7E41 /* FindDuplicateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindDuplicateController.swift; sourceTree = "<group>"; };
 		2F69332522BEEB1C00634455 /* UnsupportedFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedFeatureTests.swift; sourceTree = "<group>"; };
@@ -217,6 +222,7 @@
 				2FB804F722D8F3E700F5E2A9 /* PerformanceTest.swift */,
 				2F2698A422A7784300517AC9 /* Info.plist */,
 				2F928A4722ECEA0B0030C4FF /* TestAristaIPv4.swift */,
+				2F5988C3235FCDA300CD787F /* TestAristaIPv6.swift */,
 			);
 			path = "Network Mom ACL AnalyzerTests";
 			sourceTree = "<group>";
@@ -346,6 +352,7 @@
 				2FBAA086228F613700B53113 /* MaskType.swift */,
 				2FD50F5D22D96E8C0016FC95 /* NxAclToken.swift */,
 				2F5988BD235D2D2C00CD787F /* AristaAclToken.swift */,
+				2F5988C0235FC8BD00CD787F /* AristaAclTokenV6.swift */,
 				2F2D5BDF231B0D7800139375 /* NxAclTokenV6.swift */,
 				2FCE6AA622AAFD6600E0B4D7 /* PortOperator.swift */,
 				2F32058A22CE96120013A3E8 /* ServiceType.swift */,
@@ -499,6 +506,7 @@
 				2F73920D22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
 				2F2698AF22A7799000517AC9 /* IpVersion.swift in Sources */,
 				2F2698A322A7784300517AC9 /* TestIos.swift in Sources */,
+				2F5988C2235FC8BD00CD787F /* AristaAclTokenV6.swift in Sources */,
 				2F69332622BEEB1C00634455 /* UnsupportedFeatureTests.swift in Sources */,
 				2F5988BF235D2D2C00CD787F /* AristaAclToken.swift in Sources */,
 				2FC3F4F922E90F650043F92D /* RandomAcl.swift in Sources */,
@@ -509,6 +517,7 @@
 				2F49B71522C6AC86001F0DB5 /* IpRange.swift in Sources */,
 				2FD50F5F22D96E8C0016FC95 /* NxAclToken.swift in Sources */,
 				2FFE3B6422DE370100718B4E /* TestIosXR.swift in Sources */,
+				2F5988C4235FCDA300CD787F /* TestAristaIPv6.swift in Sources */,
 				2F2398DE231CA6DB00880E82 /* TestIosXRV6.swift in Sources */,
 				2FF8F3FC22E543A1007EECFC /* AsaToken.swift in Sources */,
 				2F36628022F89C9C007A24DC /* IPv6Address+extensions.swift in Sources */,
@@ -549,6 +558,7 @@
 				2F2DEF0422FE75BF00C83EFF /* Cidr.swift in Sources */,
 				2F73920C22B6E4AE0062BC5C /* IcmpMessage.swift in Sources */,
 				2F92967422D7A97500F5A731 /* DelegateWindow.swift in Sources */,
+				2F5988C1235FC8BD00CD787F /* AristaAclTokenV6.swift in Sources */,
 				2FC3F4FB22E91A7D0043F92D /* Ipv4Prefix.swift in Sources */,
 				2F49B71422C6AC86001F0DB5 /* IpRange.swift in Sources */,
 				2F32058422CE82BA0013A3E8 /* ObjectGroupProtocol.swift in Sources */,

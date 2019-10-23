@@ -180,7 +180,7 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
                 return nil
             }
             destinationIp = tempDestinationIp
-        case .iosv6,.nxosv6,.iosxrv6:
+        case .iosv6,.nxosv6,.iosxrv6,.aristav6:
             ipVersion = .IPv6
             guard let tempSourceIp = sourceIpOutlet.stringValue.ipv6address else {
                 self.report(severity: .error, message: "Socket: Invalid source IPv6 address", delegateWindow: .ingressAnalyze)
