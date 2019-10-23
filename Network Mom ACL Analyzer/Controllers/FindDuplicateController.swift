@@ -86,6 +86,8 @@ class FindDuplicateController: NSWindowController, ErrorDelegate {
             self.deviceType = .iosxrv6
         case "IPv6 NX-OS":
             self.deviceType = .nxosv6
+        case "IPv6 Arista":
+            self.deviceType = .aristav6
         default:
             self.report(severity: .error, message: "Unable to identify device type", delegateWindow: .duplicateOutput)
             return false

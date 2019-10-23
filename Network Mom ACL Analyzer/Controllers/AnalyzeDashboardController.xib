@@ -81,6 +81,9 @@
                                                                     <menuItem title="IPv4 NX-OS" id="jeh-XN-XJk">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
+                                                                    <menuItem title="IPv4 Arista" id="rbl-jA-XFq">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    </menuItem>
                                                                     <menuItem title="IPv4/IPv6 ASA" id="hF5-FH-g3I"/>
                                                                     <menuItem title="IPv6 IOS or IOS-XE" id="NQv-hA-ClD">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
@@ -89,6 +92,9 @@
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
                                                                     <menuItem title="IPv6 NX-OS" id="7TE-sH-Aey">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    </menuItem>
+                                                                    <menuItem title="IPv6 Arista" id="vts-Im-ONw">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
                                                                 </items>
@@ -194,6 +200,9 @@
                                                                     <menuItem title="IPv4 NX-OS" id="Nsg-Jo-9Oh">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
+                                                                    <menuItem title="IPv4 Arista" id="yoj-1u-TDQ">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    </menuItem>
                                                                     <menuItem title="IPv6 IOS or IOS-XE" id="4xx-Vw-SH3">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
@@ -201,6 +210,9 @@
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
                                                                     <menuItem title="IPv6 NX-OS" id="YsG-3S-lob">
+                                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    </menuItem>
+                                                                    <menuItem title="IPv6 Arista" id="Mhb-Sa-0Vy">
                                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                                     </menuItem>
                                                                 </items>

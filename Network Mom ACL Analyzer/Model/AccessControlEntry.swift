@@ -1350,9 +1350,25 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action(_),.ipProtocol, .any, .host, .fourOctet, .cidr, .number,.name:
+                case .action(_),.ipProtocol, .any, .host, .fourOctet, .cidr:
                     reportError()
                     return nil
+                case .name(let possibleIcmpMessage):
+                    guard self.ipProtocols.first == 1, let icmpMessage = IcmpMessage(deviceType: deviceType, message: possibleIcmpMessage) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages = [icmpMessage]
+                    linePosition = .end
+                case .number(let possibleIcmpType):
+                    guard self.ipProtocols.first == 1, possibleIcmpType < 256, let icmpMessage = IcmpMessage(type: possibleIcmpType, code: nil) else {
+                        reportError()
+                        return nil
+                    }
+                    // temporarly assume icmp code is 0 and save it.  if we get a code we will rewrite
+                    // this only works if one and only one icmp message can come in on a config line
+                    self.icmpMessages = [icmpMessage]
+                    linePosition = .end
                 case .portOperator(let destPortOperator):
                     tempDestPortOperator = destPortOperator
                     linePosition = .destPortOperator
@@ -2016,9 +2032,25 @@ struct AccessControlEntry {
                 case .unsupported(let keyword):
                     reportUnsupported(keyword: keyword)
                     return nil
-                case .action(_),.ipProtocol, .any, .host, .addressV6, .cidrV6, .number,.name:
+                case .action(_),.ipProtocol, .any, .host, .addressV6, .cidrV6:
                     reportError()
                     return nil
+                case .name(let possibleIcmpMessage):
+                    guard self.ipProtocols.first == 1, let icmpMessage = IcmpMessage(deviceType: deviceType, message: possibleIcmpMessage) else {
+                        reportError()
+                        return nil
+                    }
+                    self.icmpMessages = [icmpMessage]
+                    linePosition = .end
+                case .number(let possibleIcmpType):
+                    guard self.ipProtocols.first == 1, possibleIcmpType < 256, let icmpMessage = IcmpMessage(type: possibleIcmpType, code: nil) else {
+                        reportError()
+                        return nil
+                    }
+                    // temporarly assume icmp code is 0 and save it.  if we get a code we will rewrite
+                    // this only works if one and only one icmp message can come in on a config line
+                    self.icmpMessages = [icmpMessage]
+                    linePosition = .end
                 case .portOperator(let destPortOperator):
                     tempDestPortOperator = destPortOperator
                     linePosition = .destPortOperator

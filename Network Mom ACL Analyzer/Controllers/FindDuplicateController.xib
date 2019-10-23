@@ -60,6 +60,9 @@
                                                     <menuItem title="IPv4 NX-OS" id="jeh-XN-XJk">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
+                                                    <menuItem title="IPv4 Arista" id="8pZ-it-dcG">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
                                                     <menuItem title="IPv4/IPv6 ASA" id="hF5-FH-g3I">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
@@ -70,6 +73,9 @@
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
                                                     <menuItem title="IPv6 NX-OS" id="bMd-LX-qQC">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
+                                                    <menuItem title="IPv6 Arista" id="pgf-ru-FoF">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
                                                 </items>

@@ -846,7 +846,37 @@ class AccessList {
                 continue lineLoop
             }
             
+            if deviceType == .arista && words[safe: 0] == "ip" && words[safe: 1] == "access-list" {
+            //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
+                objectName = nil
+                configurationMode = .accessListExtended
+                lastSequenceSeen = 0
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                if let aclName = words[safe: 2] {
+                    aclNames.insert(String(aclName))
+                    if aclNames.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
+                    }
+                }
+                continue lineLoop
+            }
+            
             if deviceType == .nxosv6 && words[safe: 0] == "ipv6" && words[safe: 1] == "access-list" {
+                //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
+                objectName = nil
+                configurationMode = .accessListExtended
+                lastSequenceSeen = 0
+                let words = line.split{ $0.isWhitespace }.map{ String($0)}
+                if let aclName = words[safe: 2] {
+                    aclNames.insert(String(aclName))
+                    if aclNames.count > 1 {
+                        self.delegate?.report(severity: .error, message: "ACL has inconsistent names: \(aclNames) found", delegateWindow: delegateWindow)
+                    }
+                }
+                continue lineLoop
+            }
+            
+            if deviceType == .aristav6 && words[safe: 0] == "ipv6" && words[safe: 1] == "access-list" {
                 //if line.starts(with: "ip access-list") {  // ip access-list extended case already covered
                 objectName = nil
                 configurationMode = .accessListExtended

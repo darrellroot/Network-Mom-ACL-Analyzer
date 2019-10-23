@@ -399,6 +399,12 @@
                                                 <action selector="randomAcl:" target="Voe-Tx-rLC" id="xfw-Pm-f5z"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Random IPv4 Arista ACL" id="8Xo-Jb-ffJ">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="randomAcl:" target="Voe-Tx-rLC" id="FkD-du-rq8"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem title="Random IPv4/IPv6 ASA ACL" id="Vhh-Mh-8To">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
@@ -421,6 +427,12 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="randomAcl:" target="Voe-Tx-rLC" id="lQt-Cn-yn4"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Random IPv6 Arista ACL" id="FaL-s6-Vye">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="randomAcl:" target="Voe-Tx-rLC" id="TeR-QP-KGr"/>
                                             </connections>
                                         </menuItem>
                                     </items>

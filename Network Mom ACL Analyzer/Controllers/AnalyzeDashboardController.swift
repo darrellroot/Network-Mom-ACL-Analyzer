@@ -250,6 +250,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             self.ingressDeviceType = .iosxrv6
         case "IPv6 NX-OS":
             self.ingressDeviceType = .nxosv6
+        case "IPv6 Arista":
+            self.ingressDeviceType = .aristav6
         default:
             self.report(severity: .error, message: "Unable to identify ingress device type", delegateWindow: .ingressValidation)
             return false
@@ -269,6 +271,8 @@ class AnalyzeDashboardController: NSWindowController, NSWindowDelegate, NSTextVi
             self.egressDeviceType = .iosxrv6
         case "IPv6 NX-OS":
             self.egressDeviceType = .nxosv6
+        case "IPv6 Arista":
+            self.egressDeviceType = .aristav6
         default:
             self.report(severity: .error, message: "Unable to identify egress device type", delegateWindow: .egressValidation)
             return false
