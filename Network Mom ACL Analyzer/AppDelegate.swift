@@ -71,6 +71,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             randomAclController.deviceType = .iosxr
         case "Random IPv4 NX-OS ACL":
             randomAclController.deviceType = .nxos
+        case "Random IPv4 Arista ACL":
+            randomAclController.deviceType = .arista
         case "Random IPv4/IPv6 ASA ACL":
             randomAclController.deviceType = .asa
         case "Random IPv6 IOS ACL":
@@ -79,6 +81,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             randomAclController.deviceType = .iosxrv6
         case "Random IPv6 NX-OS ACL":
             randomAclController.deviceType = .nxosv6
+        case "Random IPv6 Arista ACL":
+            randomAclController.deviceType = .aristav6
         default:
             debugPrint("Fix appdelegate.randomAcl.switch sender.title")
         }

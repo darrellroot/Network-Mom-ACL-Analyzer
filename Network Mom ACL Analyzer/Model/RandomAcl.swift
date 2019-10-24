@@ -15,37 +15,33 @@ struct RandomAcl: CustomStringConvertible {
     
     static let protocols = ["ip","tcp","udp","6","17","gre"]
     static let protocolsv6 = ["ipv6","tcp","udp","6","17","ahp"]
-
-    //var deviceType: DeviceType
-    //var aclAction: AclAction
-    //var ipProtocol: String
-    //let sourceV6cidr: Cidr  // only used for ipv6 case
-    //var sourceIp: UInt128
-    //var sourcePrefix: Ipv4Prefix
-    //var sourceDontCare: UInt
-    //let sourceLowPort: UInt
-    //let sourceHighPort: UInt
-    //var sourcePortOperator: PortOperator
-    //var destIp: UInt128
-    //let destPrefix: Ipv4Prefix
-    //let destV6cidr: Cidr // only used for ipv6 case
-    //var destDontCare: UInt
-    //let destLowPort: UInt
-    //let destHighPort: UInt
-    //var destPortOperator: PortOperator
+    static let protocolsArista = ["ahp","igmp","ip","ospf","pim","tcp","udp","vrrp"]
+    static let protocolsAristaV6 = ["icmpv6","ipv6","ospf","tcp","udp"]
     
     init(deviceType: DeviceType) {
-        
-        //self.deviceType = deviceType
-        
+                
         self.sequence = RandomAcl.staticSequence
         if deviceType == .iosxr || deviceType == .iosxrv6 {
             RandomAcl.staticSequence = RandomAcl.staticSequence + 1
         }
         
         let sourceString, destString: String
-        let ipProtocol: String
+        var ipProtocol: String
 
+        switch deviceType {
+        case .ios,.iosxr:
+            ipProtocol = RandomAcl.protocols.randomElement()!
+        case .asa:
+            ipProtocol = RandomAcl.protocols.randomElement()!  // will get rewritten for ipv6
+        case .nxos:
+            ipProtocol = RandomAcl.protocols.randomElement()!
+        case .arista:
+            ipProtocol = RandomAcl.protocolsArista.randomElement()!
+        case .iosv6,.nxosv6,.iosxrv6:
+            ipProtocol = RandomAcl.protocolsv6.randomElement()!
+        case .aristav6:
+            ipProtocol = RandomAcl.protocolsAristaV6.randomElement()!
+        }
         switch deviceType {
         
         case .ios,.iosxr:
@@ -61,7 +57,6 @@ struct RandomAcl: CustomStringConvertible {
             
             sourceString = "\(sourceIp.ipv4) \(sourcePrefix.dontCareBits) "
             destString = " \(destIp.ipv4) \(destPrefix.dontCareBits) "
-            ipProtocol = RandomAcl.protocols.randomElement()!
 
         case .asa:
             let ipVersion = IpVersion.allCases.randomElement()!
@@ -80,7 +75,7 @@ struct RandomAcl: CustomStringConvertible {
                 
                 sourceString = "\(sourceIp.ipv4) \(sourcePrefix.netmask) "
                 destString = " \(destIp.ipv4) \(destPrefix.netmask) "
-                ipProtocol = RandomAcl.protocols.randomElement()!
+                //ipProtocol = RandomAcl.protocols.randomElement()!  // rewriting
             case .IPv6:
                 let sourceV6 = UInt128.random(in: 0...UInt128.max)
                 let sourceV6Prefix = UInt.random(in: 0...128)
@@ -95,7 +90,7 @@ struct RandomAcl: CustomStringConvertible {
                 destString = " \(destV6cidr) "
                 
                 // deliberately using ipv4 protocol list for asa ipv6 pending better information
-                ipProtocol = RandomAcl.protocols.randomElement()!
+                ipProtocol = RandomAcl.protocols.randomElement()!  // rewriting
             }
         case .nxos,.arista:
             var sourceIp = UInt.random(in: 0...UInt(UInt32.max))
@@ -110,7 +105,6 @@ struct RandomAcl: CustomStringConvertible {
             
             sourceString = "\(sourceIp.ipv4)/\(sourcePrefix.rawValue) "
             destString = " \(destIp.ipv4)/\(destPrefix.rawValue) "
-            ipProtocol = RandomAcl.protocols.randomElement()!
 
         case .iosv6,.nxosv6,.iosxrv6,.aristav6:
             let sourceV6 = UInt128.random(in: 0...UInt128.max)
@@ -124,7 +118,6 @@ struct RandomAcl: CustomStringConvertible {
             let destV6String = "\(destV6.ipv6)/\(destV6Prefix)"
             let destV6cidr = Cidr(cidr: destV6String)!  //TODO get rid of !
             destString = " \(destV6cidr) "
-            ipProtocol = RandomAcl.protocolsv6.randomElement()!
         }
         let aclAction: AclAction = [.permit,.deny].randomElement()!
         
