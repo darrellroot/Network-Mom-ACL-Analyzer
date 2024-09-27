@@ -36,12 +36,12 @@ Limitations in release version 2.1:
 • Does not support service object-groups on IOS, IOS-XE, or ASA platforms.
 • Analyzes extended ACLs but not standard ACLs.
 • Discontiguous "do-not-care-bit" ACL lines are reported as errors (we consider this a feature and recommend not using 
-                                                                    discontiguous do-not-care-bits in your ACL configurations).
+  discontiguous do-not-care-bits in your ACL configurations).
 • Does not perform DNS lookup of hostnames in ACL configurations (required as part of our "no network connections
-                                                                  from this tool" security model).
+  from this tool" security model).
 • Does not analyze NAT configurations, dynamic lock-and-key ACLs, VACLs, reflexive ACLs, time-based ACLs, GSR receive
-access-control lists, CBAC, or access-lists which use keywords for router IP addresses, such as "infrastructure_ips",
-"bgp_peer", "router_ip", or "interface" (ASA).
+  access-control lists, CBAC, or access-lists which use keywords for router IP addresses, such as "infrastructure_ips",
+  "bgp_peer", "router_ip", or "interface" (ASA).
 • Does not support "common ACLs" on IOS-XR.
 • Does not analyze ACLs based on ip precedence, dscp, packet-length, ICMP message-type, or IGMP message-type.
 • Only analyzes TCP and UDP sockets to determine whether they are permitted by an ACL.
