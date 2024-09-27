@@ -1,0 +1,55 @@
+
+"Network Mom ACL Analyzer" analyzes Cisco® IOS®, IOS-XE®, IOS-XR®, NX-OS, and ASA IPv4 and IPv6 access-lists.
+It also analyzes Arista Networks® EOS® IPv4 and IPv6 access-lists. It identifies many types of syntax errors.
+It lets you specify a TCP or UDP socket and identifies ACL lines which permit or denies that traffic.
+
+"Network Mom ACL Analyzer" also finds "duplicate" ACL lines. A "duplicate" line is when an earlier line in the ACL
+matches a strict superset of a later line. The later line might be unnecessary, or the earlier line might match
+more traffic than you anticipated.
+
+Large corporations have access-lists consisting of thousands of entries. An automated tool is necessary to determine
+whether a particular network socket is already permitted by an ACL. By knowing whether a socket is already permitted,
+you may avoid adding redundant lines to your network configuration.
+
+If you've already added redundant lines to your configuration, this analyzer can help you identify them.
+
+This ACL analyzer successfully determined whether a 50,000-line IOS access-list permitted a specific tcp/udp socket in under 20 seconds.
+
+Duplicate ACL detection takes longer. The analyzer finds duplicates for a 2,000-line ACL in ten seconds. Duplicates
+for a 10,000-line ACL takes approximately 25-times longer (several minutes).
+
+Certain types of errors can cause a security incident. IOS ACLs, in particular, are vulnerable to incorrect "do not care bit"
+misconfigurations. This tool reports discontiguous or incorrectly aligned "do not care bit" configurations as errors.
+
+The analyzer includes support for network object-groups across all Cisco variants. Service/port object-groups are supported
+in NX-OS and IOS-XR.
+
+To facilitate tool testing, the ACL Analyzer includes utilities to create "random" IPv4 and IPv6 access-lists for each Cisco variant.
+
+To protect the privacy and security of your access-lists, the "Network Mom ACL Analyzer" uses Apple's "app sandbox" feature.
+This analyzer is not allowed to make or receive network connections. This analyzer is only allowed to read files the user
+selects. The analyzer is not allowed to write files outside of the application sandbox. This analyzer does not save ACL
+information between application runs.
+
+Limitations in release version 2.1:
+
+• Does not support service object-groups on IOS, IOS-XE, or ASA platforms.
+• Analyzes extended ACLs but not standard ACLs.
+• Discontiguous "do-not-care-bit" ACL lines are reported as errors (we consider this a feature and recommend not using 
+                                                                    discontiguous do-not-care-bits in your ACL configurations).
+• Does not perform DNS lookup of hostnames in ACL configurations (required as part of our "no network connections
+                                                                  from this tool" security model).
+• Does not analyze NAT configurations, dynamic lock-and-key ACLs, VACLs, reflexive ACLs, time-based ACLs, GSR receive
+access-control lists, CBAC, or access-lists which use keywords for router IP addresses, such as "infrastructure_ips",
+"bgp_peer", "router_ip", or "interface" (ASA).
+• Does not support "common ACLs" on IOS-XR.
+• Does not analyze ACLs based on ip precedence, dscp, packet-length, ICMP message-type, or IGMP message-type.
+• Only analyzes TCP and UDP sockets to determine whether they are permitted by an ACL.
+
+While Network Mom ACL Analyzer can find many types of syntax errors, it does not claim to be perfect when searching for errors,
+analyzing sockets against ACLs, or searching for duplicates. Do not base the security of your company solely on the output of this
+tool. Do not remove a reported duplicate without performing your own technical and security analysis.
+
+Cisco®, IOS®, IOS-XE®, IOS-XR® are registered trademarks of Cisco Systems, Inc. and/or its affiliates in the United States
+and certain other countries. Arisa Networks® and EOS® are registered trademarks of Arista Networks. Network Mom LLC is not
+affiliated with Cisco Systems and Arista Networks.
