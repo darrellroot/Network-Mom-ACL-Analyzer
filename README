@@ -1,3 +1,5 @@
+URGENT WARNING: Network Mom ACL Analyzer is currently (September 2024) being refactored to use a package.  It should not be trusted
+at all at this time.
 
 "Network Mom ACL Analyzer" analyzes Cisco® IOS®, IOS-XE®, IOS-XR®, NX-OS, and ASA IPv4 and IPv6 access-lists.
 It also analyzes Arista Networks® EOS® IPv4 and IPv6 access-lists. It identifies many types of syntax errors.
