@@ -1,0 +1,12 @@
+The authors of Network Mom ACL Analyzer do not want your private information and do not collect your information via the Network Mom ACL Analyzer.
+
+Network Mom ACL Analyzer uses Apple's "App Sandbox" feature and does _not_ enable incoming or outgoing network connections.
+It only allows read-only access to files which the user selects. The application does not even save ACL information between
+application runs.
+
+Network Mom ACL Analyzer uses Apple's "Hardened Runtime" feature and does _not_ enable any exceptions to the hardened runtime.
+
+These settings prevent the Network Mom ACL Analyzer from harvesting your private information.
+
+Precompiled Network Mom ACL Analyzer versions distributed via darrellroot's GitHub releases go through Apple's application
+notarization service with very restrictive app sandbox and hardened runtime settings.
